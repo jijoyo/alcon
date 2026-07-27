@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Alcon</string>
+    <string name="title_activity_main">Alcon</string>
+    <string name="package_name">com.alcon.app</string>
+    <string name="custom_url_scheme">com.alcon.app</string>
+</resources>
