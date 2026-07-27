@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 import { open, close } from './connection.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_FILE = path.join(__dirname, 'tasks.json');
-const CHAT_FILE = path.join(__dirname, 'messages.json');
+const DATA_FILE = path.join(path.dirname(__dirname), 'tasks.json');
+const CHAT_FILE = path.join(path.dirname(__dirname), 'messages.json');
 
 function migrate() {
   console.log('=== Migration: tasks.json + messages.json → SQLite ===\n');
