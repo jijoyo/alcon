@@ -1,17 +1,14 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
+import { open as openDb, get as getDb } from './db/connection.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_FILE = path.join(__dirname, 'tasks.json');
-const CHAT_FILE = path.join(__dirname, 'messages.json');
 const LOCK_TIMEOUT_MS = 10 * 60 * 1000;
 const STALE_CHECK_INTERVAL_MS = 30 * 1000;
-const CHAT_MAX_MESSAGES = 50;
 const PRESENCE_TIMEOUT_MS = 15 * 1000;
 const PRESENCE_CHECK_MS = 5 * 1000;
 
@@ -23,82 +20,29 @@ const KEYWORD_MAP = {
 
 const AGENTS = ['kali', 'vps', 'cel'];
 
-// --- Chat persistence ---
-
-function readChat() {
-  try {
-    if (!fs.existsSync(CHAT_FILE)) {
-      fs.writeFileSync(CHAT_FILE, JSON.stringify([], null, 2));
-    }
-    return JSON.parse(fs.readFileSync(CHAT_FILE, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-function writeChat(messages) {
-  try {
-    const trimmed = messages.slice(-CHAT_MAX_MESSAGES);
-    const tmp = CHAT_FILE + '.tmp';
-    fs.writeFileSync(tmp, JSON.stringify(trimmed, null, 2));
-    fs.renameSync(tmp, CHAT_FILE);
-    return true;
-  } catch (e) {
-    console.error('Error writing chat:', e.message);
-    return false;
-  }
-}
-
-// --- Agent process state (master switch) ---
-
 const agentRunning = { kali: true, vps: true, cel: false };
 
 const fastify = Fastify({ logger: true });
+
+openDb();
 
 await fastify.register(cors, {
   origin: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 });
 
-// --- Data helpers ---
-
-function readData() {
-  try {
-    if (!fs.existsSync(DATA_FILE)) {
-      fs.writeFileSync(DATA_FILE, JSON.stringify({ tasks: [], version: 0 }, null, 2));
-    }
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-  } catch (e) {
-    fastify.log.error('Error reading tasks.json:', e.message);
-    return { tasks: [], version: 0 };
-  }
-}
-
-function writeData(data) {
-  try {
-    const tmp = DATA_FILE + '.tmp';
-    fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
-    fs.renameSync(tmp, DATA_FILE);
-    return true;
-  } catch (e) {
-    fastify.log.error('Error writing tasks.json:', e.message);
-    return false;
-  }
-}
-
 function parseAgentFromText(text) {
   const tagMatch = text.match(/^@(\w+)\s/);
   if (tagMatch && AGENTS.includes(tagMatch[1])) {
     return { agent: tagMatch[1], cleanText: text.slice(tagMatch[0].length) };
   }
-  // keyword fallback
   const lower = text.toLowerCase();
   for (const [agent, keywords] of Object.entries(KEYWORD_MAP)) {
     if (keywords.some(kw => lower.includes(kw))) {
       return { agent, cleanText: text };
     }
   }
-  return { agent: 'kali', cleanText: text }; // default
+  return { agent: 'kali', cleanText: text };
 }
 
 function generateId() {
@@ -114,18 +58,25 @@ function isExpired(task) {
   return new Date(task.lock_expires_at) < new Date();
 }
 
+function formatTask(row) {
+  if (!row) return null;
+  const db = getDb();
+  const messages = db.prepare('SELECT * FROM messages WHERE task_id = ? ORDER BY timestamp ASC').all(row.id);
+  return { ...row, messages };
+}
+
 // --- Routes ---
 
 // Health check
 fastify.get('/health', async () => {
-  const data = readData();
+  const db = getDb();
+  const { count: taskCount } = db.prepare('SELECT COUNT(*) as count FROM tasks').get();
   return {
     status: 'ok',
     version: '3.0.0-enjambre',
     timestamp: now(),
     uptime: process.uptime(),
-    taskCount: data.tasks.length,
-    version_number: data.version,
+    taskCount,
     agents: agentRunning
   };
 });
@@ -138,49 +89,52 @@ fastify.post('/api/task', async (request, reply) => {
   }
 
   const { agent, cleanText } = parseAgentFromText(text.trim());
-  const data = readData();
-  const task = {
-    id: generateId(),
-    text: cleanText,
-    original_text: text.trim(),
-    status: 'pendiente',
-    assigned_to: agent,
-    lock_owner: null,
-    lock_acquired_at: null,
-    lock_expires_at: null,
-    last_heartbeat: null,
-    messages: [],
-    result: null,
-    created: now()
-  };
+  const db = getDb();
+  const id = generateId();
+  const created = now();
 
-  data.tasks.push(task);
-  data.version++;
-  writeData(data);
+  db.prepare(`
+    INSERT INTO tasks (id, text, original_text, status, assigned_to, created)
+    VALUES (?, ?, ?, 'pendiente', ?, ?)
+  `).run(id, cleanText, text.trim(), agent, created);
+
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
 
   fastify.log.info(`Task ${task.id} created for agent: ${agent}`);
-  return task;
+  return formatTask(task);
 });
 
 // List tasks
 fastify.get('/api/tasks', async (request) => {
   const { agent, status } = request.query;
-  const data = readData();
-  let tasks = data.tasks;
+  const db = getDb();
 
-  if (agent) tasks = tasks.filter(t => t.assigned_to === agent);
-  if (status) tasks = tasks.filter(t => t.status === status);
+  let sql = 'SELECT * FROM tasks';
+  const params = [];
+  const conditions = [];
 
-  return { tasks, count: tasks.length, version: data.version };
+  if (agent) { conditions.push('assigned_to = ?'); params.push(agent); }
+  if (status) { conditions.push('status = ?'); params.push(status); }
+
+  if (conditions.length > 0) {
+    sql += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  sql += ' ORDER BY created DESC';
+
+  const tasks = db.prepare(sql).all(...params);
+  const { count } = db.prepare('SELECT COUNT(*) as count FROM tasks').get();
+
+  return { tasks: tasks.map(formatTask), count, version: count };
 });
 
 // Get task detail
 fastify.get('/api/task/:id', async (request, reply) => {
   const id = Number(request.params.id);
-  const data = readData();
-  const task = data.tasks.find(t => t.id === id);
+  const db = getDb();
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   if (!task) return reply.code(404).send({ error: 'Task not found' });
-  return task;
+  return formatTask(task);
 });
 
 // Claim task (agent takes ownership)
@@ -189,13 +143,10 @@ fastify.post('/api/task/:id/claim', async (request, reply) => {
   const { owner } = request.body || {};
   if (!owner) return reply.code(400).send({ error: 'owner is required' });
 
-  const data = readData();
-  const taskIdx = data.tasks.findIndex(t => t.id === id);
-  if (taskIdx === -1) return reply.code(404).send({ error: 'Task not found' });
+  const db = getDb();
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+  if (!task) return reply.code(404).send({ error: 'Task not found' });
 
-  const task = data.tasks[taskIdx];
-
-  // Check if already claimed by someone else and lock is still valid
   if (task.status === 'en_proceso' && task.lock_owner && !isExpired(task)) {
     if (task.lock_owner !== owner) {
       return reply.code(409).send({
@@ -204,29 +155,25 @@ fastify.post('/api/task/:id/claim', async (request, reply) => {
         lock_expires_at: task.lock_expires_at
       });
     }
-    // Same owner re-claiming — extend lock
-    task.lock_expires_at = new Date(Date.now() + LOCK_TIMEOUT_MS).toISOString();
-    task.last_heartbeat = now();
-    data.version++;
-    writeData(data);
-    return task;
+    const expiresAt = new Date(Date.now() + LOCK_TIMEOUT_MS).toISOString();
+    const ts = now();
+    db.prepare('UPDATE tasks SET lock_expires_at = ?, last_heartbeat = ? WHERE id = ?')
+      .run(expiresAt, ts, id);
+    const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+    return formatTask(updated);
   }
 
-  // Claim the task
   const acquiredAt = now();
-  task.status = 'en_proceso';
-  task.assigned_to = task.assigned_to || owner;
-  task.lock_owner = owner;
-  task.lock_acquired_at = acquiredAt;
-  task.lock_expires_at = new Date(Date.now() + LOCK_TIMEOUT_MS).toISOString();
-  task.last_heartbeat = acquiredAt;
+  const expiresAt = new Date(Date.now() + LOCK_TIMEOUT_MS).toISOString();
+  db.prepare(`
+    UPDATE tasks SET status = 'en_proceso', assigned_to = COALESCE(NULLIF(assigned_to, ''), ?),
+      lock_owner = ?, lock_acquired_at = ?, lock_expires_at = ?, last_heartbeat = ?
+    WHERE id = ?
+  `).run(owner, owner, acquiredAt, expiresAt, acquiredAt, id);
 
-  data.tasks[taskIdx] = task;
-  data.version++;
-  writeData(data);
-
+  const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   fastify.log.info(`Task ${id} claimed by ${owner}`);
-  return task;
+  return formatTask(updated);
 });
 
 // Heartbeat (extend lock)
@@ -235,23 +182,20 @@ fastify.post('/api/task/:id/heartbeat', async (request, reply) => {
   const { owner } = request.body || {};
   if (!owner) return reply.code(400).send({ error: 'owner is required' });
 
-  const data = readData();
-  const taskIdx = data.tasks.findIndex(t => t.id === id);
-  if (taskIdx === -1) return reply.code(404).send({ error: 'Task not found' });
-
-  const task = data.tasks[taskIdx];
+  const db = getDb();
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+  if (!task) return reply.code(404).send({ error: 'Task not found' });
 
   if (task.lock_owner !== owner) {
     return reply.code(403).send({ error: 'Not the lock owner' });
   }
 
-  task.last_heartbeat = now();
-  task.lock_expires_at = new Date(Date.now() + LOCK_TIMEOUT_MS).toISOString();
-  data.tasks[taskIdx] = task;
-  data.version++;
-  writeData(data);
+  const expiresAt = new Date(Date.now() + LOCK_TIMEOUT_MS).toISOString();
+  const ts = now();
+  db.prepare('UPDATE tasks SET last_heartbeat = ?, lock_expires_at = ? WHERE id = ?')
+    .run(ts, expiresAt, id);
 
-  return { ok: true, lock_expires_at: task.lock_expires_at };
+  return { ok: true, lock_expires_at: expiresAt };
 });
 
 // Send message (append-only)
@@ -260,9 +204,9 @@ fastify.post('/api/task/:id/message', async (request, reply) => {
   const { from, text } = request.body || {};
   if (!from || !text) return reply.code(400).send({ error: 'from and text are required' });
 
-  const data = readData();
-  const taskIdx = data.tasks.findIndex(t => t.id === id);
-  if (taskIdx === -1) return reply.code(404).send({ error: 'Task not found' });
+  const db = getDb();
+  const task = db.prepare('SELECT id FROM tasks WHERE id = ?').get(id);
+  if (!task) return reply.code(404).send({ error: 'Task not found' });
 
   const message = {
     id: crypto.randomUUID(),
@@ -271,9 +215,8 @@ fastify.post('/api/task/:id/message', async (request, reply) => {
     timestamp: now()
   };
 
-  data.tasks[taskIdx].messages.push(message);
-  data.version++;
-  writeData(data);
+  db.prepare('INSERT INTO messages (id, task_id, from_agent, text, timestamp) VALUES (?, ?, ?, ?, ?)')
+    .run(message.id, id, from, text, message.timestamp);
 
   return message;
 });
@@ -281,11 +224,12 @@ fastify.post('/api/task/:id/message', async (request, reply) => {
 // Get messages for a task
 fastify.get('/api/task/:id/messages', async (request, reply) => {
   const id = Number(request.params.id);
-  const data = readData();
-  const task = data.tasks.find(t => t.id === id);
+  const db = getDb();
+  const task = db.prepare('SELECT id FROM tasks WHERE id = ?').get(id);
   if (!task) return reply.code(404).send({ error: 'Task not found' });
 
-  return { messages: task.messages, count: task.messages.length };
+  const messages = db.prepare('SELECT * FROM messages WHERE task_id = ? ORDER BY timestamp ASC').all(id);
+  return { messages, count: messages.length };
 });
 
 // Complete task
@@ -294,30 +238,25 @@ fastify.post('/api/task/:id/complete', async (request, reply) => {
   const { owner, result } = request.body || {};
   if (!owner) return reply.code(400).send({ error: 'owner is required' });
 
-  const data = readData();
-  const taskIdx = data.tasks.findIndex(t => t.id === id);
-  if (taskIdx === -1) return reply.code(404).send({ error: 'Task not found' });
-
-  const task = data.tasks[taskIdx];
+  const db = getDb();
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+  if (!task) return reply.code(404).send({ error: 'Task not found' });
 
   if (task.lock_owner && task.lock_owner !== owner) {
     return reply.code(403).send({ error: 'Not the lock owner' });
   }
 
-  task.status = 'hecho';
-  task.result = result || null;
-  task.lock_owner = null;
-  task.lock_acquired_at = null;
-  task.lock_expires_at = null;
-  task.last_heartbeat = null;
-  task.completed_at = now();
+  const ts = now();
+  db.prepare(`
+    UPDATE tasks SET status = 'hecho', result = ?,
+      lock_owner = NULL, lock_acquired_at = NULL, lock_expires_at = NULL,
+      last_heartbeat = NULL, completed_at = ?
+    WHERE id = ?
+  `).run(result || null, ts, id);
 
-  data.tasks[taskIdx] = task;
-  data.version++;
-  writeData(data);
-
+  const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   fastify.log.info(`Task ${id} completed by ${owner}`);
-  return task;
+  return formatTask(updated);
 });
 
 // Error on task
@@ -326,35 +265,31 @@ fastify.post('/api/task/:id/error', async (request, reply) => {
   const { owner, error: errorMsg } = request.body || {};
   if (!owner) return reply.code(400).send({ error: 'owner is required' });
 
-  const data = readData();
-  const taskIdx = data.tasks.findIndex(t => t.id === id);
-  if (taskIdx === -1) return reply.code(404).send({ error: 'Task not found' });
-
-  const task = data.tasks[taskIdx];
+  const db = getDb();
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+  if (!task) return reply.code(404).send({ error: 'Task not found' });
 
   if (task.lock_owner && task.lock_owner !== owner) {
     return reply.code(403).send({ error: 'Not the lock owner' });
   }
 
-  task.status = 'error';
-  task.result = errorMsg || 'Unknown error';
-  task.lock_owner = null;
-  task.lock_acquired_at = null;
-  task.lock_expires_at = null;
-  task.last_heartbeat = null;
-  task.error_at = now();
+  const ts = now();
+  db.prepare(`
+    UPDATE tasks SET status = 'error', result = ?,
+      lock_owner = NULL, lock_acquired_at = NULL, lock_expires_at = NULL,
+      last_heartbeat = NULL, error_at = ?
+    WHERE id = ?
+  `).run(errorMsg || 'Unknown error', ts, id);
 
-  data.tasks[taskIdx] = task;
-  data.version++;
-  writeData(data);
-
-  return task;
+  const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+  fastify.log.info(`Task ${id} errored by ${owner}`);
+  return formatTask(updated);
 });
 
 // System status
 fastify.get('/api/status', async () => {
-  const data = readData();
-  const tasks = data.tasks;
+  const db = getDb();
+  const tasks = db.prepare('SELECT * FROM tasks').all();
 
   const agentStatus = {};
   for (const agent of AGENTS) {
@@ -384,7 +319,7 @@ fastify.get('/api/status', async () => {
 
   return {
     total_tasks: tasks.length,
-    version: data.version,
+    version: tasks.length,
     agents: agentStatus,
     timestamp: now()
   };
@@ -445,35 +380,26 @@ fastify.post('/api/agent/:name/stop', async (request, reply) => {
 
 // --- Stale lock reclaim (runs every 30s) ---
 setInterval(() => {
-  const data = readData();
-  let reclaimed = 0;
+  const db = getDb();
+  const nowMs = Date.now();
+  const staleTasks = db.prepare("SELECT * FROM tasks WHERE status = 'en_proceso' AND lock_expires_at IS NOT NULL AND lock_expires_at < ?").all(now());
 
-  for (let i = 0; i < data.tasks.length; i++) {
-    const task = data.tasks[i];
-    if (task.status === 'en_proceso' && task.lock_owner && isExpired(task)) {
-      fastify.log.warn(`[STALE] Reclaiming task ${task.id} from ${task.lock_owner} (expired at ${task.lock_expires_at})`);
+  for (const task of staleTasks) {
+    fastify.log.warn(`[STALE] Reclaiming task ${task.id} from ${task.lock_owner} (expired at ${task.lock_expires_at})`);
 
-      // Add system message about stale reclaim
-      task.messages.push({
-        id: crypto.randomUUID(),
-        from: 'system',
-        text: `Tarea reclaimada: lock expirado de ${task.lock_owner}. Estado cambiado a pendiente.`,
-        timestamp: now()
-      });
+    db.prepare(`
+      INSERT INTO messages (id, task_id, from_agent, text, timestamp)
+      VALUES (?, ?, 'system', ?, ?)
+    `).run(crypto.randomUUID(), task.id, `Tarea reclaimada: lock expirado de ${task.lock_owner}. Estado cambiado a pendiente.`, now());
 
-      task.status = 'pendiente';
-      task.lock_owner = null;
-      task.lock_acquired_at = null;
-      task.lock_expires_at = null;
-      task.last_heartbeat = null;
-      reclaimed++;
-    }
-  }
+    db.prepare(`
+      UPDATE tasks SET status = 'pendiente',
+        lock_owner = NULL, lock_acquired_at = NULL,
+        lock_expires_at = NULL, last_heartbeat = NULL
+      WHERE id = ?
+    `).run(task.id);
 
-  if (reclaimed > 0) {
-    data.version++;
-    writeData(data);
-    fastify.log.info(`[STALE] Reclaimed ${reclaimed} stale task(s)`);
+    fastify.log.info(`[STALE] Reclaimed task ${task.id}`);
   }
 }, STALE_CHECK_INTERVAL_MS);
 
@@ -519,7 +445,8 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
       });
 
       // Send chat history to new client
-      const history = readChat();
+      const db = getDb();
+      const history = db.prepare('SELECT * FROM chat ORDER BY timestamp ASC').all();
       socket.emit('chat:history', history);
 
       // Broadcast updated presence to all
@@ -538,10 +465,10 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
         timestamp: now()
       };
 
-      // Persist
-      const messages = readChat();
-      messages.push(message);
-      writeChat(messages);
+      // Persist in SQLite
+      const db = getDb();
+      db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)')
+        .run(message.id, from, text, message.timestamp);
 
       // Broadcast to all
       chatNs.emit('chat:message', message);
