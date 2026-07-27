@@ -27,7 +27,14 @@ alcon/
 - Sin autenticacion — es un sistema de confianza interna del enjambre
 
 ## Agentes
-- **Kali** — PC principal (desarrollo)
+- **Kali** — PC principal (desarrollo) — modo espejo/respaldo
 - **Mimo** — Cel (Termux, supervisión)
-- **VPS** — Oracle ARM (ejecucion de server + agents)
-- **Reina** — Debian (desarrollo pesado, futuro)
+- **VPS** — Oracle ARM (100.102.63.30, ejecucion de server + agents)
+- **Reina** — Debian forja (100.121.64.26, desarrollo pesado) — PRINCIPAL ACTIVA
+
+## Infra actual (post-migración Kali→Debian)
+- SSH GitHub: ed25519 key en forja, autenticando como jijoyo
+- Tailscale: forja=100.121.64.26, VPS=100.102.63.30, kali=100.103.82.104
+- alcon server: corriendo en VPS :3003
+- Ollama: forja tiene qwen2.5-coder:7b + nomic-embed-text
+- Repo local: ~/Documentos/alcon/ (clonado de GitHub)
