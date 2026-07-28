@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS tasks (
   result TEXT,
   created TEXT NOT NULL DEFAULT (datetime('now')),
   completed_at TEXT,
-  error_at TEXT
+  error_at TEXT,
+  stage TEXT DEFAULT 'backlog',
+  stage_updated_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS messages (
@@ -44,3 +46,12 @@ CREATE TABLE IF NOT EXISTS agents (
 );
 
 INSERT OR IGNORE INTO agents (name, running) VALUES ('kali', 1), ('vps', 1), ('cel', 0);
+
+CREATE TABLE IF NOT EXISTS stage_log (
+  id TEXT PRIMARY KEY,
+  task_id INTEGER,
+  from_stage TEXT,
+  to_stage TEXT,
+  by_agent TEXT,
+  timestamp TEXT
+);
