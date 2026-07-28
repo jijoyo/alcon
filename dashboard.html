@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f23">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<title>Alcon 🐦</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f0f23;color:#e0e0e0;padding:16px;max-width:600px;margin:0 auto;min-height:100vh}
+.header{text-align:center;padding:20px 0;border-bottom:1px solid #1a1a3e}
+.header h1{font-size:28px;margin-bottom:8px}
+.status-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.status-dot.vivo{background:#00e676;box-shadow:0 0 8px #00e676}
+.status-dot.muerto{background:#ff1744;box-shadow:0 0 8px #ff1744}
+.card{background:#1a1a3e;border-radius:12px;padding:16px;margin:12px 0}
+.card h2{font-size:16px;color:#90caf9;margin-bottom:12px;border-bottom:1px solid #2a2a5e;padding-bottom:8px}
+input[type=text]{width:100%;padding:14px;border:2px solid #2a2a5e;border-radius:8px;background:#0d0d1f;color:#fff;font-size:16px;margin-bottom:8px}
+input:focus{outline:none;border-color:#42a5f5}
+button{padding:12px 24px;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:#42a5f5;color:#fff;width:100%}
+.btn-primary:hover{background:#1e88e5}
+.btn-danger{background:#ff1744;color:#fff;margin:4px}
+.btn-secondary{background:#37474f;color:#fff;margin:4px}
+.btn-small{padding:8px 16px;font-size:13px}
+.task-item{padding:10px;margin:6px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.task-pendiente{background:#1b2a1b;border-left:3px solid #ff9800}
+.task-hecho{background:#1a2a1a;border-left:3px solid #00e676;opacity:0.7}
+.task-error{background:#2a1a1a;border-left:3px solid #ff1744}
+.task-text{flex:1;margin-right:8px}
+.task-status{font-size:12px;padding:4px 8px;border-radius:12px;background:#0d0d1f}
+.log-line{font-family:'Courier New',monospace;font-size:12px;padding:3px 0;color:#80cbc4;border-bottom:1px solid #1a1a3e}
+.monitor{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.monitor-item{background:#0d0d1f;padding:10px;border-radius:8px;text-align:center}
+.monitor-item .value{font-size:20px;font-weight:700;color:#42a5f5}
+.monitor-item .label{font-size:11px;color:#78909c;margin-top:4px}
+.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
+.kali-status{text-align:center;padding:8px;border-radius:8px;margin-top:8px;font-size:14px}
+.kali-vivo{background:#1b2a1b;color:#00e676}
+.kali-muerto{background:#2a1a1a;color:#ff1744}
+.empty{text-align:center;color:#546e7a;padding:20px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Alcon 🐦</h1>
+  <div id="statusHeader">
+    <span class="status-dot muerto" id="statusDot"></span>
+    <span id="statusText">Conectando...</span>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Enviar tarea</h2>
+  <input type="text" id="taskInput" placeholder="¿Qué quieres que haga Alcon?" onkeydown="if(event.key==='Enter')sendTask()">
+  <button class="btn-primary" onclick="sendTask()">Enviar a Alcon</button>
+</div>
+
+<div class="card">
+  <h2>Cola de tareas</h2>
+  <div id="tasksList"><div class="empty">Cargando...</div></div>
+</div>
+
+<div class="card">
+  <h2>Monitoreo</h2>
+  <div class="monitor" id="monitor">
+    <div class="monitor-item"><div class="value">-</div><div class="label">CPU</div></div>
+    <div class="monitor-item"><div class="value">-</div><div class="label">RAM</div></div>
+    <div class="monitor-item"><div class="value">-</div><div class="label">Uptime</div></div>
+    <div class="monitor-item"><div class="value">-</div><div class="label">Disco</div></div>
+  </div>
+  <div id="kaliBox" class="kali-status kali-muerto">Kali: verificando...</div>
+</div>
+
+<div class="card">
+  <h2>Logs en vivo</h2>
+  <div id="logsBox" style="max-height:300px;overflow-y:auto"></div>
+</div>
+
+<div class="actions">
+  <button class="btn-danger btn-small" onclick="apiCall('/api/restart','Reiniciando Alcon...')">Reiniciar</button>
+  <button class="btn-secondary btn-small" onclick="apiCall('/api/clear-logs','Logs limpiados')">Limpiar logs</button>
+  <button class="btn-secondary btn-small" onclick="apiCall('/api/backup','Backup creado')">Backup</button>
+</div>
+
+<script>
+const API = window.location.origin;
+
+async function fetchStatus() {
+  try {
+    const r = await fetch(API + '/api/status');
+    const d = await r.json();
+    document.getElementById('statusDot').className = 'status-dot ' + (d.alive ? 'vivo' : 'muerto');
+    document.getElementById('statusText').textContent = d.alive ? 'VIVO' : 'MUERTO';
+    if (d.system) {
+      const m = document.getElementById('monitor');
+      m.innerHTML = `
+        <div class="monitor-item"><div class="value">${d.system.cpu.load[0].toFixed(1)}</div><div class="label">CPU load</div></div>
+        <div class="monitor-item"><div class="value">${d.system.memory.pct}%</div><div class="label">RAM</div></div>
+        <div class="monitor-item"><div class="value">${Math.floor(d.system.uptime/3600)}h</div><div class="label">Uptime</div></div>
+        <div class="monitor-item"><div class="value">${d.system.disk.split(/\s+/)[4] || '-'}</div><div class="label">Disco</div></div>`;
+    }
+    if (d.kali) {
+      const kb = document.getElementById('kaliBox');
+      if (d.kali.alive) {
+        kb.className = 'kali-status kali-vivo';
+        kb.textContent = `Kali: VIVO (hace ${d.kali.secondsAgo}s)`;
+      } else {
+        kb.className = 'kali-status kali-muerto';
+        kb.textContent = d.kali.lastPing ? `Kali: MUERTO (último: ${d.kali.secondsAgo}s atrás)` : 'Kali: SIN PING';
+      }
+    }
+  } catch { document.getElementById('statusText').textContent = 'Error de conexión'; }
+}
+
+async function fetchTasks() {
+  try {
+    const r = await fetch(API + '/api/tasks');
+    const tasks = await r.json();
+    const el = document.getElementById('tasksList');
+    if (!tasks.length) { el.innerHTML = '<div class="empty">Sin tareas</div>'; return; }
+    el.innerHTML = tasks.slice().reverse().slice(0, 20).map(t => `
+      <div class="task-item task-${t.status}">
+        <span class="task-text">${escHtml(t.text)}</span>
+        <span class="task-status">${t.status}</span>
+      </div>`).join('');
+  } catch {}
+}
+
+async function fetchLogs() {
+  try {
+    const r = await fetch(API + '/api/logs');
+    const d = await r.json();
+    const el = document.getElementById('logsBox');
+    el.innerHTML = (d.lines || []).map(l => `<div class="log-line">${escHtml(l)}</div>`).join('');
+    el.scrollTop = el.scrollHeight;
+  } catch {}
+}
+
+async function sendTask() {
+  const input = document.getElementById('taskInput');
+  const text = input.value.trim();
+  if (!text) return;
+  try {
+    await fetch(API + '/api/task', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({text}) });
+    input.value = '';
+    fetchTasks();
+    fetchLogs();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function apiCall(endpoint, msg) {
+  try {
+    await fetch(API + endpoint, { method: 'POST' });
+    alert(msg);
+    fetchLogs();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+fetchStatus(); fetchTasks(); fetchLogs();
+setInterval(fetchStatus, 3000);
+setInterval(fetchTasks, 5000);
+setInterval(fetchLogs, 3000);
+</script>
+</body>
+</html>

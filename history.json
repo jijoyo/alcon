@@ -1,0 +1,4499 @@
+[
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:08:14.649Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:09:14.852Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:10:15.271Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:11:14.816Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:12:14.874Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:13:14.926Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:14:14.974Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:15:15.273Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:16:15.081Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:17:17.369Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:18:15.198Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:19:15.429Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:20:15.567Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:21:15.376Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:22:15.433Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:23:15.977Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:24:15.545Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:25:15.828Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:26:15.634Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:27:15.827Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:28:15.893Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:29:17.959Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:30:15.938Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:31:16.469Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:32:21.529Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:33:16.008Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:34:18.254Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:35:16.204Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:36:16.154Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:37:18.097Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:38:17.808Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:39:20.329Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:40:16.975Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:41:16.994Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:42:20.672Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:43:17.365Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:44:17.979Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:45:20.045Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:46:23.666Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:47:25.936Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:48:18.432Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:49:19.482Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:51:18.592Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:52:21.048Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:53:18.576Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:54:19.142Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:55:17.386Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:56:18.055Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:57:18.966Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:58:23.017Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T07:59:27.472Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:00:26.150Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:01:21.673Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:02:21.670Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:03:23.073Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:04:18.264Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:05:18.760Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:06:19.651Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:07:18.528Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:08:27.403Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:09:19.619Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:10:19.835Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:11:19.626Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:12:19.607Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:13:18.612Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:14:19.235Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:15:18.760Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:16:18.477Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:17:18.370Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:18:18.575Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:19:18.664Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:20:20.919Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:21:18.632Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:22:18.913Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:23:19.696Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:24:20.364Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:25:20.490Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:26:18.870Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:27:22.824Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:28:19.015Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:29:19.222Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:30:21.349Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:31:21.220Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:32:19.222Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:33:19.117Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:34:21.558Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:35:19.474Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:36:21.614Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:37:21.510Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:38:21.288Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:39:19.264Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:40:19.499Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:41:19.365Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:42:19.608Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:43:19.595Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:44:21.770Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:45:19.721Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:46:19.684Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:47:19.744Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:48:21.126Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:49:22.552Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:50:20.427Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:51:20.848Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:52:20.364Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:53:20.636Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:54:22.267Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:55:22.360Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:56:20.149Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:57:20.362Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:58:20.482Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T08:59:20.372Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:01:20.506Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:02:20.221Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:03:20.504Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:04:20.403Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:05:20.784Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:06:20.533Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:07:20.480Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:08:20.760Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:09:20.770Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:10:20.638Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:11:21.030Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:12:20.727Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:13:20.856Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:14:20.806Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:15:21.086Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:16:21.238Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:17:20.976Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:18:20.983Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:19:21.116Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:20:21.081Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:21:21.457Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:22:21.187Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:39:24.474Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:40:26.477Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:41:24.360Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:42:22.366Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:43:22.412Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:44:22.736Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:45:22.519Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:46:22.721Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:47:22.621Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:48:22.841Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:49:22.961Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:50:22.780Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:51:22.978Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:52:23.040Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-26T09:53:23.112Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:33:44.962Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:34:42.743Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:35:43.105Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:36:45.028Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:37:40.845Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:38:43.202Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:39:42.999Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:40:41.031Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:41:41.277Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:42:41.105Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:43:41.477Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:44:41.215Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:45:41.236Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:46:41.418Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:47:41.350Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:48:41.680Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:49:41.440Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:50:41.575Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:51:41.543Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:52:41.771Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:53:41.953Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:54:41.722Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:55:42.040Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:56:41.862Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:57:41.859Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:58:42.204Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T15:59:41.991Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:00:42.022Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:01:42.285Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:02:42.903Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:03:42.294Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:04:42.233Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:05:42.291Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:06:46.683Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:07:46.324Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:08:42.398Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:09:42.329Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:10:44.749Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:11:44.502Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:12:42.496Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:13:46.815Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:14:42.570Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:15:42.782Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:16:42.907Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:17:42.756Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:18:43.034Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:19:42.894Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:20:43.173Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:21:47.293Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:22:43.116Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:23:44.906Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:24:43.211Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:25:43.243Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:26:43.421Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:27:43.332Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:28:43.674Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:29:43.457Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:30:43.505Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:31:43.556Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:32:43.612Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:33:43.923Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:34:43.740Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:35:43.767Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:36:44.008Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:37:43.886Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:38:44.157Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:39:43.970Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:40:48.265Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:41:46.065Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:42:46.362Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:43:44.258Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:44:44.232Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:45:44.469Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:46:44.325Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:47:44.383Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:48:44.720Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:49:44.483Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:50:44.749Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:51:44.594Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:52:44.630Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:53:44.988Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:54:46.988Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:55:44.809Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:56:44.850Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:57:44.906Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:58:45.259Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T16:59:47.250Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:00:45.091Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:01:49.434Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:02:45.189Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:03:47.469Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:05:45.491Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:06:45.464Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:07:45.429Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:08:45.697Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:09:46.239Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:10:45.633Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:11:45.910Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:12:45.700Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:13:46.099Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:14:45.803Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:15:45.869Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:16:46.143Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:17:45.973Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:18:48.475Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:19:46.084Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:20:48.464Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:21:46.200Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:22:46.263Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:23:46.627Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:24:46.355Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:25:46.667Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:26:46.467Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:27:46.753Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:28:50.861Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:29:46.587Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:30:46.776Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:31:46.733Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:32:49.277Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:33:46.892Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:34:46.905Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:35:46.894Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:36:47.210Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:37:47.028Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:38:47.347Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:39:49.338Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:40:47.154Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:41:47.231Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:42:47.284Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:43:47.623Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:44:48.186Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:45:47.492Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:46:47.475Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:47:47.765Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:48:47.909Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:49:48.353Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:50:47.683Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:51:47.751Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:52:52.152Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:53:47.930Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:54:50.448Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:55:47.978Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:56:48.010Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:57:47.970Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:58:48.393Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T17:59:48.168Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:00:48.193Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:01:48.328Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:02:48.289Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:03:48.642Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:04:48.390Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:05:48.456Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:06:48.512Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:07:48.562Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:08:48.903Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:09:48.683Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T18:10:48.736Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:38:49.810Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:39:49.935Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:40:47.544Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:41:51.907Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:42:47.624Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:43:50.052Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:44:47.776Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:45:47.790Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:46:49.777Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:47:48.191Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:48:48.085Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:49:48.834Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:50:48.372Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:51:48.175Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:52:48.803Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:53:49.772Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:54:50.477Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:55:48.696Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:56:50.622Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:57:48.461Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:58:50.833Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T19:59:50.594Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:00:50.558Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:01:51.298Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:02:48.772Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:03:48.998Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:04:48.618Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:05:49.033Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:06:49.157Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:07:49.407Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:08:49.552Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:09:49.050Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:10:49.103Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:11:49.435Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:12:48.939Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:13:49.329Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:14:49.114Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:15:53.350Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:16:49.467Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:17:51.843Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:18:49.351Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:19:51.348Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:20:49.380Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:21:49.428Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:22:49.489Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:23:49.835Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:24:49.700Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:25:50.285Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:26:51.769Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:27:49.720Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:28:50.031Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:29:50.628Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:30:49.941Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:31:49.963Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:32:57.226Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:33:52.182Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:34:54.981Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:35:57.601Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:36:50.227Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:37:50.465Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:38:50.547Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:39:50.793Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:40:50.517Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:41:50.447Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:42:50.711Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:43:50.835Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:44:50.654Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:45:50.668Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:46:50.956Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:47:51.045Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:48:55.161Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:49:50.979Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:50:51.014Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:51:53.177Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:52:51.007Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:53:51.328Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:54:51.123Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:55:55.534Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:56:53.266Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:57:52.215Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:58:51.731Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T20:59:55.821Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:00:51.492Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:01:51.463Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:02:51.474Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:03:53.916Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:04:51.608Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:05:51.842Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:06:53.190Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:07:51.769Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:08:52.087Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:09:51.904Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:10:54.125Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:11:51.968Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:12:56.432Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:13:52.158Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:14:54.304Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:15:52.149Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:16:52.785Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:17:53.096Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:18:52.654Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:19:52.502Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:20:52.841Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:21:52.453Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:22:53.066Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:23:53.251Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:24:52.890Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:25:52.672Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:26:52.714Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:27:55.220Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:28:52.927Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:29:57.139Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:30:53.099Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:31:53.723Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:32:53.136Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:33:53.435Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:34:53.094Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:35:53.471Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:36:53.692Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:37:53.294Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:38:57.558Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:39:54.978Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:40:53.677Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:41:54.535Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:42:53.560Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:43:53.796Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:44:53.652Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:45:53.875Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:46:53.761Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:47:53.815Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:48:58.095Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:49:55.921Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:50:56.184Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:51:54.244Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:52:56.279Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:53:54.175Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:54:54.189Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:55:54.236Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:56:54.487Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:57:54.348Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:58:54.797Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T21:59:58.699Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:00:54.540Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:01:54.562Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:02:54.798Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:03:55.117Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:04:56.741Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:05:58.969Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:06:54.807Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:07:54.828Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:08:55.160Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:09:54.926Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:10:55.075Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:11:59.318Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:12:55.087Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:13:59.451Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:14:57.218Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:15:55.236Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:16:55.467Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:17:59.547Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:18:57.465Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:19:55.782Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:20:55.489Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:21:56.063Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:22:55.590Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:23:55.831Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:24:59.920Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:25:59.823Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:26:55.918Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:27:56.608Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:28:57.036Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:29:55.950Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:30:56.239Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:31:56.085Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:33:00.362Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:33:56.238Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:34:56.702Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:35:57.171Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:36:58.529Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:37:56.378Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:39:00.910Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:39:56.863Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:40:57.885Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:41:56.568Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:42:56.821Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:43:56.895Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:44:56.732Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:45:57.938Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:46:56.922Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:47:56.919Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:48:57.189Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:49:59.326Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:51:01.294Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {
+      "nodo": "kali",
+      "vivo": true
+    },
+    "timestamp": "2026-07-27T22:51:57.388Z"
+  },
+  {
+    "endpoint": "POST /api/ping",
+    "ip": "127.0.0.1",
+    "data": {},
+    "timestamp": "2026-07-28T08:12:42.431Z"
+  }
+]

@@ -1,0 +1,57 @@
+-- Alcon Database Schema (SQLite WAL)
+-- Migration from tasks.json + messages.json to SQLite
+
+PRAGMA journal_mode = WAL;
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS tasks (
+  id INTEGER PRIMARY KEY,
+  text TEXT NOT NULL,
+  original_text TEXT,
+  status TEXT NOT NULL DEFAULT 'pendiente' CHECK(status IN ('pendiente','en_proceso','hecho','error')),
+  assigned_to TEXT,
+  lock_owner TEXT,
+  lock_acquired_at TEXT,
+  lock_expires_at TEXT,
+  last_heartbeat TEXT,
+  result TEXT,
+  created TEXT NOT NULL DEFAULT (datetime('now')),
+  completed_at TEXT,
+  error_at TEXT,
+  stage TEXT DEFAULT 'backlog',
+  stage_updated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id TEXT PRIMARY KEY,
+  task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  from_agent TEXT NOT NULL,
+  text TEXT NOT NULL,
+  timestamp TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_messages_task_id ON messages(task_id);
+
+CREATE TABLE IF NOT EXISTS chat (
+  id TEXT PRIMARY KEY,
+  from_agent TEXT NOT NULL,
+  text TEXT NOT NULL,
+  timestamp TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS agents (
+  name TEXT PRIMARY KEY,
+  running INTEGER NOT NULL DEFAULT 0,
+  last_seen TEXT
+);
+
+INSERT OR IGNORE INTO agents (name, running) VALUES ('kali', 1), ('vps', 1), ('cel', 0);
+
+CREATE TABLE IF NOT EXISTS stage_log (
+  id TEXT PRIMARY KEY,
+  task_id INTEGER,
+  from_stage TEXT,
+  to_stage TEXT,
+  by_agent TEXT,
+  timestamp TEXT
+);

@@ -1,0 +1,15 @@
+node_modules/
+*.log
+*.bak
+*.fixbak
+tasks.json
+server/tasks.json
+*.db
+*.db-shm
+*.db-wal
+logs/
+pwa/dist/
+server/alcon.db
+server/db/alcon.db
+server/db/alcon.db-shm
+server/db/alcon.db-wal
