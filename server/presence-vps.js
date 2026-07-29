@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-const URL = 'http://100.102.63.30:3003/enjambre';
+const URL = 'http://100.102.63.30:3002/enjambre';
 const AGENT = 'vps';
 const s = io(URL, { transports: ['websocket','polling'] });
 
