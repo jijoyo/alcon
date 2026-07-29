@@ -4,12 +4,13 @@ import { getSocket, onPresenceUpdate } from '../lib/socket';
 
 const BASE = import.meta.env.VITE_API_URL || '';
 
-const AGENTS = ['kali', 'vps', 'cel'];
+const AGENTS = ['kali', 'vps', 'cel', 'debian'];
 
 const AGENT_COLORS: Record<string, string> = {
   kali: 'text-blue-400',
   vps: 'text-emerald-400',
-  cel: 'text-purple-400'
+  cel: 'text-purple-400',
+  debian: 'text-amber-400'
 };
 
 export function InterruptorMaestro() {

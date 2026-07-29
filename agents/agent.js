@@ -24,9 +24,23 @@ function connectSocket() {
     reconnectionAttempts: Infinity
   });
 
+  let heartbeatInterval = null;
+
   socket.on('connect', () => {
     log(`Socket connected: ${socket.id}`);
     socket.emit('chat:join', { name: AGENT_NAME });
+    if (!heartbeatInterval) {
+      heartbeatInterval = setInterval(() => socket.emit('chat:heartbeat'), 5000);
+    }
+  });
+
+  socket.on('chat:message', (msg) => {
+    if (msg.from === AGENT_NAME) return;
+    const mention = `@${AGENT_NAME}`;
+    if (msg.text.includes(mention)) {
+      log(`[CHAT] Mentioned by ${msg.from}: ${msg.text.slice(0, 80)}`);
+      socket.emit('chat:message', { from: AGENT_NAME, text: 'recibido' });
+    }
   });
 
   socket.on('agent:direct', async (msg) => {
@@ -53,21 +67,28 @@ function connectSocket() {
     // Execute via opencode
     try {
       log(`[OPENCODE] Running: ${msg.text}`);
+      socket.emit('typing:start');
       const result = await execa(OPENCODE_BIN, ['run', '--model', 'opencode/mimo-v2.5-free', msg.text], {
         cwd: WORKDIR,
         timeout: 300_000
       });
       const output = result.stdout || '(sin output)';
+      socket.emit('typing:stop');
       socket.emit('chat:message', { from: AGENT_NAME, text: output.slice(0, 2000) });
       log(`[OPENCODE] Done (${output.length} chars)`);
     } catch (e) {
       log(`[OPENCODE] Error: ${e.message}`);
+      socket.emit('typing:stop');
       socket.emit('chat:message', { from: AGENT_NAME, text: `Error: ${e.message}` });
     }
   });
 
   socket.on('disconnect', (reason) => {
     log(`Socket disconnected: ${reason}`);
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+      heartbeatInterval = null;
+    }
   });
 
   socket.on('connect_error', (err) => {

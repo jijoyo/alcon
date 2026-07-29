@@ -567,14 +567,14 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
 });
 
 function broadcastPresence(ns) {
-  const entries = [];
+  const byName = new Map();
   for (const [, p] of presence) {
-    entries.push({ name: p.name, status: p.status, typing: p.typing });
+    byName.set(p.name, { name: p.name, status: p.status, typing: p.typing });
   }
   for (const agent of AGENTS) {
-    if (!entries.find(e => e.name === agent)) {
-      entries.push({ name: agent, status: agentRunning[agent] ? 'idle' : 'muerto', typing: false });
+    if (!byName.has(agent)) {
+      byName.set(agent, { name: agent, status: agentRunning[agent] ? 'idle' : 'muerto', typing: false });
     }
   }
-  ns.emit('presence:update', { peers: entries });
+  ns.emit('presence:update', { peers: Array.from(byName.values()) });
 }
