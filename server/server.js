@@ -37,11 +37,12 @@ function regressStage(current) { return REVERSE_TRANSITIONS[current] || null; }
 const KEYWORD_MAP = {
   vps: ['build', 'deploy', 'server', 'docker', 'pm2', 'database', 'supabase', 'api', 'backend', 'migrate', 'nginx', 'ssl', 'domain', 'dns'],
   kali: ['code', 'bug', 'fix', 'test', 'review', 'git', 'commit', 'merge', 'refactor', 'lint', 'typecheck', 'spec', 'implement', 'feature'],
-  cel: ['screen', 'mobile', 'touch', 'capacitor', 'android', 'ios', 'app', 'apk', 'install', 'push', 'notification', 'camera', 'gps']
+  cel: ['screen', 'mobile', 'touch', 'capacitor', 'android', 'ios', 'app', 'apk', 'install', 'push', 'notification', 'camera', 'gps'],
+  debian: ['forja', 'debian', 'linux', 'reina', 'distro', 'apt', 'systemd', 'ssh']
 };
 
-const AGENTS = ['kali', 'vps', 'cel'];
-const agentRunning = { kali: true, vps: true, cel: false };
+const AGENTS = ['kali', 'vps', 'cel', 'debian'];
+const agentRunning = { kali: true, vps: true, cel: false, debian: true };
 const fastify = Fastify({ logger: true });
 
 openDb();
