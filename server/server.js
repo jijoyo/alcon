@@ -118,6 +118,16 @@ fastify.post('/api/task', async (request, reply) => {
   `).run(id, cleanText, text.trim(), agent, created, created);
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   fastify.log.info(`Task ${task.id} created for agent: ${agent}`);
+  if (agent && globalThis._io) {
+    globalThis._io.of('/enjambre').emit('agent:direct', {
+      id: crypto.randomUUID(),
+      from: 'system',
+      to: agent,
+      text: cleanText,
+      task_id: task.id,
+      timestamp: now()
+    });
+  }
   return formatTask(task);
 });
 
