@@ -518,6 +518,14 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
     socket.on('presence:request', () => {
       broadcastPresence(chatNs);
     });
+    socket.on('agent:direct', ({ to, text, task_id }) => {
+      if (!to || !text) return;
+      const p = presence.get(socket.id);
+      const from = p?.name || 'unknown';
+      const msg = { id: crypto.randomUUID(), from, to, text, task_id: task_id || null, timestamp: now() };
+      chatNs.emit('agent:direct', msg);
+      fastify.log.info(`[DM] ${from} → ${to}: ${text.slice(0, 80)}`);
+    });
     socket.on('disconnect', () => {
       const p = presence.get(socket.id);
       if (p) {

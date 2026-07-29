@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Activity, List, BarChart3, MessageSquare } from 'lucide-react';
+import { Activity, List, BarChart3, MessageSquare, LayoutGrid } from 'lucide-react';
 import { taskApi, type Task } from './lib/api';
 import { TaskInput, TaskList } from './components/TaskInput';
 import { TaskChat } from './components/TaskChat';
 import { StatusPanel } from './components/StatusPanel';
 import { ChatView } from './components/ChatView';
 import { InterruptorMaestro } from './components/InterruptorMaestro';
+import { KanbanBoard } from './components/KanbanBoard';
 
-type View = 'tasks' | 'status' | 'chat';
+type View = 'tasks' | 'kanban' | 'status' | 'chat';
 
 export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -66,6 +67,14 @@ export default function App() {
               }`}
             >
               <MessageSquare size={18} />
+            </button>
+            <button
+              onClick={() => setView('kanban')}
+              className={`p-2 rounded-lg transition-colors ${
+                view === 'kanban' ? 'bg-slate-800 text-blue-400' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <LayoutGrid size={18} />
             </button>
             <button
               onClick={() => setView('status')}
@@ -165,6 +174,11 @@ export default function App() {
                     </div>
                   )}
                 </div>
+              </div>
+            ) : view === 'kanban' ? (
+              /* Kanban Board */
+              <div className="h-[calc(100vh-140px)]">
+                <KanbanBoard />
               </div>
             ) : (
               /* Status view */

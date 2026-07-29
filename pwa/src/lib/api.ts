@@ -1,10 +1,13 @@
 const BASE = import.meta.env.VITE_API_URL || '';
 
+export type Stage = 'backlog' | 'plan' | 'implement' | 'test' | 'review' | 'done';
+
 export interface Task {
   id: number;
   text: string;
   original_text: string;
   status: 'pendiente' | 'en_proceso' | 'hecho' | 'error';
+  stage: Stage;
   assigned_to: string | null;
   lock_owner: string | null;
   lock_acquired_at: string | null;
@@ -75,6 +78,9 @@ export const taskApi = {
   messages: (id: number) => api<{ messages: Message[] }>('GET', `/api/task/${id}/messages`),
   complete: (id: number, owner: string, result?: string) => api<Task>('POST', `/api/task/${id}/complete`, { owner, result }),
   error: (id: number, owner: string, error: string) => api<Task>('POST', `/api/task/${id}/error`, { owner, error }),
+  byStage: () => api<Record<string, Task[]>>('GET', '/api/tasks/by-stage'),
+  advance: (id: number, by_agent?: string) => api<Task>('POST', `/api/task/${id}/advance`, { by_agent }),
+  regress: (id: number, by_agent?: string) => api<Task>('POST', `/api/task/${id}/regress`, { by_agent }),
   status: () => api<SystemStatus>('GET', '/api/status'),
   health: () => api<{ status: string; version: string; timestamp: string }>('GET', '/health')
 };

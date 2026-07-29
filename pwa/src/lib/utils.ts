@@ -57,3 +57,27 @@ export function statusLabel(status: string): string {
     default: return status;
   }
 }
+
+export function stageColor(stage: string): string {
+  switch (stage) {
+    case 'backlog': return 'text-slate-400 bg-slate-400/10';
+    case 'plan': return 'text-amber-400 bg-amber-400/10';
+    case 'implement': return 'text-blue-400 bg-blue-400/10';
+    case 'test': return 'text-purple-400 bg-purple-400/10';
+    case 'review': return 'text-cyan-400 bg-cyan-400/10';
+    case 'done': return 'text-emerald-400 bg-emerald-400/10';
+    default: return 'text-slate-400 bg-slate-400/10';
+  }
+}
+
+export function stageLabel(stage: string): string {
+  switch (stage) {
+    case 'backlog': return 'Backlog';
+    case 'plan': return 'Plan';
+    case 'implement': return 'Implement';
+    case 'test': return 'Test';
+    case 'review': return 'Review';
+    case 'done': return 'Done';
+    default: return stage;
+  }
+}

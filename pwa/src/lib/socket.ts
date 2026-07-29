@@ -23,7 +23,7 @@ export type ChatMessage = {
 export function getSocket(): Socket {
   if (!socket) {
     socket = io(`${BASE}${NAMESPACE}`, {
-      transports: ['polling', 'websocket'],
+      transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: Infinity

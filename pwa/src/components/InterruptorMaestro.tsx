@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Power, RefreshCw } from 'lucide-react';
+import { getSocket, onPresenceUpdate } from '../lib/socket';
 
 const BASE = import.meta.env.VITE_API_URL || '';
 
-interface AgentState {
-  name: string;
-  running: boolean;
-}
+const AGENTS = ['kali', 'vps', 'cel'];
 
 const AGENT_COLORS: Record<string, string> = {
   kali: 'text-blue-400',
@@ -15,35 +13,45 @@ const AGENT_COLORS: Record<string, string> = {
 };
 
 export function InterruptorMaestro() {
-  const [agents, setAgents] = useState<AgentState[]>([]);
-  const [loading, setLoading] = useState<string | null>(null);
+  const [presence, setPresence] = useState<Map<string, boolean>>(new Map());
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchAgents = async () => {
+  useEffect(() => {
+    getSocket();
+    const unsub = onPresenceUpdate(({ peers }) => {
+      const map = new Map<string, boolean>();
+      for (const p of peers) {
+        map.set(p.name, p.status !== 'muerto');
+      }
+      setPresence(map);
+    });
+    return unsub;
+  }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    getSocket().emit('presence:request');
     try {
-      const res = await fetch(`${BASE}/api/agents`);
+      const res = await fetch(`${BASE}/api/agents/status`);
       const data = await res.json();
-      setAgents(data.agents);
+      const map = new Map<string, boolean>();
+      for (const a of data.agents) {
+        map.set(a.name, a.running);
+      }
+      setPresence(map);
     } catch (e) {
-      console.error('Failed to fetch agents:', e);
+      console.error('Failed to fetch agents status:', e);
+    } finally {
+      setTimeout(() => setRefreshing(false), 1000);
     }
   };
 
-  useEffect(() => {
-    fetchAgents();
-    const interval = setInterval(fetchAgents, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const toggleAgent = async (name: string, running: boolean) => {
-    setLoading(name);
+  const toggleAgent = async (name: string, isAlive: boolean) => {
     try {
-      const endpoint = running ? 'stop' : 'start';
+      const endpoint = isAlive ? 'stop' : 'start';
       await fetch(`${BASE}/api/agent/${name}/${endpoint}`, { method: 'POST' });
-      await fetchAgents();
     } catch (e) {
       console.error(`Failed to toggle ${name}:`, e);
-    } finally {
-      setLoading(null);
     }
   };
 
@@ -51,40 +59,42 @@ export function InterruptorMaestro() {
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Interruptor Maestro</span>
-        <button onClick={fetchAgents} className="text-slate-500 hover:text-slate-300 transition-colors">
-          <RefreshCw size={12} />
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="text-slate-500 hover:text-slate-300 transition-colors disabled:opacity-50"
+        >
+          <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
         </button>
       </div>
 
-      {agents.map(agent => (
-        <div
-          key={agent.name}
-          className="flex items-center justify-between bg-slate-800/50 rounded-lg px-3 py-2"
-        >
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${agent.running ? 'bg-emerald-400' : 'bg-red-400'}`} />
-            <span className={`text-sm font-medium ${AGENT_COLORS[agent.name] || 'text-slate-300'}`}>
-              {agent.name.toUpperCase()}
-            </span>
-          </div>
-          <button
-            onClick={() => toggleAgent(agent.name, agent.running)}
-            disabled={loading === agent.name}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-              agent.running
-                ? 'bg-emerald-400/10 text-emerald-400 hover:bg-red-400/10 hover:text-red-400'
-                : 'bg-red-400/10 text-red-400 hover:bg-emerald-400/10 hover:text-emerald-400'
-            } disabled:opacity-50`}
+      {AGENTS.map(name => {
+        const alive = presence.get(name) ?? false;
+        return (
+          <div
+            key={name}
+            className="flex items-center justify-between bg-slate-800/50 rounded-lg px-3 py-2"
           >
-            {loading === agent.name ? (
-              <RefreshCw size={12} className="animate-spin" />
-            ) : (
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${alive ? 'bg-emerald-400' : 'bg-red-400'}`} />
+              <span className={`text-sm font-medium ${AGENT_COLORS[name] || 'text-slate-300'}`}>
+                {name.toUpperCase()}
+              </span>
+            </div>
+            <button
+              onClick={() => toggleAgent(name, alive)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                alive
+                  ? 'bg-emerald-400/10 text-emerald-400 hover:bg-red-400/10 hover:text-red-400'
+                  : 'bg-red-400/10 text-red-400 hover:bg-emerald-400/10 hover:text-emerald-400'
+              }`}
+            >
               <Power size={12} />
-            )}
-            {agent.running ? 'Activo' : 'Dormido'}
-          </button>
-        </div>
-      ))}
+              {alive ? 'Activo' : 'Dormido'}
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }
