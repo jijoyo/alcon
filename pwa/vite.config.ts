@@ -10,5 +10,13 @@ export default defineConfig({
       '/api': 'http://localhost:3002',
       '/health': 'http://localhost:3002'
     }
+  },
+  preview: {
+    port: 3004,
+    host: '0.0.0.0',
+    proxy: {
+      '/api': 'http://localhost:3002',
+      '/health': 'http://localhost:3002'
+    }
   }
 });
