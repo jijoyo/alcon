@@ -48,13 +48,9 @@ openDb();
 
 await fastify.register(cors, {
   origin: true,
-<<<<<<< HEAD
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-=======
-  methods: ['GET', 'POST', 'PUT', 'DELETE']
->>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
 });
 
 function parseAgentFromText(text) {
@@ -379,7 +375,6 @@ fastify.get('/api/agents', async () => {
   };
 });
 
-<<<<<<< HEAD
 fastify.get('/api/agents/status', async () => {
   return {
     agents: AGENTS.map(name => ({
@@ -389,8 +384,6 @@ fastify.get('/api/agents/status', async () => {
   };
 });
 
-=======
->>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
 fastify.post('/api/agent/:name/start', async (request, reply) => {
   const { name } = request.params;
   if (!AGENTS.includes(name)) {
@@ -459,23 +452,24 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
   fastify.log.info(`Alcon server v3.0.0-enjambre on ${HOST}:${PORT}`);
   const io = new Server(fastify.server, {
     cors: {
-<<<<<<< HEAD
       origin: '*',
       methods: ['GET', 'POST'],
       credentials: true
     },
     transports: ['websocket', 'polling']
-=======
-      origin: true,
-      methods: ['GET', 'POST'],
-    }
->>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
   });
   globalThis._io = io;
   const chatNs = io.of('/enjambre');
   chatNs.on('connection', (socket) => {
     fastify.log.info(`[WS] Client connected: ${socket.id}`);
     socket.on('chat:join', ({ name }) => {
+      for (const [existingId, existingP] of presence) {
+        if (existingP.name === name) {
+          presence.delete(existingId);
+          const oldSocket = chatNs.sockets.get(existingId);
+          if (oldSocket) oldSocket.disconnect(true);
+        }
+      }
       presence.set(socket.id, {
         name: name || 'user',
         status: 'vivo',
@@ -528,12 +522,9 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
         }
       }
     });
-<<<<<<< HEAD
     socket.on('presence:request', () => {
       broadcastPresence(chatNs);
     });
-=======
->>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
     socket.on('disconnect', () => {
       const p = presence.get(socket.id);
       if (p) {

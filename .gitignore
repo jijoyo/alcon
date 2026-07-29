@@ -1,5 +1,4 @@
 node_modules/
-<<<<<<< HEAD
 *.log
 *.bak
 *.fixbak
@@ -9,20 +8,16 @@ server/tasks.json
 *.db-shm
 *.db-wal
 logs/
-pwa/dist/
 server/alcon.db
 server/db/alcon.db
 server/db/alcon.db-shm
 server/db/alcon.db-wal
-=======
-dist/
 .env
 .env.*
-*.log
 .pm2/
 *.pid
 .DS_Store
 Thumbs.db
 __pycache__/
 *.pyc
->>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
+pwa/dist/
