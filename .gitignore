@@ -20,3 +20,5 @@ server/db/alcon.db-wal
 Thumbs.db
 __pycache__/
 *.pyc
+pwa/dist/
+*.log
