@@ -36,6 +36,29 @@
 
 ---
 
+## Comunicación entre agentes
+
+**ADB ya no se usa para comunicación entre agentes.** Solo se usa para instalar APK.
+
+La comunicación inter-agente ahora es vía **enjambre** (Socket.io namespace `/enjambre`):
+
+| Canal | Protocolo | Uso |
+|-------|-----------|-----|
+| `chat:message` | Socket.io | Chat global entre agentes |
+| `agent:direct` | Socket.io | DM entre agentes (nuevo) |
+| `presence:update` | Socket.io | Estado de agentes conectados |
+
+### DM (Direct Messaging)
+
+Evento `agent:direct` con payload `{to, text, task_id}`. El server hace broadcast a todos los clientes conectados. Cada agente filtra por `msg.to === myName`.
+
+```bash
+# Ejemplo: enviar DM desde un agente
+socket.emit('agent:direct', { to: 'cel', text: 'Hola Cel', task_id: null })
+```
+
+---
+
 ## Comandos útiles
 
 ```bash
