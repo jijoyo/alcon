@@ -8,9 +8,15 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.0.1",
+<<<<<<< HEAD
     "better-sqlite3": "^11.10.0",
     "fastify": "^5.3.3",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3"
+=======
+    "better-sqlite3": "^11.7.0",
+    "fastify": "^5.3.3",
+    "socket.io": "^4.8.3"
+>>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
   }
 }
