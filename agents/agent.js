@@ -156,11 +156,23 @@ function connectSocket() {
     socket.emit('chat:join', { name: AGENT_NAME });
   });
 
-  socket.on('agent:direct', (msg) => {
+  socket.on('agent:direct', async (msg) => {
     if (msg.to !== AGENT_NAME) return;
     log(`[DM] ${msg.from} → ${msg.to}: ${msg.text}`);
-    if (msg.task_id) {
-      log(`[DM] Related task: ${msg.task_id}`);
+
+    if (AGENT_NAME === 'cel' && msg.text === 'deploy') {
+      log(`[DEPLOY] Iniciando auto-deploy...`);
+      try {
+        const { execSync } = await import('child_process');
+        execSync('cd ~/alcon && git pull origin cel-experimental', { timeout: 30000 });
+        log(`[DEPLOY] git pull OK`);
+        execSync('pm2 restart all', { timeout: 10000 });
+        log(`[DEPLOY] pm2 restart all OK`);
+        socket.emit('chat:message', { from: 'cel', text: 'auto-deploy hecho ✅' });
+      } catch (e) {
+        log(`[DEPLOY] Error: ${e.message}`);
+        socket.emit('chat:message', { from: 'cel', text: `auto-deploy falló: ${e.message}` });
+      }
     }
   });
 
