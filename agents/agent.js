@@ -8,6 +8,7 @@ import { execa } from 'execa';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 const AGENT_NAME = process.argv[2] || 'kali';
 const SERVER_URL = process.argv[3] || 'http://100.102.63.30:3002';
@@ -33,7 +34,7 @@ function fastReply(text) {
 
 function uploadArtifact(taskId, output) {
   try {
-    const tmpfile = `/tmp/artifact-${taskId}-${Date.now()}.txt`;
+    const tmpfile = path.join(os.tmpdir(), `artifact-${taskId}-${Date.now()}.txt`);
     fs.writeFileSync(tmpfile, output);
     execSync(`curl -s -F "file=@${tmpfile}" ${SERVER_URL}/api/task/${taskId}/artifact`, { timeout: 10000 });
     fs.unlinkSync(tmpfile);

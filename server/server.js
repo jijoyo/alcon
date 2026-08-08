@@ -285,7 +285,10 @@ fastify.get('/api/artifacts/:filename', async (request, reply) => {
   const filename = safeFilename(request.params.filename);
   const filepath = path.join(ARTIFACTS_DIR, filename);
   if (!fs.existsSync(filepath)) return reply.code(404).send({ error:'Artifact not found' });
-  return reply.sendFile(filename, ARTIFACTS_DIR);
+  const content = fs.readFileSync(filepath);
+  reply.header('Content-Type', 'text/plain');
+  reply.header('Content-Disposition', `attachment; filename="${filename}"`);
+  return reply.send(content);
 });
 
 fastify.get('/api/status', async () => {
