@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || '';
+export const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export type Stage = 'backlog' | 'plan' | 'implement' | 'test' | 'review' | 'done';
 
@@ -15,6 +15,7 @@ export interface Task {
   last_heartbeat: string | null;
   messages: Message[];
   result: string | null;
+  artifacts: string | null;
   created: string;
   completed_at?: string;
 }
@@ -50,7 +51,7 @@ export interface AgentStatus {
 }
 
 async function api<T>(method: string, path: string, body?: unknown): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
     body: body ? JSON.stringify(body) : undefined
@@ -60,6 +61,10 @@ async function api<T>(method: string, path: string, body?: unknown): Promise<T> 
     throw new Error(err.error || res.statusText);
   }
   return res.json();
+}
+
+export function getArtifacts(task: Task): string[] {
+  try { return JSON.parse(task.artifacts || '[]'); } catch { return []; }
 }
 
 export const taskApi = {

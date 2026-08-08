@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Plus, Bot, User } from 'lucide-react';
-import { taskApi, type Task } from '../lib/api';
+import { useState } from 'react';
+import { Plus, Download } from 'lucide-react';
+import { taskApi, getArtifacts, API_BASE, type Task } from '../lib/api';
 import { agentColor, timeAgo, timeUntil, statusColor, statusLabel } from '../lib/utils';
 
 interface TaskInputProps {
@@ -70,40 +70,60 @@ export function TaskList({ tasks, selectedId, onSelect, refresh }: TaskListProps
           No hay tareas. Crea una con @tag.
         </div>
       )}
-      {tasks.map(task => (
-        <button
-          key={task.id}
-          onClick={() => onSelect(task.id)}
-          className={`w-full text-left rounded-lg p-3 transition-colors ${
-            selectedId === task.id
-              ? 'bg-slate-700/50 border border-slate-600'
-              : 'hover:bg-slate-800/50 border border-transparent'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-mono px-1.5 py-0.5 rounded border ${agentColor(task.assigned_to || 'user')}`}>
-                {task.assigned_to || '?'}
-              </span>
-              <span className={`text-xs px-1.5 py-0.5 rounded ${statusColor(task.status)}`}>
-                {statusLabel(task.status)}
-              </span>
+      {tasks.map(task => {
+        const artifacts = getArtifacts(task);
+        return (
+          <button
+            key={task.id}
+            onClick={() => onSelect(task.id)}
+            className={`w-full text-left rounded-lg p-3 transition-colors ${
+              selectedId === task.id
+                ? 'bg-slate-700/50 border border-slate-600'
+                : 'hover:bg-slate-800/50 border border-transparent'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className={`text-xs font-mono px-1.5 py-0.5 rounded border ${agentColor(task.assigned_to || 'user')}`}>
+                  {task.assigned_to || '?'}
+                </span>
+                <span className={`text-xs px-1.5 py-0.5 rounded ${statusColor(task.status)}`}>
+                  {statusLabel(task.status)}
+                </span>
+              </div>
+              <span className="text-xs text-slate-500">{timeAgo(task.created)}</span>
             </div>
-            <span className="text-xs text-slate-500">{timeAgo(task.created)}</span>
-          </div>
-          <div className="text-sm text-slate-200 truncate">{task.text}</div>
-          {task.status === 'en_proceso' && task.lock_expires_at && (
-            <div className="text-xs text-slate-500 mt-1">
-              Lock: {timeUntil(task.lock_expires_at)}
-            </div>
-          )}
-          {task.messages.length > 0 && (
-            <div className="text-xs text-slate-500 mt-1">
-              {task.messages.length} mensaje{task.messages.length !== 1 ? 's' : ''}
-            </div>
-          )}
-        </button>
-      ))}
+            <div className="text-sm text-slate-200 truncate">{task.text}</div>
+            {task.status === 'en_proceso' && task.lock_expires_at && (
+              <div className="text-xs text-slate-500 mt-1">
+                Lock: {timeUntil(task.lock_expires_at)}
+              </div>
+            )}
+            {task.messages.length > 0 && (
+              <div className="text-xs text-slate-500 mt-1">
+                {task.messages.length} mensaje{task.messages.length !== 1 ? 's' : ''}
+              </div>
+            )}
+            {artifacts.length > 0 && (
+              <div className="flex gap-1 mt-2 flex-wrap">
+                {artifacts.map(f => (
+                  <a
+                    key={f}
+                    href={`${API_BASE}/api/artifacts/${f}`}
+                    target="_blank"
+                    download
+                    onClick={e => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded"
+                  >
+                    <Download size={10} />
+                    {f}
+                  </a>
+                ))}
+              </div>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

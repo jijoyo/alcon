@@ -6,6 +6,7 @@
 import { io } from 'socket.io-client';
 import { execa } from 'execa';
 import { execSync } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 
 const AGENT_NAME = process.argv[2] || 'kali';
@@ -25,6 +26,18 @@ function fastReply(text) {
     return `${AGENT_NAME}: ${pwd}`;
   }
   return null;
+}
+
+function uploadArtifact(taskId, output) {
+  try {
+    const tmpfile = `/tmp/artifact-${taskId}-${Date.now()}.txt`;
+    fs.writeFileSync(tmpfile, output);
+    execSync(`curl -s -F "file=@${tmpfile}" ${SERVER_URL}/api/task/${taskId}/artifact`, { timeout: 10000 });
+    fs.unlinkSync(tmpfile);
+    log(`[ARTIFACT] Uploaded for task ${taskId}`);
+  } catch (e) {
+    log(`[ARTIFACT] Upload failed: ${e.message}`);
+  }
 }
 
 function connectSocket() {
@@ -96,6 +109,9 @@ function connectSocket() {
       socket.emit('typing:stop');
       socket.emit('chat:message', { from: AGENT_NAME, text: output.slice(0, 2000) });
       log(`[OPENCODE] Done (${output.length} chars)`);
+      if (output.length > 100 && msg.task_id) {
+        uploadArtifact(msg.task_id, output);
+      }
     } catch (e) {
       log(`[OPENCODE] Error: ${e.message}`);
       socket.emit('typing:stop');
