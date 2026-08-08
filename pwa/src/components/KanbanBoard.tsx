@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { taskApi, type Task, type Stage } from '../lib/api';
-import { agentColor, statusColor, statusLabel, stageColor, stageLabel, timeAgo } from '../lib/utils';
+import { stageColor, stageLabel } from '../lib/utils';
 import { onTaskUpdated } from '../lib/socket';
+import { TaskCard } from './TaskCard';
 
 const STAGES: Stage[] = ['backlog', 'plan', 'implement', 'test', 'review', 'done'];
 
@@ -91,46 +91,12 @@ export function KanbanBoard() {
 
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
               {tasks.map((task) => (
-                <div
+                <TaskCard
                   key={task.id}
-                  className="bg-slate-800/50 rounded-lg p-3 border border-slate-800"
-                >
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs font-mono text-slate-500">#{task.id}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded ${statusColor(task.status)}`}>
-                      {statusLabel(task.status)}
-                    </span>
-                  </div>
-                  <div className="text-sm text-slate-200 mb-2 line-clamp-2">{task.text}</div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {task.assigned_to && (
-                        <span className={`text-xs font-mono px-1.5 py-0.5 rounded border ${agentColor(task.assigned_to)}`}>
-                          {task.assigned_to}
-                        </span>
-                      )}
-                      <span className="text-xs text-slate-600">{timeAgo(task.created)}</span>
-                    </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handleRegress(task.id)}
-                        disabled={stage === 'backlog'}
-                        className="p-1 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-700 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                        title="Regresar"
-                      >
-                        <ChevronLeft size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleAdvance(task.id)}
-                        disabled={stage === 'done'}
-                        className="p-1 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-700 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                        title="Avanzar"
-                      >
-                        <ChevronRight size={14} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                  task={task}
+                  onAdvance={stage !== 'done' ? handleAdvance : undefined}
+                  onRegress={stage !== 'backlog' ? handleRegress : undefined}
+                />
               ))}
               {tasks.length === 0 && (
                 <div className="text-xs text-slate-700 text-center py-6">
