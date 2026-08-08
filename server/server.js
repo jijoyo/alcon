@@ -372,7 +372,7 @@ setInterval(() => {
   const staleTasks = db.prepare("SELECT * FROM tasks WHERE status = 'en_proceso' AND lock_expires_at IS NOT NULL AND lock_expires_at < ?").all(now());
   for (const task of staleTasks) {
     fastify.log.warn(`[STALE] Reclaiming task ${task.id} from ${task.lock_owner}`);
-    db.prepare('INSERT INTO messages (id, task_id, from_agent, text, timestamp) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), task.id, `Tarea reclaimada: lock expirado de ${task.lock_owner}.`, now());
+    db.prepare('INSERT INTO messages (id, task_id, from_agent, text, timestamp) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), task.id, 'system', `Tarea reclaimada: lock expirado de ${task.lock_owner}.`, now());
     db.prepare("UPDATE tasks SET status = 'pendiente', lock_owner = NULL, lock_acquired_at = NULL, lock_expires_at = NULL, last_heartbeat = NULL WHERE id = ?").run(task.id);
   }
 }, STALE_CHECK_INTERVAL_MS);
