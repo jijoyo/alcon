@@ -128,8 +128,8 @@ function connectSocket() {
       log(`[OPENCODE] Running: ${taskText}`);
       socket.emit('typing:start');
       const prompt = `Tarea: ${taskText}\nResponde en español, corto.`;
-      const result = await execa(OPENCODE_BIN, ['run', '--model', 'openai/mimo-v2.5-free', '--max-turns', '10', '--dir', AGENTS_DIR, prompt], {
-        cwd: AGENTS_DIR,
+      const result = await execa(OPENCODE_BIN, ['run', '--model', 'openai/mimo-v2.5-free', '--max-turns', '10', '--dir', WORKDIR, prompt], {
+        cwd: WORKDIR,
         timeout: 60_000
       });
       const output = result.stdout || '(sin output)';
