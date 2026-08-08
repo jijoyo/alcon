@@ -41,6 +41,7 @@ try { db.exec("ALTER TABLE tasks ADD COLUMN heartbeat_count INTEGER DEFAULT 0");
 try { db.exec("ALTER TABLE tasks ADD COLUMN stage_updated_at TEXT"); } catch(e) {}
 try { db.exec("ALTER TABLE tasks ADD COLUMN stage TEXT DEFAULT 'backlog'"); } catch(e) {}
 try { db.exec("ALTER TABLE tasks ADD COLUMN artifacts TEXT DEFAULT '[]'"); } catch(e) {}
+try { db.exec("ALTER TABLE tasks ADD COLUMN blocked_by TEXT DEFAULT '[]'"); } catch(e) {}
 
 await fastify.register(cors, { origin:true, credentials:true, methods:['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders:['Content-Type','Authorization'] });
 await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
@@ -64,6 +65,11 @@ function formatTask(row) {
   return { ...row, messages };
 }
 function safeFilename(name) { return path.basename(name).replace(/[^a-zA-Z0-9._-]/g, '_'); }
+function parseDependencies(text) {
+  const matches = text.match(/#(\d+)/g);
+  if (!matches) return [];
+  return [...new Set(matches.map(m => Number(m.slice(1))))];
+}
 
 fastify.get('/health', async () => {
   const db = getDb();
@@ -78,9 +84,11 @@ fastify.post('/api/task', async (request, reply) => {
   const db = getDb();
   const id = generateId();
   const created = now();
-  db.prepare(`INSERT INTO tasks (id, text, original_text, status, assigned_to, created, stage, stage_updated_at) VALUES (?, ?, ?, 'pendiente', ?, ?, 'backlog', ?)`).run(id, cleanText, text.trim(), agent, created, created);
+  const blockedBy = parseDependencies(text.trim());
+  const initialStatus = blockedBy.length > 0 ? 'bloqueada' : 'pendiente';
+  db.prepare(`INSERT INTO tasks (id, text, original_text, status, assigned_to, created, stage, stage_updated_at, blocked_by) VALUES (?, ?, ?, ?, ?, ?, 'backlog', ?, ?)`).run(id, cleanText, text.trim(), initialStatus, agent, created, created, JSON.stringify(blockedBy));
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
-  fastify.log.info(`Task ${task.id} created for agent: ${agent}`);
+  fastify.log.info(`Task ${task.id} created for agent: ${agent} [${initialStatus}]`);
   if (agent && globalThis._io) {
     globalThis._io.of('/enjambre').emit('agent:direct', { id:crypto.randomUUID(), from:'system', to:agent, text:cleanText, task_id:task.id, timestamp:now() });
   }
@@ -198,6 +206,18 @@ fastify.post('/api/task/:id/complete', async (request, reply) => {
     db2.prepare('UPDATE tasks SET stage = ?, stage_updated_at = ? WHERE id = ?').run('done', doneTs, id);
     if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, stage:'done' });
   }, 5000);
+  const blocked = db.prepare("SELECT id, blocked_by FROM tasks WHERE status = 'bloqueada'").all();
+  for (const t of blocked) {
+    let deps = JSON.parse(t.blocked_by || '[]');
+    deps = deps.filter(d => d !== id);
+    if (deps.length === 0) {
+      db.prepare("UPDATE tasks SET status = 'pendiente', blocked_by = '[]' WHERE id = ?").run(t.id);
+      globalThis._io?.of('/enjambre')?.emit('task:unblocked', { id: t.id });
+      fastify.log.info(`Task ${t.id} auto-desbloqueada por completion de ${id}`);
+    } else {
+      db.prepare('UPDATE tasks SET blocked_by = ? WHERE id = ?').run(JSON.stringify(deps), t.id);
+    }
+  }
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   fastify.log.info(`Task ${id} completed by ${owner}`);
   return formatTask(updated);
@@ -216,6 +236,25 @@ fastify.post('/api/task/:id/error', async (request, reply) => {
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   fastify.log.info(`Task ${id} errored by ${owner}`);
   return formatTask(updated);
+});
+
+fastify.post('/api/task/:id/unblock', async (request, reply) => {
+  const id = Number(request.params.id);
+  const db = getDb();
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+  if (!task) return reply.code(404).send({ error:'Task not found' });
+  const blockedBy = JSON.parse(task.blocked_by || '[]');
+  if (blockedBy.length === 0) return { ok:true, status:task.status };
+  const allCompleted = blockedBy.every(depId => {
+    const dep = db.prepare('SELECT status FROM tasks WHERE id = ?').get(depId);
+    return dep && (dep.status === 'completada' || dep.status === 'hecho');
+  });
+  if (allCompleted) {
+    db.prepare("UPDATE tasks SET status = 'pendiente', blocked_by = '[]' WHERE id = ?").run(id);
+    globalThis._io?.of('/enjambre')?.emit('task:unblocked', { id });
+    return { ok:true, status:'pendiente' };
+  }
+  return { ok:false, status:'bloqueada' };
 });
 
 fastify.post('/api/task/:id/advance', async (request, reply) => {

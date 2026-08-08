@@ -6,7 +6,7 @@ export interface Task {
   id: number;
   text: string;
   original_text: string;
-  status: 'pendiente' | 'en_proceso' | 'hecho' | 'error';
+  status: 'pendiente' | 'en_proceso' | 'hecho' | 'error' | 'bloqueada';
   stage: Stage;
   assigned_to: string | null;
   lock_owner: string | null;
@@ -16,6 +16,7 @@ export interface Task {
   messages: Message[];
   result: string | null;
   artifacts: string | null;
+  blocked_by: string | null;
   created: string;
   completed_at?: string;
 }
