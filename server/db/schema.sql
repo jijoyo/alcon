@@ -8,18 +8,21 @@ CREATE TABLE IF NOT EXISTS tasks (
   id INTEGER PRIMARY KEY,
   text TEXT NOT NULL,
   original_text TEXT,
-  status TEXT NOT NULL DEFAULT 'pendiente' CHECK(status IN ('pendiente','en_proceso','hecho','error')),
+  status TEXT NOT NULL DEFAULT 'pendiente' CHECK(status IN ('pendiente','en_proceso','hecho','error','bloqueada')),
   assigned_to TEXT,
   lock_owner TEXT,
   lock_acquired_at TEXT,
   lock_expires_at TEXT,
   last_heartbeat TEXT,
+  heartbeat_count INTEGER DEFAULT 0,
   result TEXT,
   created TEXT NOT NULL DEFAULT (datetime('now')),
   completed_at TEXT,
   error_at TEXT,
   stage TEXT DEFAULT 'backlog',
-  stage_updated_at TEXT
+  stage_updated_at TEXT,
+  artifacts TEXT DEFAULT '[]',
+  blocked_by TEXT DEFAULT '[]'
 );
 
 CREATE TABLE IF NOT EXISTS messages (
