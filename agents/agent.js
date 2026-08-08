@@ -1,203 +1,101 @@
 #!/usr/bin/env node
-<<<<<<< HEAD
-import http from 'http';
+
+// Alcon Agent — socket.io DM listener + opencode execution
+// Usage: node agent.js <agent-name> <server-url>
+
 import { io } from 'socket.io-client';
+import { execa } from 'execa';
 
 const AGENT_NAME = process.argv[2] || 'kali';
 const SERVER_URL = process.argv[3] || 'http://localhost:3002';
-const POLL_INTERVAL = 30_000;
-const HEARTBEAT_INTERVAL = 120_000;
-=======
-
-// Alcon Agent - Polls task server and executes tasks
-// Usage: node agent.js <agent-name> <server-url> <execute-fn>
-
-import http from 'http';
-
-const AGENT_NAME = process.argv[2] || 'kali';
-const SERVER_URL = process.argv[3] || 'http://localhost:3002';
-const POLL_INTERVAL = 30_000; // 30 seconds
-const HEARTBEAT_INTERVAL = 120_000; // 2 minutes
->>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
-
-let activeTask = null;
-let heartbeatTimer = null;
-
-function request(method, urlPath, body = null) {
-  return new Promise((resolve, reject) => {
-    const url = new URL(urlPath, SERVER_URL);
-<<<<<<< HEAD
-    const options = { hostname: url.hostname, port: url.port, path: url.pathname + url.search, method, headers: { 'Content-Type': 'application/json' } };
-    const req = http.request(options, (res) => {
-      let data=''; res.on('data',c=>data+=c); res.on('end',()=>{ try{resolve(JSON.parse(data))}catch{resolve({raw:data})} });
-    });
-    req.on('error', reject);
-    req.setTimeout(10000, ()=>{ req.destroy(); reject(new Error('timeout')); });
-=======
-    const options = {
-      hostname: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      method,
-      headers: { 'Content-Type': 'application/json' }
-    };
-
-    const req = http.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(data));
-        } catch {
-          resolve({ raw: data });
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.setTimeout(10_000, () => { req.destroy(); reject(new Error('timeout')); });
-
->>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
-    if (body) req.write(JSON.stringify(body));
-    req.end();
-  });
-}
-<<<<<<< HEAD
-function log(m){ console.log(`[${new Date().toISOString()}] [${AGENT_NAME}] ${m}`); }
-
-// === PRESENCIA REAL ===
-const socketUrl = SERVER_URL + '/enjambre';
-const socket = io(socketUrl, { transports:['websocket','polling'] });
-socket.on('connect', ()=>{ log(`WS conectado ${socket.id}`); socket.emit('chat:join',{name:AGENT_NAME}); });
-socket.on('disconnect', ()=>log('WS desconectado'));
-setInterval(()=>{ if(socket.connected) socket.emit('chat:heartbeat'); },5000);
-const typing = (v)=>{ if(socket.connected) socket.emit(v?'typing:start':'typing:stop'); };
-
-async function heartbeat(){ if(!activeTask) return; try{ await request('POST',`/api/task/${activeTask.id}/heartbeat`,{owner:AGENT_NAME}); }catch{} }
-
-async function processTask(task){
-  log(`Procesando ${task.id}: ${task.text}`);
-  activeTask=task; heartbeatTimer=setInterval(heartbeat,HEARTBEAT_INTERVAL); typing(true);
-  try{
-    await request('POST',`/api/task/${task.id}/message`,{from:AGENT_NAME,text:`Procesando: ${task.text}`});
-    await new Promise(r=>setTimeout(r,3000));
-    const result=`Tarea "${task.text}" completada por ${AGENT_NAME}`;
-    await request('POST',`/api/task/${task.id}/complete`,{owner:AGENT_NAME,result});
-    log(`Completada ${task.id}`);
-  }catch(e){ log(`Error ${e.message}`); await request('POST',`/api/task/${task.id}/error`,{owner:AGENT_NAME,error:e.message}).catch(()=>{}); }
-  finally{ clearInterval(heartbeatTimer); typing(false); activeTask=null; }
-}
-
-async function poll(){
-  if(activeTask) return;
-  try{
-    const data=await request('GET',`/api/tasks?agent=${AGENT_NAME}&status=pendiente`);
-    if(!data.tasks?.length) return;
-    const task=data.tasks.sort((a,b)=>new Date(a.created)-new Date(b.created))[0];
-    const claimed=await request('POST',`/api/task/${task.id}/claim`,{owner:AGENT_NAME}).catch(()=>null);
-    if(claimed?.status==='en_proceso') await processTask(claimed);
-  }catch(e){ log(`Poll: ${e.message}`); }
-}
-
-log(`Iniciando con presencia -> ${socketUrl}`);
-poll(); setInterval(poll,POLL_INTERVAL);
-=======
+const OPENCODE_BIN = process.env.OPENCODE_BIN || '/data/data/com.termux/files/usr/bin/opencode';
+const WORKDIR = process.env.WORKDIR || '/data/data/com.termux/files/home/alcon';
 
 function log(msg) {
   const ts = new Date().toISOString();
   console.log(`[${ts}] [${AGENT_NAME}] ${msg}`);
 }
 
-async function heartbeat() {
-  if (!activeTask) return;
-  try {
-    await request('POST', `/api/task/${activeTask.id}/heartbeat`, { owner: AGENT_NAME });
-    log(`Heartbeat sent for task ${activeTask.id}`);
-  } catch (e) {
-    log(`Heartbeat failed: ${e.message}`);
-  }
-}
+function connectSocket() {
+  const socket = io(`${SERVER_URL}/enjambre`, {
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionDelay: 2000,
+    reconnectionAttempts: Infinity
+  });
 
-async function processTask(task) {
-  log(`Processing task ${task.id}: ${task.text}`);
-  activeTask = task;
+  let heartbeatInterval = null;
 
-  // Start heartbeat
-  heartbeatTimer = setInterval(heartbeat, HEARTBEAT_INTERVAL);
-
-  try {
-    // Send status message
-    await request('POST', `/api/task/${task.id}/message`, {
-      from: AGENT_NAME,
-      text: `Procesando tarea: ${task.text}`
-    });
-
-    // Simulate work (replace with actual task execution)
-    log(`Executing: ${task.text}`);
-    await new Promise(r => setTimeout(r, 5000)); // Simulated work
-
-    // Complete task
-    const result = `Tarea "${task.text}" completada por ${AGENT_NAME}`;
-    await request('POST', `/api/task/${task.id}/complete`, {
-      owner: AGENT_NAME,
-      result
-    });
-
-    await request('POST', `/api/task/${task.id}/message`, {
-      from: AGENT_NAME,
-      text: result
-    });
-
-    log(`Task ${task.id} completed`);
-  } catch (e) {
-    log(`Task ${task.id} failed: ${e.message}`);
-    await request('POST', `/api/task/${task.id}/error`, {
-      owner: AGENT_NAME,
-      error: e.message
-    }).catch(() => {});
-  } finally {
-    clearInterval(heartbeatTimer);
-    activeTask = null;
-  }
-}
-
-async function poll() {
-  try {
-    if (activeTask) return; // Already processing
-
-    const data = await request('GET', `/api/tasks?agent=${AGENT_NAME}&status=pendiente`);
-    if (!data.tasks || data.tasks.length === 0) return;
-
-    // Sort by created (oldest first)
-    const sorted = data.tasks.sort((a, b) => new Date(a.created) - new Date(b.created));
-    const task = sorted[0];
-
-    // Try to claim
-    try {
-      const claimed = await request('POST', `/api/task/${task.id}/claim`, { owner: AGENT_NAME });
-      if (claimed.status === 'en_proceso') {
-        await processTask(claimed);
-      }
-    } catch (e) {
-      if (e.message?.includes('409')) {
-        log(`Task ${task.id} already claimed by another agent`);
-      } else {
-        log(`Claim failed: ${e.message}`);
-      }
+  socket.on('connect', () => {
+    log(`Socket connected: ${socket.id}`);
+    socket.emit('chat:join', { name: AGENT_NAME });
+    if (!heartbeatInterval) {
+      heartbeatInterval = setInterval(() => socket.emit('chat:heartbeat'), 5000);
     }
-  } catch (e) {
-    log(`Poll error: ${e.message}`);
-  }
-}
+  });
 
-// Register agent
-async function register() {
-  try {
-    await request('POST', '/api/ping', { agent: AGENT_NAME });
-    log(`Registered with server`);
-  } catch (e) {
-    log(`Registration failed: ${e.message}`);
-  }
+  socket.on('chat:message', (msg) => {
+    if (msg.from === AGENT_NAME) return;
+    const mention = `@${AGENT_NAME}`;
+    if (msg.text.includes(mention)) {
+      log(`[CHAT] Mentioned by ${msg.from}: ${msg.text.slice(0, 80)}`);
+      socket.emit('chat:message', { from: AGENT_NAME, text: 'recibido' });
+    }
+  });
+
+  socket.on('agent:direct', async (msg) => {
+    if (msg.to !== AGENT_NAME) return;
+    log(`[DM] ${msg.from} → ${msg.to}: ${msg.text}`);
+
+    // Cel auto-deploy
+    if (AGENT_NAME === 'cel' && msg.text === 'deploy') {
+      log(`[DEPLOY] Iniciando auto-deploy...`);
+      try {
+        const { execSync } = await import('child_process');
+        execSync('cd ~/alcon && git pull origin cel-experimental', { timeout: 30000 });
+        log(`[DEPLOY] git pull OK`);
+        execSync('pm2 restart all', { timeout: 10000 });
+        log(`[DEPLOY] pm2 restart all OK`);
+        socket.emit('chat:message', { from: 'cel', text: 'auto-deploy hecho ✅' });
+      } catch (e) {
+        log(`[DEPLOY] Error: ${e.message}`);
+        socket.emit('chat:message', { from: 'cel', text: `auto-deploy falló: ${e.message}` });
+      }
+      return;
+    }
+
+    // Execute via opencode
+    try {
+      log(`[OPENCODE] Running: ${msg.text}`);
+      socket.emit('typing:start');
+      const result = await execa(OPENCODE_BIN, ['run', '--model', 'opencode/mimo-v2.5-free', msg.text], {
+        cwd: WORKDIR,
+        timeout: 300_000
+      });
+      const output = result.stdout || '(sin output)';
+      socket.emit('typing:stop');
+      socket.emit('chat:message', { from: AGENT_NAME, text: output.slice(0, 2000) });
+      log(`[OPENCODE] Done (${output.length} chars)`);
+    } catch (e) {
+      log(`[OPENCODE] Error: ${e.message}`);
+      socket.emit('typing:stop');
+      socket.emit('chat:message', { from: AGENT_NAME, text: `Error: ${e.message}` });
+    }
+  });
+
+  socket.on('disconnect', (reason) => {
+    log(`Socket disconnected: ${reason}`);
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+      heartbeatInterval = null;
+    }
+  });
+
+  socket.on('connect_error', (err) => {
+    log(`Socket error: ${err.message}`);
+  });
+
+  return socket;
 }
 
 log(`Starting agent (server: ${SERVER_URL})`);
@@ -206,7 +104,4 @@ process.on('unhandledRejection', (err) => {
   log(`Unhandled rejection: ${err.message || err}`);
 });
 
-await register();
-setInterval(poll, POLL_INTERVAL);
-poll().catch(e => log(`Initial poll error: ${e.message}`));
->>>>>>> 501e4787b8af408c102b01432baee0443d3a1985
+connectSocket();
