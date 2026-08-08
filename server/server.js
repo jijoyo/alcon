@@ -47,6 +47,11 @@ const fastify = Fastify({ logger: true });
 
 openDb();
 
+const db = getDb();
+try { db.exec("ALTER TABLE tasks ADD COLUMN heartbeat_count INTEGER DEFAULT 0"); } catch(e) {}
+try { db.exec("ALTER TABLE tasks ADD COLUMN stage_updated_at TEXT"); } catch(e) {}
+try { db.exec("ALTER TABLE tasks ADD COLUMN stage TEXT DEFAULT 'backlog'"); } catch(e) {}
+
 await fastify.register(cors, {
   origin: true,
   credentials: true,
@@ -182,12 +187,16 @@ fastify.post('/api/task/:id/claim', async (request, reply) => {
   const acquiredAt = now();
   const expiresAt = new Date(Date.now() + LOCK_TIMEOUT_MS).toISOString();
   db.prepare(`
-    UPDATE tasks SET status = 'en_proceso', assigned_to = COALESCE(NULLIF(assigned_to, ''), ?),
+    UPDATE tasks SET status = 'en_proceso', stage = 'implement', stage_updated_at = ?,
+      heartbeat_count = 0, assigned_to = COALESCE(NULLIF(assigned_to, ''), ?),
       lock_owner = ?, lock_acquired_at = ?, lock_expires_at = ?, last_heartbeat = ?
     WHERE id = ?
-  `).run(owner, owner, acquiredAt, expiresAt, acquiredAt, id);
+  `).run(acquiredAt, owner, owner, acquiredAt, expiresAt, acquiredAt, id);
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   fastify.log.info(`Task ${id} claimed by ${owner}`);
+  if (globalThis._io) {
+    globalThis._io.of('/enjambre').emit('task:updated', { id, stage: 'implement' });
+  }
   return formatTask(updated);
 });
 
@@ -203,8 +212,18 @@ fastify.post('/api/task/:id/heartbeat', async (request, reply) => {
   }
   const expiresAt = new Date(Date.now() + LOCK_TIMEOUT_MS).toISOString();
   const ts = now();
-  db.prepare('UPDATE tasks SET last_heartbeat = ?, lock_expires_at = ? WHERE id = ?')
-    .run(ts, expiresAt, id);
+  const newCount = (task.heartbeat_count || 0) + 1;
+  let newStage = task.stage;
+  let stageUpdated = task.stage_updated_at;
+  if (newCount >= 2 && task.stage === 'implement') {
+    newStage = 'test';
+    stageUpdated = ts;
+  }
+  db.prepare('UPDATE tasks SET last_heartbeat = ?, lock_expires_at = ?, heartbeat_count = ?, stage = ?, stage_updated_at = ? WHERE id = ?')
+    .run(ts, expiresAt, newCount, newStage, stageUpdated, id);
+  if (newStage !== task.stage && globalThis._io) {
+    globalThis._io.of('/enjambre').emit('task:updated', { id, stage: newStage });
+  }
   return { ok: true, lock_expires_at: expiresAt };
 });
 
@@ -252,6 +271,18 @@ fastify.post('/api/task/:id/complete', async (request, reply) => {
       last_heartbeat = NULL, completed_at = ?
     WHERE id = ?
   `).run(result || null, ts, id);
+  db.prepare('UPDATE tasks SET stage = ?, stage_updated_at = ? WHERE id = ?').run('review', ts, id);
+  if (globalThis._io) {
+    globalThis._io.of('/enjambre').emit('task:updated', { id, stage: 'review' });
+  }
+  setTimeout(() => {
+    const db2 = getDb();
+    const doneTs = new Date().toISOString();
+    db2.prepare('UPDATE tasks SET stage = ?, stage_updated_at = ? WHERE id = ?').run('done', doneTs, id);
+    if (globalThis._io) {
+      globalThis._io.of('/enjambre').emit('task:updated', { id, stage: 'done' });
+    }
+  }, 5000);
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   fastify.log.info(`Task ${id} completed by ${owner}`);
   return formatTask(updated);
@@ -294,6 +325,9 @@ fastify.post('/api/task/:id/advance', async (request, reply) => {
     db.prepare('INSERT INTO stage_log (id, task_id, from_stage, to_stage, by_agent, timestamp) VALUES (?, ?, ?, ?, ?, ?)')
       .run(crypto.randomUUID(), id, task.stage, next, by_agent, ts);
   } catch(e) { fastify.log.warn('stage_log insert fail: ' + e.message); }
+  if (globalThis._io) {
+    globalThis._io.of('/enjambre').emit('task:updated', { id, stage: next });
+  }
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   return formatTask(updated);
 });
@@ -312,6 +346,9 @@ fastify.post('/api/task/:id/regress', async (request, reply) => {
     db.prepare('INSERT INTO stage_log (id, task_id, from_stage, to_stage, by_agent, timestamp) VALUES (?, ?, ?, ?, ?, ?)')
       .run(crypto.randomUUID(), id, task.stage, prev, by_agent, ts);
   } catch(e) { fastify.log.warn('stage_log insert fail: ' + e.message); }
+  if (globalThis._io) {
+    globalThis._io.of('/enjambre').emit('task:updated', { id, stage: prev });
+  }
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   return formatTask(updated);
 });

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { taskApi, type Task, type Stage } from '../lib/api';
 import { agentColor, statusColor, statusLabel, stageColor, stageLabel, timeAgo } from '../lib/utils';
+import { onTaskUpdated } from '../lib/socket';
 
 const STAGES: Stage[] = ['backlog', 'plan', 'implement', 'test', 'review', 'done'];
 
@@ -22,8 +23,26 @@ export function KanbanBoard() {
 
   useEffect(() => {
     fetchTasks();
-    const interval = setInterval(fetchTasks, 5000);
-    return () => clearInterval(interval);
+    const cleanup = onTaskUpdated(({ id, stage }) => {
+      setTasksByStage(prev => {
+        const next = { ...prev };
+        let movedTask: Task | null = null;
+        for (const col of Object.keys(next)) {
+          const idx = next[col].findIndex(t => t.id === id);
+          if (idx !== -1) {
+            movedTask = next[col][idx];
+            next[col] = [...next[col].slice(0, idx), ...next[col].slice(idx + 1)];
+            break;
+          }
+        }
+        if (movedTask) {
+          const updatedTask = { ...movedTask, stage: stage as Stage };
+          next[stage] = [...(next[stage] || []), updatedTask];
+        }
+        return next;
+      });
+    });
+    return cleanup;
   }, [fetchTasks]);
 
   const handleAdvance = async (id: number) => {
