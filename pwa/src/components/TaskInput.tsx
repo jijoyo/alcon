@@ -90,11 +90,6 @@ export function TaskList({ tasks, selectedId, onSelect, refresh }: TaskListProps
                 <span className={`text-xs px-1.5 py-0.5 rounded ${statusColor(task.status)}`}>
                   {statusLabel(task.status)}
                 </span>
-                {task.blocked_by && JSON.parse(task.blocked_by).length > 0 && (
-                  <span className="text-xs text-amber-500">
-                    🔒 #{JSON.parse(task.blocked_by).join(' #')}
-                  </span>
-                )}
               </div>
               <span className="text-xs text-slate-500">{timeAgo(task.created)}</span>
             </div>
