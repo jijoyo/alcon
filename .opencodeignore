@@ -1,0 +1,12 @@
+node_modules
+pwa/node_modules
+server/node_modules
+agents/node_modules
+pwa/dist
+pwa/android
+.git
+.opencode
+*.db
+*.db-shm
+*.db-wal
+logs

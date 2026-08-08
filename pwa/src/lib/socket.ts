@@ -102,6 +102,17 @@ export function onPresenceUpdate(fn: (data: { peers: Peer[] }) => void) {
   };
 }
 
+export function onTaskUpdated(fn: (data: { id: number; stage: string }) => void) {
+  const s = getSocket();
+  const handler = (data: { id: number; stage: string }) => fn(data);
+  s.on('task:updated', handler);
+  listeners.push({ event: 'task:updated', fn: handler });
+  return () => {
+    s.off('task:updated', handler);
+    listeners = listeners.filter(l => l.fn !== handler);
+  };
+}
+
 export function disconnectSocket() {
   if (socket) {
     socket.disconnect();
