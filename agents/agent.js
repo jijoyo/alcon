@@ -8,8 +8,8 @@ import { execa } from 'execa';
 
 const AGENT_NAME = process.argv[2] || 'kali';
 const SERVER_URL = process.argv[3] || 'http://localhost:3002';
-const OPENCODE_BIN = '/home/israel/.opencode/bin/opencode';
-const WORKDIR = '/home/israel/Documentos/alcon';
+const OPENCODE_BIN = process.env.OPENCODE_BIN || '/data/data/com.termux/files/usr/bin/opencode';
+const WORKDIR = process.env.WORKDIR || '/data/data/com.termux/files/home/alcon';
 
 function log(msg) {
   const ts = new Date().toISOString();

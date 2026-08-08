@@ -474,6 +474,13 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
   chatNs.on('connection', (socket) => {
     fastify.log.info(`[WS] Client connected: ${socket.id}`);
     socket.on('chat:join', ({ name }) => {
+      for (const [existingId, existingP] of presence) {
+        if (existingP.name === name) {
+          presence.delete(existingId);
+          const oldSocket = chatNs.sockets.get(existingId);
+          if (oldSocket) oldSocket.disconnect(true);
+        }
+      }
       presence.set(socket.id, {
         name: name || 'user',
         status: 'vivo',
@@ -528,14 +535,6 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
     });
     socket.on('presence:request', () => {
       broadcastPresence(chatNs);
-    });
-    socket.on('agent:direct', ({ to, text, task_id }) => {
-      if (!to || !text) return;
-      const p = presence.get(socket.id);
-      const from = p?.name || 'unknown';
-      const msg = { id: crypto.randomUUID(), from, to, text, task_id: task_id || null, timestamp: now() };
-      chatNs.emit('agent:direct', msg);
-      fastify.log.info(`[DM] ${from} → ${to}: ${text.slice(0, 80)}`);
     });
     socket.on('disconnect', () => {
       const p = presence.get(socket.id);
