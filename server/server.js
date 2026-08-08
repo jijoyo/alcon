@@ -213,6 +213,7 @@ fastify.post('/api/task/:id/complete', async (request, reply) => {
     if (deps.length === 0) {
       db.prepare("UPDATE tasks SET status = 'pendiente', blocked_by = '[]' WHERE id = ?").run(t.id);
       globalThis._io?.of('/enjambre')?.emit('task:unblocked', { id: t.id });
+      globalThis._io?.of('/enjambre')?.emit('task:updated', { id: t.id, status: 'pendiente', blocked_by: '[]' });
       fastify.log.info(`Task ${t.id} auto-desbloqueada por completion de ${id}`);
     } else {
       db.prepare('UPDATE tasks SET blocked_by = ? WHERE id = ?').run(JSON.stringify(deps), t.id);
@@ -252,6 +253,7 @@ fastify.post('/api/task/:id/unblock', async (request, reply) => {
   if (allCompleted) {
     db.prepare("UPDATE tasks SET status = 'pendiente', blocked_by = '[]' WHERE id = ?").run(id);
     globalThis._io?.of('/enjambre')?.emit('task:unblocked', { id });
+    globalThis._io?.of('/enjambre')?.emit('task:updated', { id, status: 'pendiente', blocked_by: '[]' });
     return { ok:true, status:'pendiente' };
   }
   return { ok:false, status:'bloqueada' };

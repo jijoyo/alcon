@@ -54,7 +54,9 @@ export function TaskCard({ task, onAdvance, onRegress }: TaskCardProps) {
   };
 
   return (
-    <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-800">
+    <div className={`bg-slate-800/50 rounded-lg p-3 border border-slate-800 transition-all duration-300 ${
+      task.status === 'bloqueada' ? 'opacity-60 border-amber-500/30' : ''
+    }`}>
       <div className="flex items-center gap-2 mb-1.5">
         <span className="text-xs font-mono text-slate-500">#{task.id}</span>
         <span className={`text-xs px-1.5 py-0.5 rounded ${statusColor(task.status)}`}>
