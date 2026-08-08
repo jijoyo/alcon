@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { taskApi, type Task, type Stage } from '../lib/api';
 import { stageColor, stageLabel } from '../lib/utils';
-import { onTaskUpdated } from '../lib/socket';
+import { onTaskUpdated, onTaskUnblocked } from '../lib/socket';
 import { TaskCard } from './TaskCard';
 
 const STAGES: Stage[] = ['backlog', 'plan', 'implement', 'test', 'review', 'done'];
@@ -23,7 +23,7 @@ export function KanbanBoard() {
 
   useEffect(() => {
     fetchTasks();
-    const cleanup = onTaskUpdated(({ id, stage }) => {
+    const cleanup = onTaskUpdated(({ id, stage, status, blocked_by }) => {
       setTasksByStage(prev => {
         const next = { ...prev };
         let movedTask: Task | null = null;
@@ -36,13 +36,21 @@ export function KanbanBoard() {
           }
         }
         if (movedTask) {
-          const updatedTask = { ...movedTask, stage: stage as Stage };
-          next[stage] = [...(next[stage] || []), updatedTask];
+          const updatedTask = { 
+            ...movedTask, 
+            stage: (stage || movedTask.stage) as Stage,
+            status: status || movedTask.status,
+            blocked_by: blocked_by !== undefined ? blocked_by : movedTask.blocked_by
+          };
+          next[updatedTask.stage] = [...(next[updatedTask.stage] || []), updatedTask];
         }
         return next;
       });
     });
-    return cleanup;
+    const cleanupUnblock = onTaskUnblocked(({ id }) => {
+      fetchTasks();
+    });
+    return () => { cleanup(); cleanupUnblock(); };
   }, [fetchTasks]);
 
   const handleAdvance = async (id: number) => {

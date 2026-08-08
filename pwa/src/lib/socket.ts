@@ -102,13 +102,24 @@ export function onPresenceUpdate(fn: (data: { peers: Peer[] }) => void) {
   };
 }
 
-export function onTaskUpdated(fn: (data: { id: number; stage: string }) => void) {
+export function onTaskUpdated(fn: (data: { id: number; stage: string; status?: string; blocked_by?: string }) => void) {
   const s = getSocket();
-  const handler = (data: { id: number; stage: string }) => fn(data);
+  const handler = (data: { id: number; stage: string; status?: string; blocked_by?: string }) => fn(data);
   s.on('task:updated', handler);
   listeners.push({ event: 'task:updated', fn: handler });
   return () => {
     s.off('task:updated', handler);
+    listeners = listeners.filter(l => l.fn !== handler);
+  };
+}
+
+export function onTaskUnblocked(fn: (data: { id: number }) => void) {
+  const s = getSocket();
+  const handler = (data: { id: number }) => fn(data);
+  s.on('task:unblocked', handler);
+  listeners.push({ event: 'task:unblocked', fn: handler });
+  return () => {
+    s.off('task:unblocked', handler);
     listeners = listeners.filter(l => l.fn !== handler);
   };
 }
