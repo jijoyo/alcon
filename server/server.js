@@ -436,6 +436,8 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
       db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(chatMsg.id, from, text, chatMsg.timestamp);
       chatNs.emit('chat:message', chatMsg);
 
+      if (from === 'vps') return;
+
       const tagMatch = text.match(/^@(\w+)\s/);
 
       if (tagMatch && ['cel', 'kali'].includes(tagMatch[1])) {
@@ -458,13 +460,19 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
         return;
       }
 
-      let task = null;
+      if (!text.startsWith('@')) return;
 
-      if (text.trim().length < 15 && !text.startsWith('@')) {
+      const STOP_WORDS = /^(hola|para ya|stop|gracias|ok|adiós|adios)/i;
+      if (STOP_WORDS.test(text.replace(/^@\w+\s*/, ''))) {
+        chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: null, timestamp: now() });
+        return;
+      }
+      if (text.trim().length < 15) {
         chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: null, timestamp: now() });
         return;
       }
 
+      let task = null;
       const existingTaskId = activeSessions.get(from);
       if (existingTaskId) {
         task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(existingTaskId);
