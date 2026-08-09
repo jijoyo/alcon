@@ -69,6 +69,15 @@ function completeTask(taskId, result, owner) {
   }
 }
 
+function fetchTaskMessages(taskId, limit = 5) {
+  if (!taskId) return [];
+  try {
+    const raw = execSync(`curl -s ${SERVER_URL}/api/task/${taskId}/messages`, { encoding: 'utf-8', timeout: 5000 });
+    const { messages } = JSON.parse(raw);
+    return (messages || []).slice(-limit);
+  } catch { return []; }
+}
+
 function connectSocket() {
   const socket = io(`${SERVER_URL}/enjambre`, {
     transports: ['websocket', 'polling'],
@@ -122,18 +131,20 @@ function connectSocket() {
     // 1. BASH fast-path (sin IA)
     if (BASH_REGEX.test(taskText) || /^(ls -la|cat |pwd|echo )/.test(taskText)) {
       claimTask(msg.task_id, AGENT_NAME);
+      const needsPrefix = msg.text?.match(/^(@all|\/debate)/);
+      const prefix = needsPrefix ? `[${AGENT_NAME}] ` : '';
       try {
         log(`[BASH] Running: ${taskText}`);
         socket.emit('typing:start');
         const result = execSync(taskText, { cwd: WORKDIR, encoding: 'utf-8', timeout: 10000, maxBuffer: 1024 * 1024 });
         socket.emit('typing:stop');
-        socket.emit('chat:message', { from: AGENT_NAME, text: result.slice(0, 2000) });
+        socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}${result.slice(0, 2000)}` });
         log(`[BASH] Done (${result.length} chars)`);
         if (msg.task_id && result.length > 100) uploadArtifact(msg.task_id, result);
         completeTask(msg.task_id, result, AGENT_NAME);
       } catch (e) {
         socket.emit('typing:stop');
-        socket.emit('chat:message', { from: AGENT_NAME, text: `Error: ${e.message}` });
+        socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}Error: ${e.message}` });
         log(`[BASH] Error: ${e.message}`);
         completeTask(msg.task_id, `Error: ${e.message}`, AGENT_NAME);
       }
@@ -144,9 +155,11 @@ function connectSocket() {
     const fast = fastReply(taskText);
     if (fast) {
       claimTask(msg.task_id, AGENT_NAME);
+      const needsPrefix = msg.text?.match(/^(@all|\/debate)/);
+      const prefix = needsPrefix ? `[${AGENT_NAME}] ` : '';
       log(`[FAST] ${fast}`);
       socket.emit('typing:stop');
-      socket.emit('chat:message', { from: AGENT_NAME, text: fast });
+      socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}${fast}` });
       completeTask(msg.task_id, fast, AGENT_NAME);
       return;
     }
@@ -156,7 +169,11 @@ function connectSocket() {
     try {
       log(`[OPENCODE] Running: ${taskText}`);
       socket.emit('typing:start');
-      const prompt = `Tarea: ${taskText}\nResponde en español, corto.`;
+      const history = fetchTaskMessages(msg.task_id);
+      const context = history.length > 0
+        ? `Contexto previo del chat:\n${history.map(m => `${m.from_agent}: ${m.text}`).join('\n')}\n\n`
+        : '';
+      const prompt = `${context}Tarea: ${taskText}\nResponde en español, corto.`;
       const output = await new Promise((resolve, reject) => {
         const child = spawn(OPENCODE_BIN, ['run', '-m', 'opencode/mimo-v2.5-free', '--dir', WORKDIR, prompt], {
           cwd: WORKDIR,
@@ -172,14 +189,18 @@ function connectSocket() {
         child.on('error', (err) => { clearTimeout(timer); reject(err); });
       });
       socket.emit('typing:stop');
-      socket.emit('chat:message', { from: AGENT_NAME, text: output.slice(0, 2000) });
+      const needsPrefix = msg.text?.match(/^(@all|\/debate)/);
+      const prefix = needsPrefix ? `[${AGENT_NAME}] ` : '';
+      socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}${output.slice(0, 2000)}` });
       log(`[OPENCODE] Done (${output.length} chars)`);
       if (output.length > 100 && msg.task_id) uploadArtifact(msg.task_id, output);
       completeTask(msg.task_id, output, AGENT_NAME);
     } catch (e) {
       log(`[OPENCODE] Error: ${e.message}`);
       socket.emit('typing:stop');
-      socket.emit('chat:message', { from: AGENT_NAME, text: `Error: ${e.message}` });
+      const needsPrefix = msg.text?.match(/^(@all|\/debate)/);
+      const prefix = needsPrefix ? `[${AGENT_NAME}] ` : '';
+      socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}Error: ${e.message}` });
       completeTask(msg.task_id, `Error: ${e.message}`, AGENT_NAME);
     }
   });

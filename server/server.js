@@ -42,6 +42,7 @@ try { db.exec("ALTER TABLE tasks ADD COLUMN stage_updated_at TEXT"); } catch(e) 
 try { db.exec("ALTER TABLE tasks ADD COLUMN stage TEXT DEFAULT 'backlog'"); } catch(e) {}
 try { db.exec("ALTER TABLE tasks ADD COLUMN artifacts TEXT DEFAULT '[]'"); } catch(e) {}
 try { db.exec("ALTER TABLE tasks ADD COLUMN blocked_by TEXT DEFAULT '[]'"); } catch(e) {}
+try { db.exec("ALTER TABLE chat ADD COLUMN task_id INTEGER"); } catch(e) {}
 
 await fastify.register(cors, { origin:true, credentials:true, methods:['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders:['Content-Type','Authorization'] });
 await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
@@ -199,6 +200,7 @@ fastify.post('/api/task/:id/complete', async (request, reply) => {
   }
   db.prepare(`UPDATE tasks SET status = 'hecho', result = ?, artifacts = ?, lock_owner = NULL, lock_acquired_at = NULL, lock_expires_at = NULL, last_heartbeat = NULL, completed_at = ? WHERE id = ?`).run(result || null, JSON.stringify(artifacts), ts, id);
   db.prepare('UPDATE tasks SET stage = ?, stage_updated_at = ? WHERE id = ?').run('review', ts, id);
+  cleanupSessionByTaskId(id);
   if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, stage:'review' });
   setTimeout(() => {
     const db2 = getDb();
@@ -234,6 +236,7 @@ fastify.post('/api/task/:id/error', async (request, reply) => {
   if (task.lock_owner && task.lock_owner !== owner) return reply.code(403).send({ error:'Not the lock owner' });
   const ts = now();
   db.prepare(`UPDATE tasks SET status = 'error', result = ?, lock_owner = NULL, lock_acquired_at = NULL, lock_expires_at = NULL, last_heartbeat = NULL, error_at = ? WHERE id = ?`).run(errorMsg || 'Unknown error', ts, id);
+  cleanupSessionByTaskId(id);
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   fastify.log.info(`Task ${id} errored by ${owner}`);
   return formatTask(updated);
@@ -374,10 +377,26 @@ setInterval(() => {
     fastify.log.warn(`[STALE] Reclaiming task ${task.id} from ${task.lock_owner}`);
     db.prepare('INSERT INTO messages (id, task_id, from_agent, text, timestamp) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), task.id, 'system', `Tarea reclaimada: lock expirado de ${task.lock_owner}.`, now());
     db.prepare("UPDATE tasks SET status = 'pendiente', lock_owner = NULL, lock_acquired_at = NULL, lock_expires_at = NULL, last_heartbeat = NULL WHERE id = ?").run(task.id);
+    cleanupSessionByTaskId(task.id);
   }
 }, STALE_CHECK_INTERVAL_MS);
 
 const presence = new Map();
+const activeSessions = new Map(); // { userId: taskId }
+
+function isAgentAlive(name) {
+  for (const [, p] of presence) {
+    if (p.name === name && p.status === 'vivo') return true;
+  }
+  return agentRunning[name] || false;
+}
+
+function cleanupSessionByTaskId(taskId) {
+  for (const [userId, tId] of activeSessions) {
+    if (tId === taskId) { activeSessions.delete(userId); break; }
+  }
+}
+
 const PORT = process.env.PORT || 3002;
 const HOST = process.env.HOST || '0.0.0.0';
 
@@ -398,10 +417,54 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
     });
     socket.on('chat:message', ({ from, text }) => {
       if (!from || !text) return;
-      const message = { id:crypto.randomUUID(), from, text, timestamp:now() };
       const db = getDb();
-      db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(message.id, from, text, message.timestamp);
-      chatNs.emit('chat:message', message);
+      const chatMsg = { id: crypto.randomUUID(), from, text, timestamp: now() };
+      db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(chatMsg.id, from, text, chatMsg.timestamp);
+      chatNs.emit('chat:message', chatMsg);
+
+      const tagMatch = text.match(/^@(\w+)\s/);
+
+      if (tagMatch && ['cel', 'kali'].includes(tagMatch[1])) {
+        const target = tagMatch[1];
+        if (isAgentAlive(target)) {
+          chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: target, text: text.replace(/^@\w+\s*/, ''), task_id: null, timestamp: now() });
+        } else {
+          chatNs.emit('chat:message', { id: crypto.randomUUID(), from: 'system', text: `${target} no está disponible.`, timestamp: now() });
+        }
+        return;
+      }
+
+      if ((tagMatch && tagMatch[1] === 'all') || text.startsWith('/debate')) {
+        const cleanText = text.replace(/^(@all|\/debate)\s*/, '');
+        for (const agent of ['vps', 'cel', 'kali']) {
+          if (isAgentAlive(agent)) {
+            chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: agent, text: cleanText, task_id: null, timestamp: now() });
+          }
+        }
+        return;
+      }
+
+      let task = null;
+      const existingTaskId = activeSessions.get(from);
+      if (existingTaskId) {
+        task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(existingTaskId);
+        if (task && task.status !== 'pendiente' && task.status !== 'en_proceso') {
+          task = null;
+          activeSessions.delete(from);
+        }
+      }
+
+      if (!task) {
+        const id = generateId();
+        const created = now();
+        db.prepare(`INSERT INTO tasks (id, text, original_text, status, assigned_to, created, stage, stage_updated_at, blocked_by) VALUES (?, ?, ?, 'pendiente', 'vps', ?, 'backlog', ?, '[]')`).run(id, text.slice(0, 200), text, created, created);
+        task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+        activeSessions.set(from, task.id);
+      } else {
+        db.prepare('INSERT INTO messages (id, task_id, from_agent, text, timestamp) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), task.id, from, text, now());
+      }
+
+      chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: task.id, timestamp: now() });
     });
     socket.on('typing:start', () => { const p = presence.get(socket.id); if (p) { p.typing = true; p.lastSeen = Date.now(); } broadcastPresence(chatNs); });
     socket.on('typing:stop', () => { const p = presence.get(socket.id); if (p) { p.typing = false; p.lastSeen = Date.now(); } broadcastPresence(chatNs); });
