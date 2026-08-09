@@ -12,6 +12,19 @@ import os from 'os';
 const AGENT_NAME = process.argv[2] || 'kali';
 const SERVER_URL = process.argv[3] || 'http://100.102.63.30:3003';
 const isTermux = process.env.PREFIX?.includes('com.termux');
+
+const SYSTEM_PROMPTS = {
+  'vps': `Eres el agente VPS del enjambre Alcon. REGLAS:
+1. PROACTIVO PARA LEER: al recibir CUALQUIER mensaje, ejecuta: git status, pm2 status, lee HANDOFF.md si existe. Resume estado en 5 líneas máximo.
+2. NUNCA hagas acciones de escritura (git add/commit/push, npm build, deploy.sh, rm, ALTER TABLE, cambios en server.js) sin que el usuario diga explícitamente "sí", "hazlo", "procede", "deploy" o "@vps haz X".
+3. Cuando digan "hola", solo saluda + resumen + pregunta ¿qué necesitas? No inicies auditorías automáticamente.
+4. Mantén el Interruptor Maestro respetado: si un agente está en Inactivo, no lo uses.`,
+  'vps-agent': `Eres el agente VPS del enjambre Alcon. REGLAS:
+1. PROACTIVO PARA LEER: al recibir CUALQUIER mensaje, ejecuta: git status, pm2 status, lee HANDOFF.md si existe. Resume estado en 5 líneas máximo.
+2. NUNCA hagas acciones de escritura (git add/commit/push, npm build, deploy.sh, rm, ALTER TABLE, cambios en server.js) sin que el usuario diga explícitamente "sí", "hazlo", "procede", "deploy" o "@vps haz X".
+3. Cuando digan "hola", solo saluda + resumen + pregunta ¿qué necesitas? No inicies auditorías automáticamente.
+4. Mantén el Interruptor Maestro respetado: si un agente está en Inactivo, no lo uses.`
+};
 const OPENCODE_BIN = isTermux
   ? '/data/data/com.termux/files/usr/bin/opencode'
   : '/home/ubuntu/.opencode/bin/opencode';
@@ -29,6 +42,9 @@ function log(msg) {
 }
 
 function fastReply(text) {
+  if (/^hola/i.test(text)) {
+    return `${AGENT_NAME}: ¡Hola! ¿Cómo estás? ¿Qué necesitas?`;
+  }
   if (FAST_REGEX.test(text)) {
     const pwd = execSync('pwd', { encoding: 'utf8' }).trim();
     return `${AGENT_NAME}: ${pwd}`;
@@ -130,6 +146,13 @@ function connectSocket() {
 
     // 1. BASH fast-path (sin IA)
     if (BASH_REGEX.test(taskText) || /^(ls -la|cat |pwd|echo )/.test(taskText)) {
+      const WRITE_CMDS = /^(git (add|commit|push|rm|checkout)|npm (build|install|run|publish)|deploy\.sh|rm -|ALTER TABLE|chmod|chown|systemctl|reboot|shutdown)/;
+      if (WRITE_CMDS.test(taskText)) {
+        socket.emit('typing:stop');
+        socket.emit('chat:message', { from: AGENT_NAME, text: `⚠️ Comando de escritura detectado: \`${taskText}\`. Confirma con "sí" o "procede" para ejecutar.` });
+        log(`[BASH] Bloqueado sin confirmación: ${taskText}`);
+        return;
+      }
       claimTask(msg.task_id, AGENT_NAME);
       const needsPrefix = msg.text?.match(/^(@all|\/debate)/);
       const prefix = needsPrefix ? `[${AGENT_NAME}] ` : '';
@@ -173,7 +196,9 @@ function connectSocket() {
       const context = history.length > 0
         ? `Contexto previo del chat:\n${history.map(m => `${m.from_agent}: ${m.text}`).join('\n')}\n\n`
         : '';
-      const prompt = `${context}Tarea: ${taskText}\nResponde en español, corto.`;
+      const systemPrompt = SYSTEM_PROMPTS[AGENT_NAME] || '';
+      const systemSection = systemPrompt ? `[System Instructions]\n${systemPrompt}\n\n` : '';
+      const prompt = `${systemSection}${context}Tarea: ${taskText}\nResponde en español, corto.`;
       const output = await new Promise((resolve, reject) => {
         const child = spawn(OPENCODE_BIN, ['run', '-m', 'opencode/mimo-v2.5-free', '--dir', WORKDIR, prompt], {
           cwd: WORKDIR,

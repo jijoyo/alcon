@@ -38,12 +38,6 @@ const fastify = Fastify({ logger: true });
 openDb();
 
 const db = getDb();
-try { db.exec("ALTER TABLE tasks ADD COLUMN heartbeat_count INTEGER DEFAULT 0"); } catch(e) {}
-try { db.exec("ALTER TABLE tasks ADD COLUMN stage_updated_at TEXT"); } catch(e) {}
-try { db.exec("ALTER TABLE tasks ADD COLUMN stage TEXT DEFAULT 'backlog'"); } catch(e) {}
-try { db.exec("ALTER TABLE tasks ADD COLUMN artifacts TEXT DEFAULT '[]'"); } catch(e) {}
-try { db.exec("ALTER TABLE tasks ADD COLUMN blocked_by TEXT DEFAULT '[]'"); } catch(e) {}
-try { db.exec("ALTER TABLE chat ADD COLUMN task_id INTEGER"); } catch(e) {}
 
 await fastify.register(cors, { origin:true, credentials:true, methods:['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders:['Content-Type','Authorization'] });
 await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
@@ -452,6 +446,12 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
       }
 
       let task = null;
+
+      if (text.length < 10 && !text.match(/^@\w/)) {
+        chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: null, timestamp: now() });
+        return;
+      }
+
       const existingTaskId = activeSessions.get(from);
       if (existingTaskId) {
         task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(existingTaskId);
