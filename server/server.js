@@ -447,7 +447,7 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
 
       let task = null;
 
-      if (text.length < 10 && !text.match(/^@\w/)) {
+      if (text.trim().length < 15 && !text.startsWith('@')) {
         chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: null, timestamp: now() });
         return;
       }

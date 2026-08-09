@@ -144,6 +144,21 @@ function connectSocket() {
     const rawCmd = msg.text.replace(/^@\w+\s*/, '').trim();
     const taskText = rawCmd;
 
+    // Anti-loop: respuestas cortas sin crear task
+    const STOP_WORDS = /^(hola|para ya|stop|gracias|ok|adiós|adios)$/i;
+    if (STOP_WORDS.test(rawCmd)) {
+      try {
+        const summary = execSync('pm2 jlist', { encoding: 'utf8', timeout: 5000 });
+        const procs = JSON.parse(summary);
+        const status = procs.map(p => `${p.name}: ${p.pm2_env.status}`).join(', ');
+        const gitHash = execSync('git log --oneline -1', { encoding: 'utf8', timeout: 3000 }).trim();
+        socket.emit('chat:message', { from: AGENT_NAME, text: `¡Hola! ¿Qué necesitas?\n\n📊 PM2: ${status}\n📝 Git: ${gitHash}` });
+      } catch (e) {
+        socket.emit('chat:message', { from: AGENT_NAME, text: `¡Hola! ¿Qué necesitas?` });
+      }
+      return;
+    }
+
     // 1. BASH fast-path (sin IA)
     if (BASH_REGEX.test(taskText) || /^(ls -la|cat |pwd|echo )/.test(taskText)) {
       const WRITE_CMDS = /^(git (add|commit|push|rm|checkout)|npm (build|install|run|publish)|deploy\.sh|rm -|ALTER TABLE|chmod|chown|systemctl|reboot|shutdown)/;
@@ -188,6 +203,11 @@ function connectSocket() {
     }
 
     // 3. Opencode fallback (timeout 180s)
+    const WRITE_CMDS_OPEN = /^(git (add|commit|push|rm|checkout)|npm (build|install|run|publish)|deploy\.sh|rm -|ALTER TABLE|chmod|chown|systemctl|reboot|shutdown)/;
+    if (WRITE_CMDS_OPEN.test(taskText)) {
+      socket.emit('chat:message', { from: AGENT_NAME, text: `⚠️ Acción de escritura detectada: \`${taskText}\`. ¿Procedo? Responde "sí" para confirmar.` });
+      return;
+    }
     claimTask(msg.task_id, AGENT_NAME);
     try {
       log(`[OPENCODE] Running: ${taskText}`);
