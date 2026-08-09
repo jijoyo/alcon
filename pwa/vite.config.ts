@@ -7,16 +7,18 @@ export default defineConfig({
     port: 5175,
     host: '0.0.0.0',
     proxy: {
-      '/api': 'http://localhost:3002',
-      '/health': 'http://localhost:3002'
+      '/api': 'http://localhost:3003',
+      '/health': 'http://localhost:3003',
+      '/enjambre': { target: 'http://localhost:3003', ws: true }
     }
   },
   preview: {
     port: 3004,
     host: '0.0.0.0',
     proxy: {
-      '/api': 'http://localhost:3002',
-      '/health': 'http://localhost:3002'
+      '/api': 'http://localhost:3003',
+      '/health': 'http://localhost:3003',
+      '/enjambre': { target: 'http://localhost:3003', ws: true }
     }
   }
 });
