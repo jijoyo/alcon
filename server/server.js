@@ -47,7 +47,7 @@ await fastify.register(cors, { origin:true, credentials:true, methods:['GET','PO
 await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
 
 function parseAgentFromText(text) {
-  const tagMatch = text.match(/^@(\w+)\s/);
+  const tagMatch = text.match(/^@\s*(\w+)\s/);
   if (tagMatch && AGENTS.includes(tagMatch[1])) return { agent: tagMatch[1], cleanText: text.slice(tagMatch[0].length) };
   const lower = text.toLowerCase();
   for (const [agent, keywords] of Object.entries(KEYWORD_MAP)) {
