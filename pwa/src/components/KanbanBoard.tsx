@@ -39,7 +39,7 @@ export function KanbanBoard() {
           const updatedTask = { 
             ...movedTask, 
             stage: (stage || movedTask.stage) as Stage,
-            status: status || movedTask.status,
+            status: (status || movedTask.status) as Task['status'],
             blocked_by: blocked_by !== undefined ? blocked_by : movedTask.blocked_by
           };
           next[updatedTask.stage] = [...(next[updatedTask.stage] || []), updatedTask];

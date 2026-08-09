@@ -18,7 +18,8 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:3003',
       '/health': 'http://localhost:3003',
-      '/enjambre': { target: 'http://localhost:3003', ws: true }
+      '/enjambre': { target: 'http://localhost:3003', ws: true, changeOrigin: true },
+      '/socket.io': { target: 'http://localhost:3003', ws: true, changeOrigin: true }
     }
   }
 });
