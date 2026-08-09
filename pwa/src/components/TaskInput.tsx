@@ -16,7 +16,7 @@ export function TaskInput({ onTaskCreated }: TaskInputProps) {
     setLoading(true);
     try {
       const task = await taskApi.create(text.trim());
-      onTaskCreated(task);
+      if (task?.id) onTaskCreated(task);
       setText('');
     } catch (e) {
       console.error('Failed to create task:', e);
@@ -99,7 +99,7 @@ export function TaskList({ tasks, selectedId, onSelect, refresh }: TaskListProps
                 Lock: {timeUntil(task.lock_expires_at)}
               </div>
             )}
-            {task.messages.length > 0 && (
+            {task.messages?.length > 0 && (
               <div className="text-xs text-slate-500 mt-1">
                 {task.messages.length} mensaje{task.messages.length !== 1 ? 's' : ''}
               </div>

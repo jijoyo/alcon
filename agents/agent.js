@@ -144,18 +144,12 @@ function connectSocket() {
     const rawCmd = msg.text.replace(/^@\w+\s*/, '').trim();
     const taskText = rawCmd;
 
+    if (msg.from === 'vps' || msg.from === msg.to || msg.from === AGENT_NAME || rawCmd.startsWith('vps:')) return;
+
     // Anti-loop: respuestas cortas sin crear task
-    const STOP_WORDS = /^(hola|para ya|stop|gracias|ok|adiós|adios)$/i;
+    const STOP_WORDS = /^(hola|para ya|stop|gracias|ok|adiós|adios|@vps hola)$/i;
     if (STOP_WORDS.test(rawCmd)) {
-      try {
-        const summary = execSync('pm2 jlist', { encoding: 'utf8', timeout: 5000 });
-        const procs = JSON.parse(summary);
-        const status = procs.map(p => `${p.name}: ${p.pm2_env.status}`).join(', ');
-        const gitHash = execSync('git log --oneline -1', { encoding: 'utf8', timeout: 3000 }).trim();
-        socket.emit('chat:message', { from: AGENT_NAME, text: `¡Hola! ¿Qué necesitas?\n\n📊 PM2: ${status}\n📝 Git: ${gitHash}` });
-      } catch (e) {
-        socket.emit('chat:message', { from: AGENT_NAME, text: `¡Hola! ¿Qué necesitas?` });
-      }
+      socket.emit('chat:message', { from: AGENT_NAME, text: `¡Hola! ¿Qué necesitas? 📊 Todo online.` });
       return;
     }
 
