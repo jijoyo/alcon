@@ -37,8 +37,8 @@ ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "cd $REMOTE_DIR/server && pm2 start server
 
 # Start agents
 echo "Starting agents..."
-ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "cd $REMOTE_DIR/agents && pm2 start agent.js --name kali-agent -- kali http://localhost:3002"
-ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "cd $REMOTE_DIR/agents && pm2 start agent.js --name vps-agent -- vps http://localhost:3002"
+ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "cd $REMOTE_DIR/agents && pm2 start agent.js --name kali-agent -- kali http://localhost:3003"
+ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "cd $REMOTE_DIR/agents && pm2 start agent.js --name vps-agent -- vps http://localhost:3003"
 
 # Save pm2 config
 ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "pm2 save"
@@ -46,10 +46,10 @@ ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "pm2 save"
 # Test
 echo "Testing..."
 sleep 2
-ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "curl -s http://localhost:3002/health"
+ssh -i "$SSH_KEY" "$VPS_USER@$VPS_IP" "curl -s http://localhost:3003/health"
 
 echo ""
 echo "=== Deploy complete ==="
-echo "Server: http://$VPS_IP:3002"
-echo "Health: http://$VPS_IP:3002/health"
-echo "Status: http://$VPS_IP:3002/api/status"
+echo "Server: http://$VPS_IP:3003"
+echo "Health: http://$VPS_IP:3003/health"
+echo "Status: http://$VPS_IP:3003/api/status"

@@ -139,13 +139,13 @@ PWA (React + Tailwind)          VPS (Oracle Cloud)
 
 ```bash
 # Server
-cd server && npm install && npm run dev    # :3002
+cd server && npm install && npm run dev    # :3003
 
 # PWA
 cd pwa && npm install && npm run dev       # :5175
 
 # Agente
-cd agents && node agent.js kali http://localhost:3002
+cd agents && node agent.js kali http://localhost:3003
 ```
 
 ## Deploy al VPS

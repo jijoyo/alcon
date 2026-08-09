@@ -6,8 +6,8 @@ Fastify v5 + Socket.io v4 server para el sistema multi-agente Alcon.
 
 ```bash
 npm install
-node server.js          # Puerto 3002 (default)
-PORT=3003 node server.js  # Puerto custom
+node server.js          # Puerto 3003 (default)
+PORT=3002 node server.js  # Puerto custom
 ```
 
 ## API Reference
@@ -142,7 +142,7 @@ Ambos usan atomic write (write .tmp + rename) para evitar corrupcion.
 
 | Variable | Default | Descripcion |
 |----------|---------|-------------|
-| `PORT` | 3002 | Puerto del server |
+| `PORT` | 3003 | Puerto del server |
 | `HOST` | 0.0.0.0 | Host bind |
 
 ## Arquitectura Interna

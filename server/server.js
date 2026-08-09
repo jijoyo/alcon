@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
 import { open as openDb, get as getDb } from './db/connection.js';
+import { requireString, maxLength } from './middleware/validate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || path.join(__dirname, 'artifacts');
@@ -80,7 +81,8 @@ fastify.get('/health', async () => {
 
 fastify.post('/api/task', async (request, reply) => {
   const { text } = request.body || {};
-  if (!text || typeof text !== 'string' || text.trim().length === 0) return reply.code(400).send({ error:'text is required' });
+  const err = requireString(text, 'text') || maxLength(text, 5000, 'text');
+  if (err) return reply.code(400).send(err);
   const { agent, cleanText } = parseAgentFromText(text.trim());
   const db = getDb();
   const id = generateId();
@@ -123,7 +125,8 @@ fastify.get('/api/task/:id', async (request, reply) => {
 fastify.post('/api/task/:id/claim', async (request, reply) => {
   const id = Number(request.params.id);
   const { owner } = request.body || {};
-  if (!owner) return reply.code(400).send({ error:'owner is required' });
+  const err = requireString(owner, 'owner');
+  if (err) return reply.code(400).send(err);
   const db = getDb();
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   if (!task) return reply.code(404).send({ error:'Task not found' });
@@ -146,7 +149,8 @@ fastify.post('/api/task/:id/claim', async (request, reply) => {
 fastify.post('/api/task/:id/heartbeat', async (request, reply) => {
   const id = Number(request.params.id);
   const { owner } = request.body || {};
-  if (!owner) return reply.code(400).send({ error:'owner is required' });
+  const err = requireString(owner, 'owner');
+  if (err) return reply.code(400).send(err);
   const db = getDb();
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   if (!task) return reply.code(404).send({ error:'Task not found' });
@@ -165,7 +169,8 @@ fastify.post('/api/task/:id/heartbeat', async (request, reply) => {
 fastify.post('/api/task/:id/message', async (request, reply) => {
   const id = Number(request.params.id);
   const { from, text } = request.body || {};
-  if (!from || !text) return reply.code(400).send({ error:'from and text are required' });
+  const err = requireString(from, 'from') || requireString(text, 'text');
+  if (err) return reply.code(400).send(err);
   const db = getDb();
   const task = db.prepare('SELECT id FROM tasks WHERE id = ?').get(id);
   if (!task) return reply.code(404).send({ error:'Task not found' });
@@ -186,7 +191,8 @@ fastify.get('/api/task/:id/messages', async (request, reply) => {
 fastify.post('/api/task/:id/complete', async (request, reply) => {
   const id = Number(request.params.id);
   const { owner, result } = request.body || {};
-  if (!owner) return reply.code(400).send({ error:'owner is required' });
+  const err = requireString(owner, 'owner');
+  if (err) return reply.code(400).send(err);
   const db = getDb();
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   if (!task) return reply.code(404).send({ error:'Task not found' });
@@ -229,7 +235,8 @@ fastify.post('/api/task/:id/complete', async (request, reply) => {
 fastify.post('/api/task/:id/error', async (request, reply) => {
   const id = Number(request.params.id);
   const { owner, error: errorMsg } = request.body || {};
-  if (!owner) return reply.code(400).send({ error:'owner is required' });
+  const err = requireString(owner, 'owner');
+  if (err) return reply.code(400).send(err);
   const db = getDb();
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   if (!task) return reply.code(404).send({ error:'Task not found' });
@@ -397,7 +404,7 @@ function cleanupSessionByTaskId(taskId) {
   }
 }
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3003;
 const HOST = process.env.HOST || '0.0.0.0';
 
 fastify.listen({ port: PORT, host: HOST }, (err) => {

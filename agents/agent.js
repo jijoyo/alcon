@@ -10,7 +10,7 @@ import path from 'path';
 import os from 'os';
 
 const AGENT_NAME = process.argv[2] || 'kali';
-const SERVER_URL = process.argv[3] || 'http://100.102.63.30:3002';
+const SERVER_URL = process.argv[3] || 'http://100.102.63.30:3003';
 const isTermux = process.env.PREFIX?.includes('com.termux');
 const OPENCODE_BIN = isTermux
   ? '/data/data/com.termux/files/usr/bin/opencode'
