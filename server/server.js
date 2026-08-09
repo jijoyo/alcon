@@ -431,7 +431,6 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
     });
     socket.on('chat:message', ({ from, text }) => {
       if (!from || !text) return;
-      if (from === 'vps') return;
       const db = getDb();
       const chatMsg = { id: crypto.randomUUID(), from, text, timestamp: now() };
       db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(chatMsg.id, from, text, chatMsg.timestamp);

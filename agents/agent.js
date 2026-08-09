@@ -149,7 +149,9 @@ function connectSocket() {
     // Anti-loop: respuestas cortas sin crear task
     const STOP_WORDS = /^(hola|para ya|stop|gracias|ok|adiós|adios|@vps hola)$/i;
     if (STOP_WORDS.test(rawCmd)) {
-      socket.emit('chat:message', { from: AGENT_NAME, text: `¡Hola! ¿Qué necesitas? 📊 Todo online.` });
+      console.log(`[FAST] STOP_WORDS match: ${rawCmd}`);
+      const uptime = process.uptime().toFixed(0);
+      socket.emit('chat:message', { from: AGENT_NAME, text: `¡Hola! ¿Qué necesitas? 📊 Todo online. Uptime: ${uptime}s - PID: ${process.pid}` });
       return;
     }
 
