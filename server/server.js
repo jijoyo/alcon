@@ -75,6 +75,19 @@ fastify.get('/health', async () => {
 
 fastify.post('/api/task', async (request, reply) => {
   const { text } = request.body || {};
+  if (text && text.trim().length < 15) {
+    if (globalThis._io) {
+      globalThis._io.of('/enjambre').emit('agent:direct', {
+        id: crypto.randomUUID(),
+        from: request.body?.from || 'israel',
+        to: 'vps',
+        text: text.trim(),
+        task_id: null,
+        timestamp: Date.now()
+      });
+    }
+    return { id: null, direct: true };
+  }
   const err = requireString(text, 'text') || maxLength(text, 5000, 'text');
   if (err) return reply.code(400).send(err);
   const { agent, cleanText } = parseAgentFromText(text.trim());
@@ -418,6 +431,7 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
     });
     socket.on('chat:message', ({ from, text }) => {
       if (!from || !text) return;
+      if (from === 'vps') return;
       const db = getDb();
       const chatMsg = { id: crypto.randomUUID(), from, text, timestamp: now() };
       db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(chatMsg.id, from, text, chatMsg.timestamp);
