@@ -4,16 +4,20 @@
 // Usage: node agent.js <agent-name> <server-url>
 
 import { io } from 'socket.io-client';
-import { execa } from 'execa';
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
 const AGENT_NAME = process.argv[2] || 'kali';
 const SERVER_URL = process.argv[3] || 'http://100.102.63.30:3002';
-const OPENCODE_BIN = process.env.OPENCODE_BIN || '/data/data/com.termux/files/usr/bin/opencode';
-const WORKDIR = process.env.WORKDIR || '/data/data/com.termux/files/home/alcon';
+const isTermux = process.env.PREFIX?.includes('com.termux');
+const OPENCODE_BIN = isTermux
+  ? '/data/data/com.termux/files/usr/bin/opencode'
+  : '/home/ubuntu/.opencode/bin/opencode';
+const WORKDIR = isTermux
+  ? '/data/data/com.termux/files/home/alcon'
+  : '/home/ubuntu/alcon';
 const AGENTS_DIR = path.join(WORKDIR, 'agents');
 
 const BASH_REGEX = /^(ls|cat|pwd|echo|find|head|tail|grep|ps|df|du|whoami|uname|wc|sort|uniq|date|hostname|id|env|which|file|stat|mkdir|rm|cp|mv|chmod|chown|touch|ln|readlink|basename|dirname|realpath|mktemp|tee|xargs|tr|cut|sed|awk|diff|patch|tar|gzip|gunzip|zip|unzip|curl|wget|ssh|scp|rsync|ping|dig|nslookup|netstat|ss|ip|ifconfig|route|iptables|crontab|systemctl|journalctl|dmesg|lsblk|fdisk|mount|umount|lsof|fuser|kill|killall|nohup|screen|tmux|bg|fg|jobs|wait|sleep|yes|seq|rev|base64|md5sum|sha256sum|cksum|wc|iconv|fmt|fold|paste|join|split|csplit|comm|tee|stdbuf|timeout|nice|ionice|taskset|numactl|chroot|unshare|nsenter|capsh|setcap|getcap|ldd|strace|ltrace|perf|bpftrace|SystemTap|dtrace|flock|sync|fsync|fdatasync|fallocate|fadvise|finit_module|delete_module|kexec|reboot|shutdown|halt|poweroff|init|telinit|runlevel|who|w|last|lastb|ac|lastlog|faillog|journal|logger|syslog|rsyslog|logrotate|cron|at|batch|anacron|anacrontab|plocate|locate|updatedb|mknod|MAKEDEV|fsck|e2fsck|mkfs|mkswap|swapon|swapoff|blkid|findblk|blockdev|hdparm|sdparm|smartctl|badblocks|e2label|tune2fs|debugfs|dumpe2fs|e2image|e2undo|logsave|resize2fs|e4defrag|fallocate|fadvise|finit_module|delete_module|kexec|reboot|shutdown|halt|poweroff|init|telinit|runlevel|who|w|last|lastb|ac|lastlog|faillog|journal|logger|syslog|rsyslog|logrotate|cron|at|batch|anacron|anacrontab|plocate|locate|updatedb|mknod|MAKEDEV|fsck|e2fsck|mkfs|mkswap|swapon|swapoff|blkid|findblk|blockdev|hdparm|sdparm|smartctl|badblocks|e2label|tune2fs|debugfs|dumpe2fs|e2image|e2undo|logsave|resize2fs|e4defrag)\b/i;
@@ -41,6 +45,27 @@ function uploadArtifact(taskId, output) {
     log(`[ARTIFACT] Uploaded for task ${taskId}`);
   } catch (e) {
     log(`[ARTIFACT] Upload failed: ${e.message}`);
+  }
+}
+
+function claimTask(taskId, owner) {
+  if (!taskId) return;
+  try {
+    execSync(`curl -s -X POST ${SERVER_URL}/api/task/${taskId}/claim -H "Content-Type: application/json" -d '${JSON.stringify({ owner })}'`, { timeout: 10000 });
+    log(`[CLAIM] Task ${taskId} claimed by ${owner}`);
+  } catch (e) {
+    log(`[CLAIM] Failed for ${taskId}: ${e.message}`);
+  }
+}
+
+function completeTask(taskId, result, owner) {
+  if (!taskId) return;
+  try {
+    const body = JSON.stringify({ owner, result: result?.slice(0, 5000) || '' });
+    execSync(`curl -s -X POST ${SERVER_URL}/api/task/${taskId}/complete -H "Content-Type: application/json" -d '${body}'`, { timeout: 10000 });
+    log(`[COMPLETE] Task ${taskId} marked done`);
+  } catch (e) {
+    log(`[COMPLETE] Failed for ${taskId}: ${e.message}`);
   }
 }
 
@@ -96,6 +121,7 @@ function connectSocket() {
 
     // 1. BASH fast-path (sin IA)
     if (BASH_REGEX.test(taskText) || /^(ls -la|cat |pwd|echo )/.test(taskText)) {
+      claimTask(msg.task_id, AGENT_NAME);
       try {
         log(`[BASH] Running: ${taskText}`);
         socket.emit('typing:start');
@@ -103,13 +129,13 @@ function connectSocket() {
         socket.emit('typing:stop');
         socket.emit('chat:message', { from: AGENT_NAME, text: result.slice(0, 2000) });
         log(`[BASH] Done (${result.length} chars)`);
-        if (msg.task_id && result.length > 100) {
-          uploadArtifact(msg.task_id, result);
-        }
+        if (msg.task_id && result.length > 100) uploadArtifact(msg.task_id, result);
+        completeTask(msg.task_id, result, AGENT_NAME);
       } catch (e) {
         socket.emit('typing:stop');
         socket.emit('chat:message', { from: AGENT_NAME, text: `Error: ${e.message}` });
         log(`[BASH] Error: ${e.message}`);
+        completeTask(msg.task_id, `Error: ${e.message}`, AGENT_NAME);
       }
       return;
     }
@@ -117,32 +143,44 @@ function connectSocket() {
     // 2. FAST regex (hola/ping/ruta/pwd)
     const fast = fastReply(taskText);
     if (fast) {
+      claimTask(msg.task_id, AGENT_NAME);
       log(`[FAST] ${fast}`);
       socket.emit('typing:stop');
       socket.emit('chat:message', { from: AGENT_NAME, text: fast });
+      completeTask(msg.task_id, fast, AGENT_NAME);
       return;
     }
 
-    // 3. Opencode fallback (con timeout 60s y modelo air)
+    // 3. Opencode fallback (timeout 180s)
+    claimTask(msg.task_id, AGENT_NAME);
     try {
       log(`[OPENCODE] Running: ${taskText}`);
       socket.emit('typing:start');
       const prompt = `Tarea: ${taskText}\nResponde en español, corto.`;
-      const result = await execa(OPENCODE_BIN, ['run', '-m', 'openai/mimo-v2.5-free', '--dir', WORKDIR, prompt], {
-        cwd: WORKDIR,
-        timeout: 60_000
+      const output = await new Promise((resolve, reject) => {
+        const child = spawn(OPENCODE_BIN, ['run', '-m', 'opencode/mimo-v2.5-free', '--dir', WORKDIR, prompt], {
+          cwd: WORKDIR,
+          stdio: ['ignore', 'pipe', 'inherit']
+        });
+        let stdout = '';
+        child.stdout.on('data', (data) => { stdout += data; });
+        const timer = setTimeout(() => { child.kill(); reject(new Error('timeout')); }, 180_000);
+        child.on('close', (code) => {
+          clearTimeout(timer);
+          code === 0 ? resolve(stdout || '(sin output)') : reject(new Error(`exit code ${code}`));
+        });
+        child.on('error', (err) => { clearTimeout(timer); reject(err); });
       });
-      const output = result.stdout || '(sin output)';
       socket.emit('typing:stop');
       socket.emit('chat:message', { from: AGENT_NAME, text: output.slice(0, 2000) });
       log(`[OPENCODE] Done (${output.length} chars)`);
-      if (output.length > 100 && msg.task_id) {
-        uploadArtifact(msg.task_id, output);
-      }
+      if (output.length > 100 && msg.task_id) uploadArtifact(msg.task_id, output);
+      completeTask(msg.task_id, output, AGENT_NAME);
     } catch (e) {
       log(`[OPENCODE] Error: ${e.message}`);
       socket.emit('typing:stop');
       socket.emit('chat:message', { from: AGENT_NAME, text: `Error: ${e.message}` });
+      completeTask(msg.task_id, `Error: ${e.message}`, AGENT_NAME);
     }
   });
 
