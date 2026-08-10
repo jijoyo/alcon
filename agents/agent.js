@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { STOP_WORDS } from '../server/config/stopWords.js';
+import { checkPermiso } from '../server/lib/permisos.js';
 
 const AGENT_NAME = process.argv[2] || 'kali';
 const SERVER_URL = process.argv[3] || 'http://100.102.63.30:3003';
@@ -157,11 +158,11 @@ function connectSocket() {
 
     // 1. BASH fast-path (sin IA)
     if (BASH_REGEX.test(taskText) || /^(ls -la|cat |pwd|echo )/.test(taskText)) {
-      const WRITE_CMDS = /^(git (add|commit|push|rm|checkout)|npm (build|install|run|publish)|deploy\.sh|rm -|ALTER TABLE|chmod|chown|systemctl|reboot|shutdown)/;
-      if (WRITE_CMDS.test(taskText)) {
+      const permCheck = checkPermiso(AGENT_NAME, taskText);
+      if (!permCheck.allowed) {
         socket.emit('typing:stop');
-        socket.emit('chat:message', { from: AGENT_NAME, text: `⚠️ Comando de escritura detectado: \`${taskText}\`. Confirma con "sí" o "procede" para ejecutar.` });
-        log(`[BASH] Bloqueado sin confirmación: ${taskText}`);
+        socket.emit('chat:message', { from: AGENT_NAME, text: `🚫 Bloqueado por permisos: ${permCheck.reason}\nComando: \`${taskText}\`` });
+        log(`[PERMISO] Bloqueado: ${taskText} — ${permCheck.reason}`);
         return;
       }
       claimTask(msg.task_id, AGENT_NAME);
@@ -199,9 +200,10 @@ function connectSocket() {
     }
 
     // 3. Opencode fallback (timeout 15m)
-    const WRITE_CMDS_OPEN = /^(git (add|commit|push|rm|checkout)|npm (build|install|run|publish)|deploy\.sh|rm -|ALTER TABLE|chmod|chown|systemctl|reboot|shutdown)/;
-    if (WRITE_CMDS_OPEN.test(taskText)) {
-      socket.emit('chat:message', { from: AGENT_NAME, text: `⚠️ Acción de escritura detectada: \`${taskText}\`. ¿Procedo? Responde "sí" para confirmar.` });
+    const opencodePerm = checkPermiso(AGENT_NAME, taskText);
+    if (!opencodePerm.allowed) {
+      socket.emit('chat:message', { from: AGENT_NAME, text: `🚫 Bloqueado por permisos: ${opencodePerm.reason}\nComando: \`${taskText}\`` });
+      log(`[PERMISO] OpenCode bloqueado: ${taskText} — ${opencodePerm.reason}`);
       return;
     }
     claimTask(msg.task_id, AGENT_NAME);

@@ -1,51 +1,89 @@
 # Nota: Sistema de Permisos de Agentes en Alcon
 
-## Estado actual
-El `agent.js` de Alcon es un **stub** — simula ejecución con setTimeout. No hay sistema de permisos real.
+## Implementado: v3.1-clean
 
-## Lo que CUALQUIER agente puede hacer ahora
-- Poll de tareas pendientes
-- Claim (tomar posesión)
-- Marcar como completada
-- Enviar mensajes al chat
+### Archivos
+- `server/lib/permisos.js` — Módulo de whitelist por agente
+- `agents/agent.js` — Integrado antes de ejecutar bash/opencode
 
-## Lo que NINGÚN agente puede hacer ahora
-- Ejecutar código real en otros nodos
-- Modificar archivos del repo
-- Hacer deploy
-- Acceder al filesystem de otros nodos
+## Permisos por agente
 
-## Capacidades reales por agente
+| Agente | bash | write | deploy | git | gitRead | net | chat | list |
+|--------|------|-------|--------|-----|---------|-----|------|------|
+| **vps** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **kali** | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **cel** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| **reina** | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-| Agente | Ubicación | Puede modificar | Cómo |
-|--------|-----------|-----------------|------|
-| **Kali** | /home/jijoyo/ | Código DoseDash | Git push |
-| **VPS** | Oracle ARM | Server Alcon | SSH + pm2 |
-| **Cel** | Termux | Nada | Solo testing físico |
+### Detalle de permisos
 
-## Pendientes para aterrizar
+#### VPS (full access)
+- Puede ejecutar cualquier comando bash
+- Puede escribir archivos, hacer deploy, git push
+- Acceso completo a red y sistema
 
-### Fase 1: Ejecución básica (urgente)
-- [ ] Que agent.js ejecute comandos reales (no simulados)
-- [ ] Sistema de whitelist: qué comandos puede ejecutar cada agente
-- [ ] Log de acciones por agente
+#### Kali (readonly + net)
+- Solo comandos de lectura (ls, cat, grep, etc.)
+- Git: pull, status, log, diff (NO push a main)
+- Net: curl, wget, ssh, scp, rsync
+- Sin deploy, sin escritura
 
-### Fase 2: Permisos (medio plazo)
-- [ ] Definir roles: quién puede qué
-- [ ] Control de acceso por archivo/directorio
+#### Cel (solo chat/list)
+- Solo chat y listar tareas
+- Sin ejecución de comandos
+- Sin acceso a filesystem
+
+#### Reina (desarrollo pesado)
+- bash + write + git + net
+- Sin deploy (deploy es solo VPS)
+
+## Cómo funciona
+
+```javascript
+import { checkPermiso } from '../server/lib/permisos.js';
+
+const result = checkPermiso('kali', 'git push origin main');
+// { allowed: false, reason: 'kali: sin permiso git write' }
+
+const result2 = checkPermiso('vps', 'pm2 restart alcon-api');
+// { allowed: true, reason: 'bash OK' }
+```
+
+## Comandos bloqueados por patrón
+
+### Escritura (requiere `write: true`)
+- `git add/commit/push/rm/checkout/merge/rebase/reset/cherry-pick`
+- `npm build/install/run/publish/uninstall`
+- `yarn/pnpm add/remove/install/build`
+- `deploy.sh`
+- `rm -/rmdir`
+- `chmod/chown`
+- `systemctl/reboot/shutdown`
+- `mv/cp/mkdir/touch`
+- `echo > file`
+- `sed -i`
+- `tee`
+
+### Deploy (requiere `deploy: true`)
+- `deploy.sh`
+- `pm2 restart/stop/delete/start`
+- `systemctl`
+- `reboot/shutdown`
+
+### Git peligroso (requiere `git: true`)
+- `git push`
+- `git checkout/switch main/master`
+- `git merge/rebase main/master`
+- `git reset/revert --hard`
+
+### Red (requiere `net: true`)
+- `curl/wget/ssh/scp/rsync`
+- `ping/dig/nslookup`
+- `netstat/ss/ip/ifconfig/route`
+
+## Pendientes
+
 - [ ] Rate limiting por agente
-
-### Fase 3: Seguridad (largo plazo)
-- [ ] Sandbox para ejecución de código
+- [ ] Sandbox para ejecución
 - [ ] Auditoría de cambios
 - [ ] Aprobación humana para cambios críticos
-
-## Preguntas abiertas
-1. ¿Quién aprueba los cambios de código?
-2. ¿Los agentes pueden hacer push directo o necesitan PR?
-3. ¿Cómo se evita que un agente corrupto destruya el repo?
-
-## Referencia
-- agents/agent.js (stub actual)
-- server/server.js (API con locking pero sin permisos)
-- .github/agents/ (agentes de revisión en DoseDash — modelo a seguir)
