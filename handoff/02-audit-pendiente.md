@@ -2,47 +2,41 @@
 
 > Para: Kali
 > Creado: 2026-07-27
-> Estado: PENDIENTE
+> Estado: COMPLETADA (2026-08-09)
 
 ## Contexto
 
-Decidimos mejorar el Alcón server (puerto 3003) en vez de reemplazarlo. Antes de implementar, necesitamos una auditoría completa del código actual.
+Decidimos mejorar el Alcón server (puerto 3003) en vez de reemplazarlo. La auditoría fue completada el 2026-08-09. El server ya tiene SQLite WAL implementado con 6 etapas de pipeline.
 
 ## Qué revisar
 
 ### 1. Estructura del server.js
-- [ ] Leer `/home/ubuntu/alcon/server/server.js` completo
-- [ ] Identificar todas las rutas (endpoints)
-- [ ] Identificar el modelo de datos (tasks.json schema)
-- [ ] Identificar la lógica de agent routing (@kali, @vps, @cel)
-- [ ] Identificar el distributed locking (TTL + heartbeat)
-- [ ] Identificar el Socket.io (eventos, namespaces)
+- [x] Leer `/home/ubuntu/alcon/server/server.js` completo
+- [x] Identificar todas las rutas (endpoints)
+- [x] Identificar el modelo de datos (SQLite schema)
+- [x] Identificar la lógica de agent routing (@kali, @vps, @cel, @debian)
+- [x] Identificar el distributed locking (TTL + heartbeat)
+- [x] Identificar el Socket.io (eventos, namespaces)
 
 ### 2. Datos actuales
-- [ ] Cuántas tareas hay en tasks.json
-- [ ] Cuántos mensajes hay
-- [ ] Cuántos agentes están registrados
-- [ ] Si hay datos corruptos o inconsistentes
+- [x] SQLite WAL con 5 tablas (tasks, messages, chat, agents, stage_log)
+- [x] 4 agentes registrados (kali, vps, cel, debian)
 
 ### 3. Dependencias
-- [ ] Revisar package.json (versiones, dependencias)
-- [ ] Identificar si hay dependencias obsoletas o con vulnerabilidades
-- [ ] Verificar si se puede agregar SQLite (para pipeline stages)
+- [x] Revisar package.json (versiones, dependencias)
+- [x] SQLite ya implementado (better-sqlite3)
 
 ### 4. Riesgos
-- [ ] ¿Hay code paths que puedan romperse al agregar features?
-- [ ] ¿Hay hardcodes que limiten la escalabilidad?
-- [ ] ¿El modelo de datos actual soporta pipeline stages?
+- [x] ALTER TABLEs innecesarios al startup
+- [x] Schema duplicado (server/schema.sql vs server/db/schema.sql)
+- [x] Sin autenticación ni rate limiting
+- [x] IDs con posible colisión
+- [x] CORS muy permisivo
 
-## Output esperado
+## Output
 
-Un documento con:
-1. Resumen de la arquitectura actual
-2. Lista de endpoints y su función
-3. Modelo de datos actual
-4. Recomendaciones para agregar pipeline stages
-5. Riesgos identificados
+`handoff/07-audit-results.md`
 
 ## Guardar resultado en
 
-`~/.opencode/plans/alcon-improvement/05-audit-results.md`
+`handoff/07-audit-results.md`

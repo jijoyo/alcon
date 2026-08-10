@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS chat (
   id TEXT PRIMARY KEY,
   from_agent TEXT NOT NULL,
   text TEXT NOT NULL,
-  timestamp TEXT NOT NULL DEFAULT (datetime('now'))
+  timestamp TEXT NOT NULL DEFAULT (datetime('now')),
+  task_id INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS agents (
