@@ -87,6 +87,39 @@ function completeTask(taskId, result, owner) {
   }
 }
 
+function saveEngram(taskId, taskText, result, status) {
+  try {
+    const engramDir = path.join(WORKDIR, '.engram');
+    if (!fs.existsSync(engramDir)) fs.mkdirSync(engramDir, { recursive: true });
+    const file = path.join(engramDir, 'memoria.md');
+    const ts = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const block = `\n## ${ts} | ${AGENT_NAME} | ${status === 'ok' ? 'COMPLETADO' : 'ERROR'}\n\n- **Tarea ID:** ${taskId || 'N/A'}\n- **Resumen:** ${taskText.slice(0, 120)}\n- **Resultado:** ${(result || '').slice(0, 200)}\n- **Agente:** ${AGENT_NAME}\n---\n`;
+    fs.appendFileSync(file, block);
+    log(`[ENGRAM] Saved task ${taskId || 'N/A'}`);
+  } catch (e) {
+    log(`[ENGRAM] Save failed: ${e.message}`);
+  }
+}
+
+function updateHandoffRoadmap(taskId, taskText, status) {
+  try {
+    const handoff = path.join(WORKDIR, 'HANDOFF.md');
+    if (!fs.existsSync(handoff)) return;
+    let content = fs.readFileSync(handoff, 'utf8');
+    const ts = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const entry = `| ${ts} | ${AGENT_NAME} | ${taskId || '-'} | ${taskText.slice(0, 60)} | ${status} |\n`;
+    if (content.includes('## Últimas tareas completadas')) {
+      content += entry;
+    } else {
+      content += `\n## Últimas tareas completadas\n\n| Fecha | Agente | Task ID | Descripción | Estado |\n|-------|--------|---------|-------------|--------|\n${entry}`;
+    }
+    fs.writeFileSync(handoff, content);
+    log(`[HANDOFF] Roadmap updated`);
+  } catch (e) {
+    log(`[HANDOFF] Update failed: ${e.message}`);
+  }
+}
+
 function fetchTaskMessages(taskId, limit = 5) {
   if (!taskId) return [];
   try {
@@ -177,6 +210,8 @@ function connectSocket() {
         log(`[BASH] Done (${result.length} chars)`);
         if (msg.task_id && result.length > 100) uploadArtifact(msg.task_id, result);
         completeTask(msg.task_id, result, AGENT_NAME);
+        saveEngram(msg.task_id, taskText, result, 'ok');
+        updateHandoffRoadmap(msg.task_id, taskText, 'done');
       } catch (e) {
         socket.emit('typing:stop');
         socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}Error: ${e.message}` });
@@ -196,6 +231,8 @@ function connectSocket() {
       socket.emit('typing:stop');
       socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}${fast}` });
       completeTask(msg.task_id, fast, AGENT_NAME);
+      saveEngram(msg.task_id, taskText, fast, 'ok');
+      updateHandoffRoadmap(msg.task_id, taskText, 'done');
       return;
     }
 
@@ -247,6 +284,8 @@ function connectSocket() {
       log(`[OPENCODE] Done (${output.length} chars)`);
       if (output.length > 100 && msg.task_id) uploadArtifact(msg.task_id, output);
       completeTask(msg.task_id, output, AGENT_NAME);
+      saveEngram(msg.task_id, taskText, output, 'ok');
+      updateHandoffRoadmap(msg.task_id, taskText, 'done');
     } catch (e) {
       log(`[OPENCODE] Error: ${e.message}`);
       socket.emit('typing:stop');
@@ -254,6 +293,8 @@ function connectSocket() {
       const prefix = needsPrefix ? `[${AGENT_NAME}] ` : '';
       socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}Error: ${e.message}` });
       completeTask(msg.task_id, `Error: ${e.message}`, AGENT_NAME);
+      saveEngram(msg.task_id, taskText, e.message, 'error');
+      updateHandoffRoadmap(msg.task_id, taskText, 'error');
     }
   });
 

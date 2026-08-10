@@ -105,7 +105,7 @@ Siempre usar comillas simples cuando el texto tenga caracteres especiales: `()` 
 ### Fase 4: Integración
 | # | Feature | Fuente | Notas |
 |---|---------|--------|-------|
-| 4.1 | Engram auto-save | Nuestro | Al completar tarea → mem_save |
+| 4.1 | Engram auto-save | Nuestro | Al completar tarea → mem_save ✅ DONE v3.1-clean |
 | 4.2 | Chat mejorado | Nuestro | Threaded, notificaciones |
 | 4.3 | PWA actualizado | Nuestro | Nuevo dashboard con pipeline |
 
