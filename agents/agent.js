@@ -198,7 +198,7 @@ function connectSocket() {
       return;
     }
 
-    // 3. Opencode fallback (timeout 180s)
+    // 3. Opencode fallback (timeout 15m)
     const WRITE_CMDS_OPEN = /^(git (add|commit|push|rm|checkout)|npm (build|install|run|publish)|deploy\.sh|rm -|ALTER TABLE|chmod|chown|systemctl|reboot|shutdown)/;
     if (WRITE_CMDS_OPEN.test(taskText)) {
       socket.emit('chat:message', { from: AGENT_NAME, text: `⚠️ Acción de escritura detectada: \`${taskText}\`. ¿Procedo? Responde "sí" para confirmar.` });
@@ -222,12 +222,21 @@ function connectSocket() {
         });
         let stdout = '';
         child.stdout.on('data', (data) => { stdout += data; });
-        const timer = setTimeout(() => { child.kill(); reject(new Error('timeout')); }, 180_000);
+        const timer = setTimeout(() => { child.kill(); reject(new Error('timeout')); }, 900_000);
+        const heartbeat = setInterval(() => {
+          try {
+            execSync(`curl -s -X POST ${SERVER_URL}/api/task/${msg.task_id}/heartbeat -H "Content-Type: application/json" -d '${JSON.stringify({ owner: AGENT_NAME })}'`, { timeout: 5000 });
+            log(`[HEARTBEAT] Task ${msg.task_id} extended`);
+          } catch (e) {
+            log(`[HEARTBEAT] Failed: ${e.message}`);
+          }
+        }, 30_000);
         child.on('close', (code) => {
           clearTimeout(timer);
+          clearInterval(heartbeat);
           code === 0 ? resolve(stdout || '(sin output)') : reject(new Error(`exit code ${code}`));
         });
-        child.on('error', (err) => { clearTimeout(timer); reject(err); });
+        child.on('error', (err) => { clearTimeout(timer); clearInterval(heartbeat); reject(err); });
       });
       socket.emit('typing:stop');
       const needsPrefix = msg.text?.match(/^(@all|\/debate)/);
