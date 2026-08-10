@@ -460,39 +460,40 @@ fastify.listen({ port: PORT, host: HOST }, (err) => {
         return;
       }
 
-      if (!text.startsWith('@')) return;
-
       const STOP_WORDS = /^(hola|para ya|stop|gracias|ok|adiós|adios)/i;
-      if (STOP_WORDS.test(text.replace(/^@\w+\s*/, ''))) {
-        chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: null, timestamp: now() });
-        return;
-      }
-      if (text.trim().length < 15) {
+      const clean = text.replace(/^@\w+\s*/, '');
+
+      if (STOP_WORDS.test(clean) || text.trim().length < 15) {
         chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: null, timestamp: now() });
         return;
       }
 
-      let task = null;
-      const existingTaskId = activeSessions.get(from);
-      if (existingTaskId) {
-        task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(existingTaskId);
-        if (task && task.status !== 'pendiente' && task.status !== 'en_proceso') {
-          task = null;
-          activeSessions.delete(from);
+      if (text.startsWith('@vps')) {
+        let task = null;
+        const existingTaskId = activeSessions.get(from);
+        if (existingTaskId) {
+          task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(existingTaskId);
+          if (task && task.status !== 'pendiente' && task.status !== 'en_proceso') {
+            task = null;
+            activeSessions.delete(from);
+          }
         }
+
+        if (!task) {
+          const id = generateId();
+          const created = now();
+          db.prepare(`INSERT INTO tasks (id, text, original_text, status, assigned_to, created, stage, stage_updated_at, blocked_by) VALUES (?, ?, ?, 'pendiente', 'vps', ?, 'backlog', ?, '[]')`).run(id, text.slice(0, 200), text, created, created);
+          task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+          activeSessions.set(from, task.id);
+        } else {
+          db.prepare('INSERT INTO messages (id, task_id, from_agent, text, timestamp) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), task.id, from, text, now());
+        }
+
+        chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: task.id, timestamp: now() });
+        return;
       }
 
-      if (!task) {
-        const id = generateId();
-        const created = now();
-        db.prepare(`INSERT INTO tasks (id, text, original_text, status, assigned_to, created, stage, stage_updated_at, blocked_by) VALUES (?, ?, ?, 'pendiente', 'vps', ?, 'backlog', ?, '[]')`).run(id, text.slice(0, 200), text, created, created);
-        task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
-        activeSessions.set(from, task.id);
-      } else {
-        db.prepare('INSERT INTO messages (id, task_id, from_agent, text, timestamp) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), task.id, from, text, now());
-      }
-
-      chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: task.id, timestamp: now() });
+      chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: null, timestamp: now() });
     });
     socket.on('typing:start', () => { const p = presence.get(socket.id); if (p) { p.typing = true; p.lastSeen = Date.now(); } broadcastPresence(chatNs); });
     socket.on('typing:stop', () => { const p = presence.get(socket.id); if (p) { p.typing = false; p.lastSeen = Date.now(); } broadcastPresence(chatNs); });
