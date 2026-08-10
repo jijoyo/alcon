@@ -8,6 +8,7 @@ import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { STOP_WORDS } from '../server/config/stopWords.js';
 
 const AGENT_NAME = process.argv[2] || 'kali';
 const SERVER_URL = process.argv[3] || 'http://100.102.63.30:3003';
@@ -147,7 +148,6 @@ function connectSocket() {
     if (msg.from === 'vps' || msg.from === msg.to || msg.from === AGENT_NAME || rawCmd.startsWith('vps:')) return;
 
     // Anti-loop: respuestas cortas sin crear task
-    const STOP_WORDS = /^(hola|para ya|stop|gracias|ok|adiós|adios|@vps hola)$/i;
     if (STOP_WORDS.test(rawCmd)) {
       console.log(`[FAST] STOP_WORDS match: ${rawCmd}`);
       const uptime = process.uptime().toFixed(0);
