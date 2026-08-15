@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Alcon',
   webDir: 'dist',
   server: {
-    url: 'http://100.102.63.30:5176',
+    url: 'http://100.102.63.30:3004',
     cleartext: true,
     androidScheme: 'http',
   },

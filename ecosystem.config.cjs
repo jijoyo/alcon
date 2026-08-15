@@ -9,7 +9,7 @@ module.exports = {
       name: 'alcon-pwa',
       cwd: './pwa',
       script: './node_modules/.bin/vite',
-      args: 'preview --host 0.0.0.0 --port 5176',
+      args: 'preview --host 0.0.0.0 --port 3004',
       env: { NODE_ENV: 'production' }
     },
     {
