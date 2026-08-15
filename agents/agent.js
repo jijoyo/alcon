@@ -183,15 +183,47 @@ function connectSocket() {
     const mention = `@${AGENT_NAME}`;
     if (msg.text.includes(mention)) {
       log(`[CHAT] Mentioned by ${msg.from}: ${msg.text.slice(0, 80)}`);
-      // Procesar como agent:direct en vez de solo responder "recibido"
-      socket.emit('agent:direct', {
-        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
-        from: msg.from,
-        to: AGENT_NAME,
-        text: msg.text.replace(/^@\w+\s*/, ''),
-        task_id: null,
-        timestamp: new Date().toISOString()
-      });
+      // Procesar directamente (no re-emitir agent:direct al server)
+      const rawCmd = msg.text.replace(/^@\w+\s*/, '').trim();
+      
+      // Fast replies
+      if (/^hola/i.test(rawCmd)) {
+        socket.emit('chat:message', { from: AGENT_NAME, text: `¡Hola ${msg.from}! ¿Qué necesitas?` });
+        return;
+      }
+      
+      // Comms pattern
+      const commsMatch = rawCmd.match(/^\[COMMS:(\w+)\]\s*(.+)/);
+      if (commsMatch) {
+        const [, target, commsText] = commsMatch;
+        if (AGENTS.includes(target)) {
+          sendComms(socket, target, commsText);
+          log(`[COMMS] Detected in chat → ${target}: ${commsText.slice(0, 80)}`);
+        }
+        return;
+      }
+      
+      // BASH fast-path
+      if (BASH_REGEX.test(rawCmd)) {
+        const permCheck = checkPermiso(AGENT_NAME, rawCmd);
+        if (!permCheck.allowed) {
+          socket.emit('chat:message', { from: AGENT_NAME, text: `🚫 Bloqueado: ${permCheck.reason}` });
+          return;
+        }
+        try {
+          socket.emit('typing:start');
+          const result = execSync(rawCmd, { cwd: WORKDIR, encoding: 'utf-8', timeout: 10000, maxBuffer: 1024 * 1024 });
+          socket.emit('typing:stop');
+          socket.emit('chat:message', { from: AGENT_NAME, text: result.slice(0, 2000) });
+        } catch (e) {
+          socket.emit('typing:stop');
+          socket.emit('chat:message', { from: AGENT_NAME, text: `Error: ${e.message}` });
+        }
+        return;
+      }
+      
+      // Opencode fallback
+      socket.emit('chat:message', { from: AGENT_NAME, text: `Procesando: "${rawCmd.slice(0, 50)}..."` });
     }
   });
 
