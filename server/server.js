@@ -26,6 +26,17 @@ fastify.get('/health', async () => {
 
 fastify.post('/api/ping', async (request) => { const { agent } = request.body || {}; return { ok:true, agent, timestamp:now() }; });
 
+fastify.get('/debug/sockets', async () => {
+  const io = globalThis._io;
+  if (!io) return { error: 'no io' };
+  const ns = io.of('/enjambre');
+  const sockets = [];
+  for (const [id, s] of ns.sockets) {
+    sockets.push({ id, rooms: [...s.rooms], transport: s.conn?.transport?.name });
+  }
+  return { count: sockets.length, sockets };
+});
+
 const PORT = process.env.PORT || 3003;
 const HOST = process.env.HOST || '0.0.0.0';
 
