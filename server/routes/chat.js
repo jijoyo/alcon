@@ -12,6 +12,8 @@ import {
   broadcastPresence
 } from '../lib/shared.js';
 
+function log(msg) { console.log(`[${new Date().toISOString()}] [CHAT] ${msg}`); }
+
 export function registerChat(io) {
   const chatNs = io.of('/enjambre');
 
@@ -41,6 +43,7 @@ export function registerChat(io) {
 
       const tagMatch = text.match(/^@(\w+)\s/);
 
+      // @all → todos los agentes
       if (tagMatch && tagMatch[1] === 'all') {
         const cleanText = text.replace(/^@all\s*/, '');
         for (const agent of AGENTS) {
@@ -51,6 +54,7 @@ export function registerChat(io) {
         return;
       }
 
+      // /debate → todos los agentes
       if (text.startsWith('/debate')) {
         const cleanText = text.replace(/^\/debate\s*/, '');
         for (const agent of AGENTS) {
@@ -61,6 +65,7 @@ export function registerChat(io) {
         return;
       }
 
+      // @agente → agente específico
       if (tagMatch && AGENTS.includes(tagMatch[1])) {
         const target = tagMatch[1];
         if (isAgentAlive(target)) {
@@ -71,6 +76,11 @@ export function registerChat(io) {
         return;
       }
 
+      // Sin tag y el que habla ES un agente → no auto-enviar a vps
+      const isAgentSender = AGENTS.includes(from);
+      if (isAgentSender) return;
+
+      // Sin tag y es usuario → default a vps
       const clean = text.replace(/^@\w+\s*/, '');
       if (STOP_WORDS.test(clean) || text.trim().length < 15) {
         chatNs.emit('agent:direct', { id: crypto.randomUUID(), from, to: 'vps', text, task_id: null, timestamp: now() });
@@ -84,6 +94,20 @@ export function registerChat(io) {
     socket.on('typing:stop', () => { const p = presence.get(socket.id); if (p) { p.typing = false; p.lastSeen = Date.now(); } broadcastPresence(chatNs); });
     socket.on('chat:heartbeat', () => { const p = presence.get(socket.id); if (p) { p.lastSeen = Date.now(); if (p.status !== 'vivo') { p.status = 'vivo'; broadcastPresence(chatNs); } } });
     socket.on('presence:request', () => broadcastPresence(chatNs));
+
+    // Comms directas agent-to-agent
+    socket.on('agent:comms', (msg) => {
+      if (!msg || !msg.from || !msg.to || !msg.text) return;
+      log(`[COMMS] ${msg.from} → ${msg.to}: ${msg.text.slice(0, 100)}`);
+      // Guardar en chat para historial
+      const db = getDb();
+      const commsMsg = { id: crypto.randomUUID(), from: msg.from, text: `[comms→${msg.to}] ${msg.text}`, timestamp: now() };
+      db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(commsMsg.id, commsMsg.from, commsMsg.text, commsMsg.timestamp);
+      chatNs.emit('chat:message', commsMsg);
+      // Reenviar al agente destino
+      chatNs.emit('agent:comms', { id: crypto.randomUUID(), from: msg.from, to: msg.to, text: msg.text, timestamp: now() });
+    });
+
     socket.on('disconnect', () => { const p = presence.get(socket.id); if (p) { p.status = 'muerto'; p.typing = false; } presence.delete(socket.id); broadcastPresence(chatNs); });
   });
 

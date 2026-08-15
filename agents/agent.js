@@ -5,6 +5,7 @@
 
 import { io } from 'socket.io-client';
 import { execSync, spawn } from 'child_process';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -46,6 +47,16 @@ const FAST_REGEX = /^(hola|ping|ruta|pwd)/i;
 function log(msg) {
   const ts = new Date().toISOString();
   console.log(`[${ts}] [${AGENT_NAME}] ${msg}`);
+}
+
+function sendComms(socket, to, text) {
+  socket.emit('agent:comms', {
+    from: AGENT_NAME,
+    to,
+    text,
+    timestamp: new Date().toISOString()
+  });
+  log(`[COMMS] Sent to ${to}: ${text.slice(0, 80)}`);
 }
 
 function fastReply(text) {
@@ -154,10 +165,19 @@ function connectSocket() {
 
   socket.on('chat:message', (msg) => {
     if (msg.from === AGENT_NAME) return;
+    if (msg.from === 'system') return;
     const mention = `@${AGENT_NAME}`;
     if (msg.text.includes(mention)) {
       log(`[CHAT] Mentioned by ${msg.from}: ${msg.text.slice(0, 80)}`);
-      socket.emit('chat:message', { from: AGENT_NAME, text: 'recibido' });
+      // Procesar como agent:direct en vez de solo responder "recibido"
+      socket.emit('agent:direct', {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+        from: msg.from,
+        to: AGENT_NAME,
+        text: msg.text.replace(/^@\w+\s*/, ''),
+        task_id: null,
+        timestamp: new Date().toISOString()
+      });
     }
   });
 
@@ -301,6 +321,27 @@ function connectSocket() {
       saveEngram(msg.task_id, taskText, e.message, 'error');
       updateHandoffRoadmap(msg.task_id, taskText, 'error');
     }
+  });
+
+  // Comms directas agent-to-agent
+  socket.on('agent:comms', (msg) => {
+    if (msg.to !== AGENT_NAME) return;
+    log(`[COMMS] ${msg.from} → ${msg.to}: ${msg.text.slice(0, 100)}`);
+    // Responder automáticamente usando opencode
+    const rawCmd = msg.text.replace(/^@\w+\s*/, '').trim();
+    if (STOP_WORDS.test(rawCmd)) {
+      socket.emit('chat:message', { from: AGENT_NAME, text: `Entendido, ${msg.from}.` });
+      return;
+    }
+    // Reenviar como agent:direct para procesamiento normal
+    socket.emit('agent:direct', {
+      id: Date.now().toString(),
+      from: msg.from,
+      to: AGENT_NAME,
+      text: msg.text,
+      task_id: null,
+      timestamp: new Date().toISOString()
+    });
   });
 
   socket.on('disconnect', (reason) => {

@@ -25,6 +25,7 @@ export const KEYWORD_MAP = {
 
 export const AGENTS = ['kali','vps','cel','debian','hermes'];
 export const agentRunning = { kali:true, vps:true, cel:false, debian:true, hermes:true };
+export const commsEnabled = { kali:true, vps:true, cel:false, debian:true, hermes:true };
 
 export const presence = new Map();
 export const activeSessions = new Map(); // { userId: taskId }

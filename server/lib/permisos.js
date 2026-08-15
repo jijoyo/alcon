@@ -10,6 +10,7 @@ const PERMISOS = {
     net: true,
     chat: true,
     list: true,
+    comms: true,
   },
   kali: {
     label: 'Kali (readonly + net)',
@@ -21,6 +22,7 @@ const PERMISOS = {
     net: true,        // curl, wget, ssh, scp, rsync
     chat: true,
     list: true,
+    comms: true,
   },
   cel: {
     label: 'Cel (solo chat/list)',
@@ -31,6 +33,7 @@ const PERMISOS = {
     net: false,
     chat: true,
     list: true,
+    comms: true,
   },
   reina: {
     label: 'Reina (desarrollo pesado)',
@@ -41,6 +44,7 @@ const PERMISOS = {
     net: true,
     chat: true,
     list: true,
+    comms: true,
   },
   debian: {
     label: 'Debian (desarrollo)',
@@ -51,6 +55,7 @@ const PERMISOS = {
     net: true,
     chat: true,
     list: true,
+    comms: true,
   },
 };
 
