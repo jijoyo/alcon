@@ -34,6 +34,7 @@ export function registerChat(io) {
 
     socket.on('chat:message', ({ from, text }) => {
       if (!from || !text) return;
+      log(`[RECV] from=${from} text="${text.slice(0,60)}" sockets=${chatNs.sockets.size}`);
       const db = getDb();
       const chatMsg = { id: crypto.randomUUID(), from, text, timestamp: now() };
       db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(chatMsg.id, from, text, chatMsg.timestamp);

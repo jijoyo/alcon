@@ -178,6 +178,7 @@ function connectSocket() {
   });
 
   socket.on('chat:message', (msg) => {
+    log(`[DEBUG-CHAT] Received from=${msg.from} text="${(msg.text||'').slice(0,60)}"`);
     if (msg.from === AGENT_NAME) return;
     if (msg.from === 'system') return;
     const mention = `@${AGENT_NAME}`;
