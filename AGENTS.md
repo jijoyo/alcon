@@ -5,18 +5,31 @@ Sistema multi-agente de coordinacion de tareas con chat en tiempo real.
 ## Stack
 - **Server:** Fastify + Socket.io (Node.js, ESM)
 - **PWA:** React + TypeScript + Tailwind + Capacitor
-- **Deploy:** PM2 en VPS Oracle ARM (`ubuntu@159.54.143.227`)
-- **Puertos:** :3003 (server), :5176 (PWA), :3002 (legacy, deprecado)
+- **Deploy:** PM2 en VPS Oracle ARM (`ubuntu@100.102.63.30`)
+- **Branch:** `v3.1-clean`
+- **Puertos:** :3003 (alcon-api), :3004 (alcon-pwa)
 
-## Estructura
+## PM2 Procesos (VPS)
+| Nombre | Puerto | Funcion |
+|--------|--------|---------|
+| alcon-api | :3003 | Server principal |
+| alcon-pwa | :3004 | PWA (Vite dev) |
+| buzz-farm | - | Worker |
+| oracle-bridge | :3001 | Bridge |
+| vps-agent | - | Agente VPS |
+
+## Estructura (modular, v3.1-clean)
 ```
 alcon/
-├── server/server.js    — Monolith Fastify+Socket.io (~630 lineas)
-├── agents/agent.js     — Stub de agente (simula ejecucion)
-├── pwa/src/            — React PWA (5 componentes, 3 vistas)
-├── deploy.sh           — SCP + PM2 deploy
-├── migration/          — Scripts de migracion Kali→Debian
-└── README.md           — Docs completas
+├── server/
+│   ├── server.js       — Bootstrap Fastify+Socket.io
+│   ├── routes/chat.js  — Rutas de chat
+│   ├── routes/tasks.js — Rutas de tasks
+│   ├── lib/permisos.js — Permisos por agente
+│   └── lib/shared.js   — Utilidades compartidas
+├── agents/agent.js     — Agente con ejecucion real
+├── pwa/src/            — React PWA
+└── deploy.sh           — SCP + PM2 deploy
 ```
 
 ## Convenciones
@@ -31,6 +44,7 @@ alcon/
 - **Mimo** — Cel (Termux, supervisión)
 - **VPS** — Oracle ARM (100.102.63.30, ejecucion de server + agents)
 - **Reina** — Debian forja (100.121.64.26, desarrollo pesado) — PRINCIPAL ACTIVA
+- **Debian** — Debian local (desarrollo, permisos equivalentes a Reina)
 
 ## Infra actual (post-migración Kali→Debian)
 - SSH GitHub: ed25519 key en forja, autenticando como jijoyo
