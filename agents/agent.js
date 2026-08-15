@@ -25,14 +25,19 @@ const SYSTEM_PROMPTS = {
 1. PROACTIVO PARA LEER: al recibir CUALQUIER mensaje, ejecuta: git status, pm2 status, lee HANDOFF.md si existe. Resume estado en 5 líneas máximo.
 2. NUNCA hagas acciones de escritura (git add/commit/push, npm build, deploy.sh, rm, ALTER TABLE, cambios en server.js) sin que el usuario diga explícitamente "sí", "hazlo", "procede", "deploy" o "@vps haz X".
 3. Cuando digan "hola", solo saluda + resumen + pregunta ¿qué necesitas? No inicies auditorías automáticamente.
-4. Mantén el Interruptor Maestro respetado: si un agente está en Inactivo, no lo uses.`
+4. Mantén el Interruptor Maestro respetado: si un agente está en Inactivo, no lo uses.`,
+  'debian': `Eres debian, agente de desarrollo del enjambre Alcon. REGLAS:
+1. Enfócate en código, debugging, refactoring, y desarrollo general.
+2. Puedes ejecutar comandos bash, escribir archivos, y usar git.
+3. Consulta con otros agentes antes de cambios grandes en el server.
+4. Cuando digan "hola", solo saluda y pregunta qué necesitas.`,
 };
 const OPENCODE_BIN = isTermux
   ? '/data/data/com.termux/files/usr/bin/opencode'
-  : '/home/ubuntu/.opencode/bin/opencode';
+  : (process.env.OPENCODE_BIN || path.join(os.homedir(), '.opencode/bin/opencode'));
 const WORKDIR = isTermux
   ? '/data/data/com.termux/files/home/alcon'
-  : '/home/ubuntu/alcon';
+  : (process.env.ALCON_WORKDIR || path.join(os.homedir(), 'Documentos/alcon'));
 const AGENTS_DIR = path.join(WORKDIR, 'agents');
 
 const BASH_REGEX = /^(ls|cat|pwd|echo|find|head|tail|grep|ps|df|du|whoami|uname|wc|sort|uniq|date|hostname|id|env|which|file|stat|mkdir|rm|cp|mv|chmod|chown|touch|ln|readlink|basename|dirname|realpath|mktemp|tee|xargs|tr|cut|sed|awk|diff|patch|tar|gzip|gunzip|zip|unzip|curl|wget|ssh|scp|rsync|ping|dig|nslookup|netstat|ss|ip|ifconfig|route|iptables|crontab|systemctl|journalctl|dmesg|lsblk|fdisk|mount|umount|lsof|fuser|kill|killall|nohup|screen|tmux|bg|fg|jobs|wait|sleep|yes|seq|rev|base64|md5sum|sha256sum|cksum|wc|iconv|fmt|fold|paste|join|split|csplit|comm|tee|stdbuf|timeout|nice|ionice|taskset|numactl|chroot|unshare|nsenter|capsh|setcap|getcap|ldd|strace|ltrace|perf|bpftrace|SystemTap|dtrace|flock|sync|fsync|fdatasync|fallocate|fadvise|finit_module|delete_module|kexec|reboot|shutdown|halt|poweroff|init|telinit|runlevel|who|w|last|lastb|ac|lastlog|faillog|journal|logger|syslog|rsyslog|logrotate|cron|at|batch|anacron|anacrontab|plocate|locate|updatedb|mknod|MAKEDEV|fsck|e2fsck|mkfs|mkswap|swapon|swapoff|blkid|findblk|blockdev|hdparm|sdparm|smartctl|badblocks|e2label|tune2fs|debugfs|dumpe2fs|e2image|e2undo|logsave|resize2fs|e4defrag|fallocate|fadvise|finit_module|delete_module|kexec|reboot|shutdown|halt|poweroff|init|telinit|runlevel|who|w|last|lastb|ac|lastlog|faillog|journal|logger|syslog|rsyslog|logrotate|cron|at|batch|anacron|anacrontab|plocate|locate|updatedb|mknod|MAKEDEV|fsck|e2fsck|mkfs|mkswap|swapon|swapoff|blkid|findblk|blockdev|hdparm|sdparm|smartctl|badblocks|e2label|tune2fs|debugfs|dumpe2fs|e2image|e2undo|logsave|resize2fs|e4defrag)\b/i;
