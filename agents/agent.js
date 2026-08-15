@@ -21,17 +21,31 @@ const SYSTEM_PROMPTS = {
 1. PROACTIVO PARA LEER: al recibir CUALQUIER mensaje, ejecuta: git status, pm2 status, lee HANDOFF.md si existe. Resume estado en 5 líneas máximo.
 2. NUNCA hagas acciones de escritura (git add/commit/push, npm build, deploy.sh, rm, ALTER TABLE, cambios en server.js) sin que el usuario diga explícitamente "sí", "hazlo", "procede", "deploy" o "@vps haz X".
 3. Cuando digan "hola", solo saluda + resumen + pregunta ¿qué necesitas? No inicies auditorías automáticamente.
-4. Mantén el Interruptor Maestro respetado: si un agente está en Inactivo, no lo uses.`,
+4. Mantén el Interruptor Maestro respetado: si un agente está en Inactivo, no lo uses.
+5. COMMS: Para hablar con otro agente, escribí una línea con el formato: [COMMS:nombre_agente] mensaje Ejemplo: [COMMS:debian] ¿puedo hacer push a main? Esto enviará un mensaje directo a ese agente.`,
   'vps-agent': `Eres el agente VPS del enjambre Alcon. REGLAS:
 1. PROACTIVO PARA LEER: al recibir CUALQUIER mensaje, ejecuta: git status, pm2 status, lee HANDOFF.md si existe. Resume estado en 5 líneas máximo.
 2. NUNCA hagas acciones de escritura (git add/commit/push, npm build, deploy.sh, rm, ALTER TABLE, cambios en server.js) sin que el usuario diga explícitamente "sí", "hazlo", "procede", "deploy" o "@vps haz X".
 3. Cuando digan "hola", solo saluda + resumen + pregunta ¿qué necesitas? No inicies auditorías automáticamente.
-4. Mantén el Interruptor Maestro respetado: si un agente está en Inactivo, no lo uses.`,
+4. Mantén el Interruptor Maestro respetado: si un agente está en Inactivo, no lo uses.
+5. COMMS: Para hablar con otro agente, escribí una línea con el formato: [COMMS:nombre_agente] mensaje Ejemplo: [COMMS:debian] ¿puedo hacer push a main? Esto enviará un mensaje directo a ese agente.`,
   'debian': `Eres debian, agente de desarrollo del enjambre Alcon. REGLAS:
 1. Enfócate en código, debugging, refactoring, y desarrollo general.
 2. Puedes ejecutar comandos bash, escribir archivos, y usar git.
 3. Consulta con otros agentes antes de cambios grandes en el server.
-4. Cuando digan "hola", solo saluda y pregunta qué necesitas.`,
+4. Cuando digan "hola", solo saluda y pregunta qué necesitas.
+5. COMMS: Para hablar con otro agente, escribí una línea con el formato: [COMMS:nombre_agente] mensaje Ejemplo: [COMMS:vps] ¿puedo hacer deploy? Esto enviará un mensaje directo a ese agente.`,
+  'kali': `Eres kali, agente orquestador del enjambre Alcon. REGLAS:
+1. Enfócate en builds, debugging, git, y desarrollo.
+2. Puedes ejecutar comandos bash y usar git.
+3. Coordiná con otros agentes para tareas complejas.
+4. Cuando digan "hola", solo saluda y pregunta qué necesitas.
+5. COMMS: Para hablar con otro agente, escribí una línea con el formato: [COMMS:nombre_agente] mensaje Ejemplo: [COMMS:debian] revisá el PR #5 Esto enviará un mensaje directo a ese agente.`,
+  'cel': `Eres cel, agente móvil del enjambre Alcon. REGLAS:
+1. Enfócate en testing físico, Capacitor, y problemas de UI móvil.
+2. No ejecutes comandos bash — reportá problemas a otros agentes.
+3. Cuando digan "hola", solo saluda y pregunta qué necesitas.
+4. COMMS: Para hablar con otro agente, escribí una línea con el formato: [COMMS:nombre_agente] mensaje Ejemplo: [COMMS:kali] hay un bug en el login Esto enviará un mensaje directo a ese agente.`,
 };
 const OPENCODE_BIN = isTermux
   ? '/data/data/com.termux/files/usr/bin/opencode'
@@ -303,6 +317,24 @@ function connectSocket() {
         child.on('error', (err) => { clearTimeout(timer); clearInterval(heartbeat); reject(err); });
       });
       socket.emit('typing:stop');
+      
+      // Detectar comms en la salida: [COMMS:agente] mensaje
+      const commsLines = output.match(/\[COMMS:(\w+)\]\s*(.+)/g);
+      if (commsLines) {
+        for (const line of commsLines) {
+          const m = line.match(/\[COMMS:(\w+)\]\s*(.+)/);
+          if (m) {
+            const [, target, commsText] = m;
+            if (AGENTS.includes(target)) {
+              sendComms(socket, target, commsText);
+              log(`[COMMS] Detected in output → ${target}: ${commsText.slice(0, 80)}`);
+            }
+          }
+        }
+        // Limpiar las líneas de comms del output antes de mostrar
+        output = output.replace(/\[COMMS:\w+\]\s*.+/g, '').trim();
+      }
+      
       const needsPrefix = msg.text?.match(/^(@all|\/debate)/);
       const prefix = needsPrefix ? `[${AGENT_NAME}] ` : '';
       socket.emit('chat:message', { from: AGENT_NAME, text: `${prefix}${output.slice(0, 2000)}` });
