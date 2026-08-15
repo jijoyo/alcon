@@ -42,6 +42,16 @@ const PERMISOS = {
     chat: true,
     list: true,
   },
+  debian: {
+    label: 'Debian (desarrollo)',
+    bash: true,
+    write: true,
+    deploy: false,
+    git: true,
+    net: true,
+    chat: true,
+    list: true,
+  },
 };
 
 const WRITE_PATTERNS = [
