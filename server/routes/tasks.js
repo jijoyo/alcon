@@ -42,6 +42,18 @@ export default async function tasksRoutes(fastify) {
     const trimmed = text.trim();
     const cleanForStop = trimmed.replace(/^@\w+\s*/, '').trim();
 
+    const GRANJA_SQUADS = ['quick-review','code-audit','research-deep','architecture','mithos-cap','youtube-auto','memory-consolidation','deploy'];
+    const squadMatch = trimmed.match(/^@(\S+)\s+(.*)/s);
+    if (squadMatch && GRANJA_SQUADS.includes(squadMatch[1])) {
+      try {
+        const { orchestrateTask } = await import('../lib/orchestrator.js');
+        const result = await orchestrateTask({ text: squadMatch[2], squad: squadMatch[1] });
+        return { orchestrator: true, squad: squadMatch[1], final: result.final, pendingPath: result.pendingPath };
+      } catch (e) {
+        fastify.log.error(e);
+      }
+    }
+
     if (STOP_WORDS.test(cleanForStop) || !tagFromText(trimmed)) {
       emitDirect({
         id: crypto.randomUUID(),

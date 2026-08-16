@@ -1,139 +1,187 @@
-# Alcon - Multi-Agent Swarm
+# Alcon v4.0-granja-real
 
-Sistema multi-agente con tareas, chat en tiempo real, presencia y interruptor maestro.
+> Sistema multi-agente con 8 squards de IA que compiten, debaten y colaboran.
+> Todo corre en local. Nada sale a la nube. Es tuyo.
+
+## Qué es
+
+Alcon es un sistema de orquestación multi-agente que corre en tu PC. Tiene 8 equipos especializados de IA (squads) que ejecutan tareas de auditoría, research, arquitectura, creación de contenido y más. Cada squad usa modelos de lenguaje locales (Ollama/llama.cpp) que corren en tu GPU.
+
+No es CrewAI. No es LangChain. No es la nube. Es tu sistema, en tu máquina, con tus modelos.
 
 ## Arquitectura
 
 ```
-PWA (React + Tailwind)          VPS (Oracle Cloud)
-┌─────────────────────┐    ┌──────────────────────────────────┐
-│  ChatView.tsx       │───▶│  Fastify (:3003)                 │
-│  InterruptorMaestro │───▶│    ├── HTTP API (tasks, agents)  │
-│  socket.ts          │◀─WS│    └── Socket.io /enjambre       │
-│  TaskInput/Chat     │───▶│  pm2 serve (:5176) ← PWA estática│
-└─────────────────────┘    └──────────────────────────────────┘
-         ▲                              ▲
-    Kali (Tailscale)             Cel (Tailscale)
-    100.103.82.104               100.76.111.99
+                    ┌─────────────────────────────────────┐
+                    │         PWA (React + TS)            │
+                    │      http://100.102.63.30:3004      │
+                    └──────────────┬──────────────────────┘
+                                   │
+                    ┌──────────────▼──────────────────────┐
+                    │     Fastify Server (:3003)          │
+                    │   ┌─────────────────────────────┐   │
+                    │   │  POST /api/orchestrate      │   │
+                    │   │  POST /api/task (granja     │   │
+                    │   │         guard)              │   │
+                    │   └─────────────┬───────────────┘   │
+                    │                 │                    │
+                    │   ┌─────────────▼───────────────┐   │
+                    │   │     orchestrator.js          │   │
+                    │   │  boardStart → injectCode →   │   │
+                    │   │  callLlama → boardStop       │   │
+                    │   └─────────────┬───────────────┘   │
+                    └─────────────────┼──────────────────┘
+                                      │
+                    ┌─────────────────▼──────────────────┐
+                    │       Board API (:9998)            │
+                    │  POST /start?model=qwen            │
+                    │  POST /stop                        │
+                    │  13 modelos registrados            │
+                    └─────────────────┬──────────────────┘
+                                      │
+                    ┌─────────────────▼──────────────────┐
+                    │    llama-server (:8080)            │
+                    │    1 modelo a la vez en GPU        │
+                    │    switch via systemd              │
+                    └────────────────────────────────────┘
+
+debian (RTX 3060) ←──Tailscale──→ vps Oracle (100.102.63.30)
 ```
 
-## Agentes
+## Los 8 Squads
 
-| Agente | Tag | Keywords | Rol |
-|--------|-----|----------|-----|
-| **Kali** | `@kali` | code, bug, fix, test, review, git | Codigo y debugging |
-| **VPS** | `@vps` | build, deploy, server, docker, pm2 | Infraestructura |
-| **Cel** | `@cel` | screen, mobile, touch, capacitor | App movil |
+| Squad | Pattern | Qué hace | Prompt ejemplo |
+|-------|---------|----------|----------------|
+| `quick-review` | single | Revisión rápida con 1 modelo | `@quick-review revisa pwa/src/App.tsx` |
+| `code-audit` | fan-out-fan-in | Auditoría profunda con 3 modelos | `@code-audit audita server/server.js` |
+| `research-deep` | debate 3 rondas | Investigación con argumentos | `@research-deep debate SQLite vs JSON` |
+| `architecture` | consensus 3 votos | Diseño de arquitectura | `@architecture propone microservicios` |
+| `mithos-cap` | proxy-atomico | Fábrica de CAPs YouTube | `@mithos-cap crea CAP para este video` |
+| `deploy` | single | Deploy al VPS | `@deploy haz deploy al VPS` |
+| `memory-consolidation` | single | Consolida auditorías | `@memory-consolidation consolida historial` |
+| `youtube-auto` | fan-out-fan-in | Título + miniatura + descripción | `@youtube-auto genera metadata` |
 
-## Infraestructura
+## Modelos Locales
 
-| Servicio | Puerto | Descripcion |
-|----------|--------|-------------|
-| `alcon-server` | 3003 | Fastify + Socket.io (API + chat) |
-| `alcon-pwa` | 5176 | PWA estática (pm2 serve --spa) |
-| `alcon-api` | 3001 | API legacy |
-| Tailscale | — | VPN mesh (Kali ↔ VPS ↔ Cel) |
+| Board Key | Modelo | VRAM | tok/s | Uso principal |
+|-----------|--------|------|-------|---------------|
+| `qwen` | qwen3.6-35b-A3B-MXFP4 | 10.6GB | 45 | Code review |
+| `qwen-coder-14b` | qwen2.5-coder-14b | 8.4GB | 30 | Security audit |
+| `hauhaucs-12b` | gemma4-12b-hauhaucs | 6.9GB | 129 | Creative / health |
+| `gemma` | gemma4-12b-uncensored | 6.9GB | 80 | Uncensored |
+| `gemma-26b-a4b` | gemma4-26b-a4b | 11.4GB | 55 | Dense reasoning |
 
-## URL de Acceso
+## Endpoints API
 
-- **Cel/Kali via Tailscale**: `http://100.102.63.30:5176`
-- **Local (dev)**: `http://localhost:5175` (vite dev server)
-- **API directa**: `http://100.102.63.30:3003`
+### Orquestación (nuevo en v4.0)
 
-## API Endpoints
-
-### Tasks
-
-| Metodo | Ruta | Descripcion |
+| Método | Ruta | Descripción |
 |--------|------|-------------|
-| `POST` | `/api/task` | Crear tarea (auto-route por tag) |
-| `GET` | `/api/tasks` | Listar tareas (`?agent=vps&status=pendiente`) |
+| `POST` | `/api/orchestrate` | Ejecuta un squad completo. Body: `{text, squad}` |
+
+### Tasks (con granja guard)
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `POST` | `/api/task` | Crear tarea. **Si empieza con @squads, va directo al orchestrator** |
+| `GET` | `/api/tasks` | Listar tareas |
 | `GET` | `/api/task/:id` | Detalle de tarea |
-| `POST` | `/api/task/:id/claim` | Agente toma la tarea (locking) |
-| `POST` | `/api/task/:id/heartbeat` | Extender lock +10min |
-| `POST` | `/api/task/:id/message` | Enviar mensaje al chat de tarea |
-| `GET` | `/api/task/:id/messages` | Obtener mensajes de tarea |
+| `POST` | `/api/task/:id/claim` | Agente reclama tarea |
+| `POST` | `/api/task/:id/heartbeat` | Extender lock |
+| `POST` | `/api/task/:id/message` | Mensaje en chat de tarea |
 | `POST` | `/api/task/:id/complete` | Marcar como hecha |
-| `POST` | `/api/task/:id/error` | Marcar con error |
-
-### Agent Control (Interruptor Maestro)
-
-| Metodo | Ruta | Descripcion |
-|--------|------|-------------|
-| `GET` | `/api/agents` | Estado de todos los agentes |
-| `POST` | `/api/agent/:name/start` | Prender agente |
-| `POST` | `/api/agent/:name/stop` | Apagar agente |
 
 ### System
 
-| Metodo | Ruta | Descripcion |
+| Método | Ruta | Descripción |
 |--------|------|-------------|
-| `GET` | `/health` | Health check + version |
-| `GET` | `/api/status` | Estado del sistema (tasks + agents) |
-| `POST` | `/api/ping` | Registro de agente |
+| `GET` | `/health` | Health check + versión |
+| `GET` | `/api/status` | Estado del sistema |
+| `GET` | `/api/agents` | Agentes registrados |
 
-## Socket.io — Namespace `/enjambre`
+## Flujo del Orchestrator
 
-### Eventos Client → Server
+```
+1. Usuario escribe: @code-audit revisa server/server.js
+                          │
+2. Granja guard intercepta (@code-audit → squad)
+                          │
+3. boardStart("code-review") → POST :9998/start?model=qwen
+   └─ Switch systemd: qwen3-35b.service → GPU
+   └─ Espera: polling /health cada 1s (max 30s)
+                          │
+4. injectCode("revisa server/server.js")
+   └─ Detecta patrón: "revisa server/server.js"
+   └─ Lee: /home/israel/Documentos/alcon/server/server.js
+   └─ Inyecta código real (max 12000 chars)
+                          │
+5. callLlama("[reviewer] revisa server/server.js\n=== CODIGO REAL ===\n...")
+   └─ POST :8080/v1/chat/completions
+   └─ Respuesta del modelo
+                          │
+6. boardStop() → POST :9998/stop
+   └─ Apaga modelo actual
+                          │
+7. Repite para security (qwen-coder-14b) y health (hauhaucs-12b)
+                          │
+8. Síntesis final con qwen3-35b
+                          │
+9. Guarda en pending-2026-08-16.md
+```
 
-| Evento | Payload | Descripcion |
-|--------|---------|-------------|
-| `chat:join` | `{ name }` | Unirse al chat (identifica al usuario) |
-| `chat:message` | `{ from, text }` | Enviar mensaje grupal |
-| `typing:start` | — | Indicar que esta escribiendo |
-| `typing:stop` | — | Dejar de escribir |
-| `chat:heartbeat` | — | Keepalive (cada 5s) |
+## Ejemplo curl
 
-### Eventos Server → Client
+```bash
+# Auditoría completa de server.js
+curl -X POST http://localhost:3003/api/orchestrate \
+  -H "Content-Type: application/json" \
+  -d '{"text":"@code-audit revisa server/server.js en busca de CORS y race conditions","squad":"code-audit"}'
 
-| Evento | Payload | Descripcion |
-|--------|---------|-------------|
-| `chat:history` | `ChatMessage[]` | Historial al conectarse (ultimos 50) |
-| `chat:message` | `ChatMessage` | Nuevo mensaje broadcast |
-| `presence:update` | `{ peers: Peer[] }` | Estado de todos los peers |
-
-### Presence States
-
-| Estado | Color | Significado |
-|--------|-------|-------------|
-| `vivo` | Verde | Conectado y activo |
-| `escribiendo` | Amber pulse | Escribiendo ahora |
-| `idle` | Gris | Agente disponible pero sin socket |
-| `muerto` | Rojo | Desconectado o >15s sin heartbeat |
-
-## Task Schema
-
-```json
+# Respuesta:
 {
-  "id": 123456,
-  "text": "haz deploy del server",
-  "original_text": "@vps haz deploy del server",
-  "status": "pendiente|en_proceso|hecho|error",
-  "assigned_to": "vps",
-  "lock_owner": null,
-  "lock_acquired_at": null,
-  "lock_expires_at": null,
-  "last_heartbeat": null,
-  "messages": [],
-  "result": null,
-  "created": "2026-07-21T18:00:00Z"
+  "orchestrator": true,
+  "squad": "code-audit",
+  "final": "### Síntesis del Squad Fan-Out-Fan-In\n...",
+  "pendingPath": "./lib/memory/pending-2026-08-16.md"
 }
 ```
 
-## Sistema de Locking
+## Cómo funciona injectCode()
 
-1. Agente lee tareas pendientes
-2. Intenta `claim` con su nombre como owner
-3. Si exitoso: `status=en_proceso`, `lock_expires_at=now+10min`
-4. Cada 2min: envia `heartbeat` para extender lock
-5. Si lock expira: `stale reclaim` automatico cada 30s
+`injectCode()` busca patrones de archivos en el prompt del usuario. Si detecta algo como "revisa server.js", lee el archivo real del disco y lo inyecta en el prompt antes de enviarlo al modelo.
 
-## Persistencia
+```
+Prompt original: "@code-audit revisa server/server.js"
+Prompt inyectado: "@code-audit revisa server/server.js
 
-| Archivo | Contenido | Max |
-|---------|-----------|-----|
-| `tasks.json` | Tareas + mensajes por tarea | Sin limite |
-| `messages.json` | Chat grupal del enjambre | 50 mensajes (rotacion) |
+=== CODIGO REAL server/server.js ===
+(import Fastify from 'fastify'; ...)
+=== FIN CODIGO ==="
+```
+
+Esto permite que los modelos de IA auditen código REAL, no solo su imaginación.
+
+## Híbrido local + nube
+
+Cuando necesites un modelo que no tienes local:
+
+1. Agregar provider en `model-registry.json`:
+```json
+"openrouter-claude": {
+  "board_key": "openrouter/anthropic/claude-3.5-sonnet",
+  "model": "claude-3.5-sonnet",
+  "service": "external",
+  "vram": "0GB",
+  "toks": 0
+}
+```
+
+2. Agregar API key en `.env`:
+```
+OPENROUTER_API_KEY=sk-or-...
+```
+
+3. Modificar `orchestrator.js` para detectar `service: "external"` y llamar a la API en vez de local
 
 ## Desarrollo Local
 
@@ -142,80 +190,49 @@ PWA (React + Tailwind)          VPS (Oracle Cloud)
 cd server && npm install && npm run dev    # :3003
 
 # PWA
-cd pwa && npm install && npm run dev       # :5175
+cd pwa && npm install && npm run dev       # :3004
 
 # Agente
-cd agents && node agent.js kali http://localhost:3003
+cd agents && node agent.js debian http://localhost:3003
 ```
 
-## Deploy al VPS
+## Deploy
 
 ```bash
-# Automatico
+# Automático
 ./deploy.sh
 
-# Manual
-scp -r server/* ubuntu@159.54.143.227:/home/ubuntu/alcon/server/
-ssh ubuntu@159.54.143.227 "cd /home/ubuntu/alcon/server && npm install --production && pm2 restart alcon-server --update-env"
+# Manual en VPS
+ssh root@100.102.63.30 "cd /home/ubuntu/alcon && git pull origin main && pm2 restart alcon-api --update-env"
 ```
 
-## PM2 en VPS
+## PM2
 
 ```bash
-pm2 list                          # Ver todos los procesos
-pm2 logs alcon-server --lines 20  # Logs recientes
-pm2 restart alcon-server          # Reiniciar
-pm2 save                          # Guardar configuracion
+pm2 list                          # Ver procesos
+pm2 logs alcon-api --lines 20     # Logs recientes
+pm2 restart alcon-api             # Reiniciar
+pm2 save                          # Guardar configuración
 ```
 
-## Android App (Capacitor)
+## Commits
 
-### Setup
-```bash
-cd pwa && npm install
-npx cap add android
-npx cap sync android
-```
+- `feat:` — Feature nueva
+- `fix:` — Bug fix
+- `chore:` — Maintenance
+- `docs:` — Documentación
+- `refactor:` — Refactoring sin cambio de comportamiento
 
-### Build & Install
-```bash
-cd pwa/android
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME=/usr/lib/android-sdk \
-  ./gradlew assembleDebug --no-daemon -x lint -x test
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
+## Persistencia
 
-### Mixed Content Fix (CRITICAL)
-El WebView de Capacitor carga desde `https://localhost` y bloquea requests HTTP (Mixed Content).
+| Archivo | Contenido |
+|---------|-----------|
+| `server/lib/memory/pending-*.md` | Historial de auditorías |
+| `server/tasks.json` | Tareas del sistema |
+| `server/messages.json` | Chat grupal (últimos 50) |
 
-**Solución**: Servir la PWA desde el VPS en vez de assets bundled.
+## Seguridad
 
-```ts
-// capacitor.config.ts
-server: {
-  url: 'http://100.102.63.30:5176',  // PWA en VPS
-  cleartext: true,
-  androidScheme: 'http',
-}
-```
-
-**NO usar** `server.url` con `https://` (necesita cert). NO dejar sin `url` (carga bundled → Mixed Content).
-
-### APK Output
-`pwa/android/app/build/outputs/apk/debug/app-debug.apk`
-
-## Bugs Conocidos
-
-### Crash Loop por `presence` (resuelto)
-- **Problema**: `const presence = new Map()` dentro de `fastify.listen()` callback, pero `broadcastPresence()` lo usaba desde endpoints fuera del callback → `ReferenceError` → pm2 restart loop
-- **Fix**: Mover `presence` y `broadcastPresence()` a module scope
-
-### CORS Cross-Origin (resuelto)
-- **Problema**: PWA en `:5176` hace fetch a `:3003` → browser bloquea
-- **Fix**: CORS explícito en `@fastify/cors` Y Socket.io `cors` (son capas independientes)
-- **Nota**: `origin: true` reflection NO sirve para Socket.io, necesita array explícito
-
-### Capacitor Mixed Content (resuelto)
-- **Problema**: WebView carga desde `https://localhost` → bloquea HTTP requests a `http://100.102.63.30:3003`
-- **Fix**: `server.url: 'http://100.102.63.30:5176'` en `capacitor.config.ts`
-- **Causa**: Capacitor usa HTTPS internamente, pero VPS no tiene cert
+- Sin autenticación — sistema de confianza interna
+- Permisos por agente en `server/lib/permisos.js`
+- Granja guard intercepta @squads antes de crear tareas
