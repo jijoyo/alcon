@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  alcon-go:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alcon-go-fase1
+    volumes:
+      - ./granja.json:/app/granja.json
+    environment:
+      - OPENCODE_BIN=/usr/local/bin/opencode
+      - ALCON_WORKDIR=/app
+    mem_limit: 128m
+    command: ["--squad", "code-audit", "--prompt", "revisa server.js"]
+# Un solo contenedor 15MB hace las 4 llamadas en goroutines
+# vs 4 contenedores redundantes haciendo 4x el trabajo
