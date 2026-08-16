@@ -6,8 +6,23 @@ const GRANJA = JSON.parse(fs.readFileSync(path.join(__dirname, 'granja.json'), '
 const REGISTRY = JSON.parse(fs.readFileSync(path.join(__dirname, 'model-registry.json'), 'utf8'));
 const API_BOARD = process.env.BOARD_API_URL || 'http://localhost:9998';
 const LLAMA = process.env.LLAMA_URL || 'http://localhost:8080';
-const OPENCODE_BIN = process.env.OPENCODE_BIN || (process.env.HOME + '/.opencode/bin/opencode');
-const WORKDIR = process.env.ALCON_WORKDIR || path.join(process.env.HOME || '/home/user', 'Documentos/alcon');
+const OPENCODE_BIN = process.env.OPENCODE_BIN || (() => {
+  const candidates = [
+    process.env.HOME + '/.opencode/bin/opencode',
+    '/usr/local/bin/opencode',
+    '/usr/bin/opencode',
+  ];
+  for (const c of candidates) { try { if (fs.existsSync(c)) return c; } catch {} }
+  return candidates[0];
+})();
+const WORKDIR = process.env.ALCON_WORKDIR || (() => {
+  const candidates = [
+    path.join(process.env.HOME || '/home/user', 'Documentos/alcon'),
+    '/home/ubuntu/alcon',
+  ];
+  for (const c of candidates) { try { if (fs.existsSync(c)) return c; } catch {} }
+  return candidates[0];
+})();
 
 import { spawn } from 'child_process';
 
