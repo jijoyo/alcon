@@ -2,12 +2,11 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import fs from 'fs';
-import crypto from 'crypto';
 import { Server } from 'socket.io';
 import { open as openDb, get as getDb } from './db/connection.js';
 import tasksRoutes from './routes/tasks.js';
 import { registerChat } from './routes/chat.js';
-import { ARTIFACTS_DIR, agentRunning, presence, now } from './lib/shared.js';
+import { ARTIFACTS_DIR, agentRunning, now } from './lib/shared.js';
 
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
@@ -26,30 +25,6 @@ fastify.get('/health', async () => {
 });
 
 fastify.post('/api/ping', async (request) => { const { agent } = request.body || {}; return { ok:true, agent, timestamp:now() }; });
-
-fastify.get('/debug/sockets', async () => {
-  const io = globalThis._io;
-  if (!io) return { error: 'no io' };
-  const ns = io.of('/enjambre');
-  const sockets = [];
-  for (const [id, s] of ns.sockets) {
-    sockets.push({ id, rooms: [...s.rooms], transport: s.conn?.transport?.name });
-  }
-  const pres = [];
-  for (const [id, p] of presence) {
-    pres.push({ socketId: id, ...p });
-  }
-  return { count: sockets.length, sockets, presence: pres };
-});
-
-fastify.get('/debug/test-broadcast', async () => {
-  const io = globalThis._io;
-  if (!io) return { error: 'no io' };
-  const ns = io.of('/enjambre');
-  const testMsg = { id: crypto.randomUUID(), from: 'system', text: 'Test broadcast from server', timestamp: now() };
-  ns.emit('chat:message', testMsg);
-  return { ok: true, sent: testMsg, sockets: ns.sockets.size };
-});
 
 const PORT = process.env.PORT || 3003;
 const HOST = process.env.HOST || '0.0.0.0';
