@@ -45,13 +45,15 @@ export default async function tasksRoutes(fastify) {
     const GRANJA_SQUADS = ['quick-review','code-audit','research-deep','architecture','mithos-cap','youtube-auto','memory-consolidation','deploy'];
     const squadMatch = trimmed.match(/^@(\S+)\s+(.*)/s);
     if (squadMatch && GRANJA_SQUADS.includes(squadMatch[1])) {
-      try {
-        const { orchestrateTask } = await import('../lib/orchestrator.js');
-        const result = await orchestrateTask({ text: squadMatch[2], squad: squadMatch[1] });
-        return { orchestrator: true, squad: squadMatch[1], final: result.final, pendingPath: result.pendingPath };
-      } catch (e) {
-        fastify.log.error(e);
-      }
+      setImmediate(async () => {
+        try {
+          const { orchestrateTask } = await import('../lib/orchestrator.js');
+          await orchestrateTask({ text: squadMatch[2], squad: squadMatch[1] });
+        } catch (e) {
+          fastify.log.error(e);
+        }
+      });
+      return { orchestrator: true, squad: squadMatch[1], status: 'en_proceso' };
     }
 
     if (STOP_WORDS.test(cleanForStop) || !tagFromText(trimmed)) {

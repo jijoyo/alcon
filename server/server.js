@@ -13,38 +13,57 @@ fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
 const fastify = Fastify({ logger: true });
 
-openDb();
+const ALLOWED = (process.env.ALLOWED_ORIGINS || 'http://100.102.63.30:3004').split(',');
 
-await fastify.register(cors, { origin:true, credentials:true, methods:['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders:['Content-Type','Authorization'] });
+await openDb();
+
+await fastify.register(cors, { origin: ALLOWED, credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] });
 await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
 await fastify.register(tasksRoutes);
 
 fastify.get('/health', async () => {
   const db = getDb();
   const { count: taskCount } = db.prepare('SELECT COUNT(*) as count FROM tasks').get();
-  return { status:'ok', version:'3.1.0-clean', timestamp:now(), uptime:process.uptime(), taskCount, agents:agentRunning };
+  return { status: 'ok', version: '4.0-granja-real', timestamp: now(), uptime: process.uptime(), taskCount, agents: agentRunning };
 });
 
-fastify.post('/api/ping', async (request) => { const { agent } = request.body || {}; return { ok:true, agent, timestamp:now() }; });
+fastify.post('/api/ping', async (request) => { const { agent } = request.body || {}; return { ok: true, agent, timestamp: now() }; });
 
+let orchestrating = false;
 fastify.post('/api/orchestrate', async (request, reply) => {
+  if (orchestrating) return reply.code(429).send({ error: 'Orquestación en curso, espera a que termine' });
+  orchestrating = true;
   try {
     const result = await orchestrateTask(request.body);
     return result;
   } catch (e) {
     fastify.log.error(e);
     return reply.code(500).send({ error: e.message });
+  } finally {
+    orchestrating = false;
   }
 });
 
 const PORT = process.env.PORT || 3003;
 const HOST = process.env.HOST || '0.0.0.0';
 
+const io = new Server(fastify.server, { cors: { origin: ALLOWED, methods: ['GET', 'POST'], credentials: true }, transports: ['websocket', 'polling'] });
+globalThis._io = io;
+registerChat(io);
+
 fastify.listen({ port: PORT, host: HOST }, (err) => {
   if (err) { fastify.log.error(err); process.exit(1); }
-  fastify.log.info(`Alcon server v3.1.0-clean on ${HOST}:${PORT}`);
-  const io = new Server(fastify.server, { cors:{ origin:'*', methods:['GET','POST'], credentials:true }, transports:['websocket','polling'] });
-  globalThis._io = io;
-  registerChat(io);
+  fastify.log.info(`Alcon server v4.0-granja-real on ${HOST}:${PORT}`);
   fastify.log.info(`Socket.io namespace /enjambre ready`);
 });
+
+const shutdown = async (signal) => {
+  fastify.log.info(`${signal} received, shutting down...`);
+  if (globalThis._io) globalThis._io.close();
+  const { close: closeDb } = await import('./db/connection.js');
+  closeDb();
+  await fastify.close();
+  process.exit(0);
+};
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
