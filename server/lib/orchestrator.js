@@ -48,11 +48,12 @@ export async function orchestrateTask(task){
   for(const atomic of atomics){
     const round=[];
     for(const agent of squad.agents){
-      try{ await boardStart(agent.model_ref); const r=await callLlama(`[${agent.role}] ${injectCode(atomic)}`); round.push({role:agent.role,result:r}); await boardStop(); }
-      catch(e){ round.push({role:agent.role,error:e.message}); await boardStop(); }
+      try{ await boardStart(agent.model_ref); const r=await callLlama(`[${agent.role}] ${injectCode(atomic)}`); round.push({role:agent.role,result:r}); }
+      catch(e){ round.push({role:agent.role,error:e.message}); }
     }
     all.push({atomic, results:round});
   }
+  await boardStop();
   await boardStart('code-review');
   const final = await callLlama(`Sintetiza squad ${squad.pattern}: ${JSON.stringify(all).slice(0,8000)}`);
   await boardStop();
