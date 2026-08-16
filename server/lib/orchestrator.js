@@ -278,14 +278,18 @@ export async function handleSquadMessage(squad, prompt, from='user'){
   const perspectivesText = results.map(r=> `[${r.device}/${r.model}/${r.role}]: ${r.response}`).join('\n---\n');
   const synthesisPrompt = `Sintetiza estas ${results.length} perspectivas sobre: "${prompt}"\n\n${perspectivesText}\n\nSintesis final en español, corta, accionable. Menciona quien dijo que.`;
 
-  // usa llama local para sintesis (rapido, gratis)
   let synthesis;
   try{
     await boardStart('code-review');
     synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.');
     await boardStop();
   }catch{
-    synthesis = perspectivesText.slice(0,2000);
+    // fallback: usa OpenCode para síntesis si local falla
+    try{
+      synthesis = await callOpenCode(synthesisPrompt, 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente. Responde en español, corto.');
+    }catch{
+      synthesis = perspectivesText.slice(0,2000) || '(sin resultado)';
+    }
   }
 
   session.history.push({role:'assistant', content:synthesis});
