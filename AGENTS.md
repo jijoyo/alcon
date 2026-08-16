@@ -1,16 +1,16 @@
-# AGENTS.md — Alcon v4.0-granja-real
+# AGENTS.md — Alcon v4.1-conversacional
 
 > Sistema multi-agente con 8 squards de IA que compiten, debaten y colaboran.
-> Todo corre en local. Nada sale a la nube.
+> Hybrid: local primero (0ms), nube si falla (4s throttle). 4 devices × 2 backends.
 
 ## Infra
 
-| Dispositivo | Hardware | IP Tailscale | Rol |
-|-------------|----------|--------------|-----|
-| **debian** | RTX 3060 12GB, 32GB RAM | 100.121.64.26 | Brain (desarrollo + GPU) |
-| **vps** | Oracle ARM 21GB | 100.102.63.30 | Server (Fastify + PM2) |
-| **kali** | GTX 1050 4GB, 16GB RAM | 100.103.82.104 | Git executor |
-| **cel** | Redmi Note 11, 1GB | 100.76.111.99 | Reviewer/approver |
+| Dispositivo | Hardware | IP Tailscale | Rol | OpenCode |
+|-------------|----------|--------------|-----|----------|
+| **debian** | RTX 3060 12GB, 32GB RAM | 100.121.64.26 | Brain (desarrollo + GPU) | ✅ |
+| **vps** | Oracle ARM 21GB | 100.102.63.30 | Server (Fastify + PM2) | ✅ |
+| **kali** | GTX 1050 4GB, 16GB RAM | 100.103.82.104 | Git executor | ✅ |
+| **cel** | Redmi Note 11, 1GB | 100.76.111.99 | Reviewer/approver | ✅ |
 
 ## Stack
 
@@ -27,6 +27,16 @@
 | `LLAMA_URL` | `http://100.121.64.26:8080` | `http://localhost:8080` |
 | `BOARD_API_URL` | `http://100.121.64.26:9998` | `http://localhost:9998` |
 
+### CLI Overrides (v4.1)
+
+| Comando | Efecto |
+|---------|--------|
+| `@code-audit --local revisa server.js` | Solo debian/kali local, 0ms, sin gastar tokens |
+| `@code-audit --cloud revisa server.js` | Todos en nube, 4s throttle |
+| `@code-audit --auto revisa server.js` | Auto: local primero, fallback nube (default) |
+| `@code-audit --device=debian revisa server.js` | Solo debian |
+| `@code-audit --device=kali,vps --cloud revisa server.js` | Solo kali+vps en nube |
+
 ## Board API :9998 — Modelos
 
 | Board Key | Modelo | Servicio systemd | VRAM | tok/s |
@@ -37,31 +47,40 @@
 | `gemma` | gemma4-12b-uncensored | llama-3060.service | 6.9GB | 80 |
 | `gemma-26b-a4b` | gemma4-26b-a4b | gemma4-26b-a4b.service | 11.4GB | 55 |
 
-## Los 8 Squads (granja.json)
+## Los 8 Squads (granja.json v4.1)
 
-| Squad | Pattern | Agents | Ejemplo de prompt |
-|-------|---------|--------|-------------------|
-| `quick-review` | single | reviewer | `@quick-review revisa pwa/src/App.tsx` |
-| `code-audit` | fan-out-fan-in | reviewer+security+health | `@code-audit audita server/server.js` |
-| `research-deep` | debate 3 rondas | researcher+analyst+critic | `@research-deep debate si migrar a SQLite` |
-| `architecture` | consensus 3 votos | architect+architect2+architect3 | `@architecture propone microservicios` |
-| `mithos-cap` | proxy-atomico | guion+lore-check+seo-youtube | `@mithos-cap crea CAP para este video` |
-| `deploy` | single | deployer | `@deploy haz deploy al VPS` |
-| `memory-consolidation` | single | consolidator | `@memory-consolidation consolida auditorías` |
-| `youtube-auto` | fan-out-fan-in | title+thumbnail+description | `@youtube-auto genera metadata` |
+| Squad | Pattern | Backend | Agents | Ejemplo |
+|-------|---------|---------|--------|---------|
+| `quick-review` | fan-out-fan-in | hybrid | qr-debian | `@quick-review --local revisa server.js` |
+| `code-audit` | fan-out-fan-in | hybrid | debian+kali+vps+cel | `@code-audit revisa server.js` |
+| `research-deep` | debate 3 rondas | hybrid | debian+kali+vps | `@research-deep investiga X` |
+| `architecture` | consensus 3 votos | auto | 3 agents | `@architecture propone microservicios` |
+| `mithos-cap` | proxy-atomico | auto | guion+lore+seo | `@mithos-cap crea CAP` |
+| `deploy` | single | auto | deployer | `@deploy haz deploy` |
+| `memory-consolidation` | single | auto | consolidator | `@memory-consolidation consolida` |
+| `youtube-auto` | fan-out-fan-in | auto | title+thumb+desc | `@youtube-auto genera metadata` |
 
 ## Orchestrator
 
-**Endpoint:** `POST /api/orchestrate`
+**Endpoint:** `POST /api/orchestrate` + Socket.IO `squad:message`
 
-**Flujo:**
-1. Recibe `{text, squad}` desde PWA o curl
-2. `granja.json` define agents del squad
-3. Para cada agent: `boardStart(model_ref)` → switch systemd → espera GPU
-4. `injectCode(text)` lee archivos reales (hasta 12000 chars) y los inyecta
-5. `callLlama(prompt)` llama a :8080 con el prompt enriquecido
-6. `boardStop()` libera GPU
-7. Resultado se guarda en `server/lib/memory/pending-YYYY-MM-DD.md`
+**Flujo (v4.1):**
+1. Usuario escribe `@code-audit --local revisa server.js`
+2. `chat.js` detecta squad → parseOverrides (--local, --cloud, --device=)
+3. `orchestrator.js` crea sesión + historial en `memory/conversations/{squad}.json`
+4. Fan-out: locales en paralelo (0ms), nube secuencial (4s throttle)
+5. Si provider retorna 429 → circuit breaker 5min → rota al siguiente fallback
+6. Fan-in: sintetiza perspectivas con local llama
+7. Resultado se emite en chat + Kanban + persiste en disco
+
+### Circuit Breaker + Throttle
+
+| Backend | Throttle | Parallel | Retry | Backoff |
+|---------|----------|----------|-------|---------|
+| `llama` (local) | 0ms | Sí (GPU encola) | 3 intentos | 5s |
+| `opencode` (nube) | 3-5s + jitter | No (secuencial) | 3 intentos | 10s, 20s, 40s |
+
+Si un provider retorna 429 → circuit breaker lo marca dead 5 min → rota al siguiente fallback.
 
 **Granja Guard** (en `tasks.js`):
 Si el texto empieza con `@quick-review`, `@code-audit`, etc., se intercepta ANTES de crear tarea en tasks.json. Se llama directo a `orchestrateTask()`. Return: `{orchestrator: true, squad, final, pendingPath}`.
@@ -91,7 +110,8 @@ WantedBy=default.target
 1. Agregar entrada en `server/lib/granja.json`
 2. Definir pattern: `single`, `fan-out-fan-in`, `debate`, `consensus`, `proxy-atomico`
 3. Agregar agents con `model_ref` (debe existir en model-registry) y `role`
-4. Test: `curl -X POST localhost:3003/api/orchestrate -H "Content-Type: application/json" -d '{"text":"@nuevo-squad test","squad":"nuevo-squad"}'`
+4. Agregar `backend` (`llama`, `opencode`, `auto`), `throttle_ms`, `fallback_models`
+5. Test: `curl -X POST localhost:3003/api/orchestrate -H "Content-Type: application/json" -d '{"text":"@nuevo-squad test","squad":"nuevo-squad"}'`
 
 ## Convenciones
 
@@ -128,10 +148,13 @@ ls -la server/lib/memory/pending-*.md
 
 ## Referencias
 
-- `server/lib/granja.json` — Definición de squads
+- `server/lib/granja.json` — Definición de squads v4.1
 - `server/lib/model-registry.json` — Mapeo de modelos a board_key
-- `server/lib/orchestrator.js` — Lógica de orquestación + injectCode
-- `server/routes/tasks.js` — Granja guard (intercepta @squads)
+- `server/lib/orchestrator.js` — Orchestrator v4.1 (circuit breaker + hybrid + throttle)
+- `server/routes/chat.js` — Chat con squad detection + parseOverrides
+- `server/routes/tasks.js` — Granja guard + single task per squad
+- `server/lib/memory/conversations/` — Historial JSON por squad
 - `server/lib/memory/pending-*.md` — Historial de auditorías
+- `docs/PLAN-V4.1/` — Plan de ejecución v4.1
 - `docs/MANUAL_USUARIO_EXTENSO.md` — Manual completo para Juan
 - `BOOTSTRAP.md` — Contexto rápido para no olvidar
