@@ -32,6 +32,11 @@
     }
   },
   "squads": {
+    "quick-review": {
+      "devices": [
+        "debian"
+      ]
+    },
     "code-audit": {
       "devices": [
         "debian",

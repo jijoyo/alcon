@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -115,6 +116,22 @@ func callOpenRouter(d Device, prompt string) (string, error) {
 	return string(body), nil
 }
 
+func getRepoContext() string {
+	repo := os.Getenv("ALCON_REPO")
+	if repo == "" {
+		return ""
+	}
+	target := filepath.Join(repo, "server/go/orchestrator.go")
+	data, err := os.ReadFile(target)
+	if err != nil {
+		return ""
+	}
+	if len(data) > 2000 {
+		data = data[:2000]
+	}
+	return fmt.Sprintf("=== REPO CONTEXT ===\n%s\n=== END CONTEXT ===\n\n", string(data))
+}
+
 func throttledCall(d Device, prompt string, wg *sync.WaitGroup, ch chan<- Result) {
 	defer wg.Done()
 	start := time.Now()
@@ -122,12 +139,17 @@ func throttledCall(d Device, prompt string, wg *sync.WaitGroup, ch chan<- Result
 		jitter := time.Duration(200+time.Now().UnixNano()%800) * time.Millisecond
 		time.Sleep(time.Duration(d.Throttle)*time.Millisecond + jitter)
 	}
+	repoCtx := getRepoContext()
+	fullPrompt := prompt
+	if repoCtx != "" {
+		fullPrompt = repoCtx + prompt
+	}
 	var out string
 	var err error
 	if d.Backend == "llama" {
-		out, err = callLlama(d, prompt)
+		out, err = callLlama(d, fullPrompt)
 	} else {
-		out, err = callOpenRouter(d, prompt)
+		out, err = callOpenRouter(d, fullPrompt)
 	}
 	r := Result{Device: d.Name, Role: d.Role, Output: out, Ms: time.Since(start).Milliseconds()}
 	if err != nil {
