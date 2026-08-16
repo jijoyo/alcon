@@ -54,8 +54,10 @@ export default async function tasksRoutes(fastify) {
         try {
           const { orchestrateTask } = await import('../lib/orchestrator.js');
           const result = await orchestrateTask({ text: prompt, squad });
+          const doneTs = new Date().toISOString();
           db.prepare("UPDATE tasks SET status='hecho', result=?, completed_at=datetime('now') WHERE id=?").run(result.final, id);
-          if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'hecho' });
+          db.prepare("UPDATE tasks SET stage='done', stage_updated_at=? WHERE id=?").run(doneTs, id);
+          if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'hecho', stage: 'done' });
         } catch (e) {
           fastify.log.error(e);
           db.prepare("UPDATE tasks SET status='error', result=?, error_at=datetime('now') WHERE id=?").run(e.message, id);
