@@ -19,7 +19,7 @@ async function boardStart(modelKey){
 }
 async function boardStop(){ try{ await fetch(`${API_BOARD}/stop`,{method:'POST'});}catch{} }
 function injectCode(prompt){
-  const codeRoot = import.meta.dirname + '/..';
+  const codeRoot = import.meta.dirname + '/../..';
   const patterns = [
     /(?:revisa|analiza|audita|check|lee)\s+([\w\/\.\-]+(?:\.js|\.ts|\.json|\.md))/gi,
     /(server\/server\.js|server\.js|routes\/[\w\-]+\.js|lib\/[\w\-]+\.js)/gi
