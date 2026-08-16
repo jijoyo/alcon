@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GRANJA = JSON.parse(fs.readFileSync(path.join(__dirname, 'granja.json'), 'utf8'));
 const REGISTRY = JSON.parse(fs.readFileSync(path.join(__dirname, 'model-registry.json'), 'utf8'));
-const API_BOARD = 'http://localhost:9998';
+const API_BOARD = process.env.BOARD_API_URL || 'http://localhost:9998';
 const LLAMA = process.env.LLAMA_URL || 'http://localhost:8080';
 
 async function boardStart(modelKey){
