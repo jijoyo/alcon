@@ -44,7 +44,7 @@ func callLlama(d Device, prompt string) (string, error) {
 	b, _ := json.Marshal(payload)
 	req, _ := http.NewRequest("POST", url, bytes.NewReader(b))
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{Timeout: 60 * time.Second}
+	client := &http.Client{Timeout: 120 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
