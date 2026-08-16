@@ -15,6 +15,7 @@ type Device struct {
 	Name     string `json:"name"`
 	Backend  string `json:"backend"`
 	IP       string `json:"ip"`
+	Port     int    `json:"port,omitempty"`
 	Throttle int    `json:"throttle"`
 	Role     string `json:"role,omitempty"`
 }
@@ -36,10 +37,13 @@ type Result struct {
 }
 
 func callLlama(d Device, prompt string) (string, error) {
-	url := fmt.Sprintf("http://%s:8080/completion", d.IP)
+	port := d.Port
+	if port == 0 { port = 8080 }
+	url := fmt.Sprintf("http://%s:%d/completion", d.IP, port)
 	payload := map[string]interface{}{
-		"prompt": fmt.Sprintf("[%s %s] %s", d.Name, d.Role, prompt),
-		"n_predict": 512,
+		"prompt":      fmt.Sprintf("[%s %s] %s", d.Name, d.Role, prompt),
+		"n_predict":   512,
+		"temperature": 0.7,
 	}
 	b, _ := json.Marshal(payload)
 	req, _ := http.NewRequest("POST", url, bytes.NewReader(b))

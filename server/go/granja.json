@@ -12,6 +12,7 @@
       "name": "kali",
       "backend": "llama",
       "ip": "100.103.82.104",
+      "port": 8082,
       "throttle": 0,
       "role": "performance"
     },
