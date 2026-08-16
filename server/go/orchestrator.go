@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"sync"
 	"time"
 )
@@ -16,7 +15,6 @@ type Device struct {
 	Name     string `json:"name"`
 	Backend  string `json:"backend"`
 	IP       string `json:"ip"`
-	Proxy    string `json:"proxy,omitempty"`
 	Throttle int    `json:"throttle"`
 	Role     string `json:"role,omitempty"`
 }
@@ -37,37 +35,16 @@ type Result struct {
 	Error  string
 }
 
-func getOpencodeBin() string {
-	if v := os.Getenv("OPENCODE_BIN"); v != "" {
-		return v
-	}
-	if v := os.Getenv("HOME"); v != "" {
-		candidate := v + "/.opencode/bin/opencode"
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate
-		}
-	}
-	// VPS path from your deploy fix
-	if _, err := os.Stat("/usr/local/bin/opencode"); err == nil {
-		return "/usr/local/bin/opencode"
-	}
-	if _, err := os.Stat("/home/ubuntu/.opencode/bin/opencode"); err == nil {
-		return "/home/ubuntu/.opencode/bin/opencode"
-	}
-	return "opencode"
-}
-
 func callLlama(d Device, prompt string) (string, error) {
 	url := fmt.Sprintf("http://%s:8080/completion", d.IP)
 	payload := map[string]interface{}{
-		"prompt":      fmt.Sprintf("[%s %s] %s", d.Name, d.Role, prompt),
-		"n_predict":   512,
-		"temperature": 0.7,
+		"prompt": fmt.Sprintf("[%s %s] %s", d.Name, d.Role, prompt),
+		"n_predict": 512,
 	}
 	b, _ := json.Marshal(payload)
 	req, _ := http.NewRequest("POST", url, bytes.NewReader(b))
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := &http.Client{Timeout: 60 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
@@ -83,34 +60,55 @@ func callLlama(d Device, prompt string) (string, error) {
 	return string(body), nil
 }
 
-func callOpencode(d Device, prompt string) (string, error) {
-	bin := getOpencodeBin()
-	args := []string{"run", "--model", "opencode/mimo-v2.5-free", prompt}
-	cmd := exec.Command(bin, args...)
-	workdir := os.Getenv("ALCON_WORKDIR")
-	if workdir == "" {
-		workdir, _ = os.Getwd()
+func callOpenRouter(d Device, prompt string) (string, error) {
+	apiKey := os.Getenv("OPENROUTER_API_KEY")
+	if apiKey == "" {
+		return "", fmt.Errorf("OPENROUTER_API_KEY no seteada - export OPENROUTER_API_KEY=sk-or-...")
 	}
-	cmd.Dir = workdir
-	env := os.Environ()
-	if d.Proxy != "" {
-		env = append(env, "HTTP_PROXY="+d.Proxy, "HTTPS_PROXY="+d.Proxy)
+	// OpenRouter directo, sin opencode intermediario - 93s -> 15s
+	url := "https://openrouter.ai/api/v1/chat/completions"
+	// Modelo free que usas en v4.1
+	model := "xiaomi/mimo-v2.5"
+	if os.Getenv("OPENROUTER_MODEL") != "" {
+		model = os.Getenv("OPENROUTER_MODEL")
 	}
-	cmd.Env = env
-	done := make(chan error, 1)
-	var out []byte
-	go func() {
-		var err error
-		out, err = cmd.CombinedOutput()
-		done <- err
-	}()
-	select {
-	case err := <-done:
-		return string(out), err
-	case <-time.After(90 * time.Second):
-		cmd.Process.Kill()
-		return "", fmt.Errorf("opencode timeout 90s")
+	payload := map[string]interface{}{
+		"model": model,
+		"messages": []map[string]string{
+			{"role": "system", "content": fmt.Sprintf("Eres %s, rol %s en squad Alcon v4.2 Go. Responde conciso.", d.Name, d.Role)},
+			{"role": "user", "content": prompt},
+		},
+		"stream": false,
 	}
+	b, _ := json.Marshal(payload)
+	req, _ := http.NewRequest("POST", url, bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("HTTP-Referer", "https://alcon.local")
+	req.Header.Set("X-Title", "Alcon v4.2 Go")
+	client := &http.Client{Timeout: 90 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != 200 {
+		msg := string(body)
+		if len(msg) > 500 { msg = msg[:500] }
+		return msg, fmt.Errorf("openrouter %d: %s", resp.StatusCode, msg)
+	}
+	var r struct {
+		Choices []struct {
+			Message struct {
+				Content string `json:"content"`
+			} `json:"message"`
+		} `json:"choices"`
+	}
+	if json.Unmarshal(body, &r) == nil && len(r.Choices) > 0 {
+		return r.Choices[0].Message.Content, nil
+	}
+	return string(body), nil
 }
 
 func throttledCall(d Device, prompt string, wg *sync.WaitGroup, ch chan<- Result) {
@@ -125,7 +123,7 @@ func throttledCall(d Device, prompt string, wg *sync.WaitGroup, ch chan<- Result
 	if d.Backend == "llama" {
 		out, err = callLlama(d, prompt)
 	} else {
-		out, err = callOpencode(d, prompt)
+		out, err = callOpenRouter(d, prompt)
 	}
 	r := Result{Device: d.Name, Role: d.Role, Output: out, Ms: time.Since(start).Milliseconds()}
 	if err != nil {
@@ -145,10 +143,14 @@ func main() {
 			prompt = os.Args[i+1]
 		}
 	}
+	if os.Getenv("OPENROUTER_API_KEY") == "" {
+		fmt.Println("⚠ OPENROUTER_API_KEY no seteada - cloud devices fallaran")
+		fmt.Println("export OPENROUTER_API_KEY=sk-or-v1-...")
+	}
 	data, _ := os.ReadFile("granja.json")
 	var g Granja
 	json.Unmarshal(data, &g)
-	fmt.Printf("=== v4.2 Go %s squad=%s ===\nDevices: %v\n", g.Version, squad, g.Squads[squad].Devices)
+	fmt.Printf("=== v4.2 Go OpenRouter direct %s squad=%s ===\n", g.Version, squad)
 	var wg sync.WaitGroup
 	ch := make(chan Result, len(g.Squads[squad].Devices))
 	start := time.Now()
@@ -160,11 +162,7 @@ func main() {
 	wg.Wait()
 	close(ch)
 	for r := range ch {
-		status := "OK"
-		if r.Error != "" {
-			status = "ERR " + r.Error
-		}
-		fmt.Printf("[%s %s] %s %dms %d chars\n%.300s\n---\n", r.Device, r.Role, status, r.Ms, len(r.Output), r.Output)
+		fmt.Printf("[%s %s] %dms err=%s\n%.500s\n---\n", r.Device, r.Role, r.Ms, r.Error, r.Output)
 	}
-	fmt.Printf("Total %dms RAM est %dMB\n", time.Since(start).Milliseconds(), len(g.Squads[squad].Devices)*15)
+	fmt.Printf("Total %dms\n", time.Since(start).Milliseconds())
 }

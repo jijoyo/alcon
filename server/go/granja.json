@@ -1,5 +1,5 @@
 {
-  "version": "4.2-go-fase1-fixed",
+  "version": "4.2-go-openrouter-direct",
   "devices": {
     "debian": {
       "name": "debian",
@@ -31,12 +31,6 @@
     }
   },
   "squads": {
-    "quick-review": {
-      "devices": [
-        "debian",
-        "kali"
-      ]
-    },
     "code-audit": {
       "devices": [
         "debian",
