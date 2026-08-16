@@ -1,35 +1,45 @@
 {
   "registry": {
     "code-review": {
+      "board_key": "qwen",
       "model": "qwen3.6-35b-A3B-MXFP4_MOE",
       "service": "qwen3-35b.service",
-      "file": "Qwen3-35B-A3B-MXFP4_MOE.gguf",
       "vram": "10.6GB",
       "toks": 45
     },
     "security": {
+      "board_key": "hauhaucs-12b",
       "model": "qwen2.5-coder-14b",
-      "service": "qwen-coder-14b.service",
+      "service": "hauhaucs-12b.service",
       "vram": "8.4GB",
       "toks": 30
     },
     "creative": {
+      "board_key": "hauhaucs-12b",
       "model": "gemma4-12b-hauhaucs",
       "service": "hauhaucs-12b.service",
       "vram": "6.9GB",
       "toks": 129
     },
     "uncensored": {
+      "board_key": "gemma",
       "model": "gemma4-12b-uncensored",
-      "service": "gemma4-12b.service",
+      "service": "llama-3060.service",
       "vram": "6.9GB",
       "toks": 80
     },
     "dense-reasoning": {
+      "board_key": "gemma-26b-a4b",
       "model": "gemma4-26b-a4b",
       "service": "gemma4-26b-a4b.service",
       "vram": "11.4GB",
       "toks": 55
     }
+  },
+  "board": {
+    "api": "http://localhost:9998",
+    "dashboard": "http://localhost:8081",
+    "endpoint": "http://localhost:8080/v1/chat/completions",
+    "single_model": true
   }
 }

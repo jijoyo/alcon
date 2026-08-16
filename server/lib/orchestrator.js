@@ -7,10 +7,10 @@ const LLAMA = 'http://localhost:8080';
 
 async function boardStart(modelKey){
   const entry = REGISTRY.registry[modelKey];
-  const service = entry?.service || modelKey;
-  console.log(`[orchestrator] start ${modelKey} -> ${service}`);
-  await fetch(`${API_BOARD}/start?model=${modelKey}`, {method:'POST'}).catch(async()=>{
-    await fetch(`${API_BOARD}/start?service=${service}`, {method:'POST'}).catch(()=>{});
+  const boardKey = entry?.board_key || modelKey;
+  console.log(`[orchestrator] start ${modelKey} -> board:${boardKey}`);
+  await fetch(`${API_BOARD}/start?model=${boardKey}`, {method:'POST'}).catch(async()=>{
+    await fetch(`${API_BOARD}/start`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model:boardKey})}).catch(()=>{});
   });
   for(let i=0;i<30;i++){
     try{ const h=await fetch(`${LLAMA}/health`); if(h.ok) return; }catch{}
