@@ -1,0 +1,146 @@
+{
+  "version": "3.0-real-montar-modelos",
+  "orchestrator_device": "debian",
+  "note": "1 modelo a la vez :8080 switch via :9998 API",
+  "local_endpoint": "http://localhost:8080/v1/chat/completions",
+  "board_api": "http://localhost:9998",
+  "dashboard": "http://localhost:8081",
+  "squads": {
+    "quick-review": {
+      "pattern": "single",
+      "agents": [
+        {
+          "model_ref": "code-review",
+          "device": "debian",
+          "role": "reviewer"
+        }
+      ]
+    },
+    "code-audit": {
+      "pattern": "fan-out-fan-in",
+      "timeout": 120000,
+      "aggregator": "qwen_synthesis",
+      "agents": [
+        {
+          "model_ref": "code-review",
+          "device": "debian",
+          "role": "reviewer"
+        },
+        {
+          "model_ref": "security",
+          "device": "debian",
+          "role": "security"
+        },
+        {
+          "model_ref": "creative",
+          "device": "debian",
+          "role": "health"
+        }
+      ]
+    },
+    "research-deep": {
+      "pattern": "debate",
+      "max_rounds": 3,
+      "disagreement_threshold": 0.3,
+      "agents": [
+        {
+          "model_ref": "dense-reasoning",
+          "device": "debian",
+          "role": "researcher"
+        },
+        {
+          "model_ref": "security",
+          "device": "debian",
+          "role": "analyst"
+        },
+        {
+          "model_ref": "creative",
+          "device": "debian",
+          "role": "critic"
+        }
+      ]
+    },
+    "architecture": {
+      "pattern": "consensus",
+      "voting": "majority",
+      "judge": "creative",
+      "agents": [
+        {
+          "model_ref": "code-review",
+          "device": "debian",
+          "role": "architect"
+        },
+        {
+          "model_ref": "dense-reasoning",
+          "device": "debian",
+          "role": "architect2"
+        },
+        {
+          "model_ref": "creative",
+          "device": "debian",
+          "role": "architect3"
+        }
+      ]
+    },
+    "mithos-cap": {
+      "pattern": "proxy-atomico",
+      "agents": [
+        {
+          "model_ref": "creative",
+          "device": "debian",
+          "role": "guion"
+        },
+        {
+          "model_ref": "code-review",
+          "device": "debian",
+          "role": "lore-check"
+        },
+        {
+          "model_ref": "creative",
+          "device": "debian",
+          "role": "seo-youtube"
+        }
+      ]
+    },
+    "deploy": {
+      "pattern": "single",
+      "agents": [
+        {
+          "model_ref": "security",
+          "device": "kali",
+          "role": "deployer"
+        }
+      ]
+    },
+    "memory-consolidation": {
+      "pattern": "single",
+      "agents": [
+        {
+          "model_ref": "dense-reasoning",
+          "device": "debian",
+          "role": "consolidator"
+        }
+      ]
+    },
+    "youtube-auto": {
+      "pattern": "fan-out-fan-in",
+      "agents": [
+        {
+          "model_ref": "creative",
+          "device": "debian",
+          "role": "title"
+        },
+        {
+          "model_ref": "creative",
+          "device": "debian",
+          "role": "thumbnail"
+        },
+        {
+          "model_ref": "creative",
+          "device": "debian",
+          "role": "description"
+        }
+      ]
+    }
+  }
+}

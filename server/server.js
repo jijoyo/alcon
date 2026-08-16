@@ -7,6 +7,7 @@ import { open as openDb, get as getDb } from './db/connection.js';
 import tasksRoutes from './routes/tasks.js';
 import { registerChat } from './routes/chat.js';
 import { ARTIFACTS_DIR, agentRunning, now } from './lib/shared.js';
+import { orchestrateTask } from './lib/orchestrator.js';
 
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
@@ -25,6 +26,16 @@ fastify.get('/health', async () => {
 });
 
 fastify.post('/api/ping', async (request) => { const { agent } = request.body || {}; return { ok:true, agent, timestamp:now() }; });
+
+fastify.post('/api/orchestrate', async (request, reply) => {
+  try {
+    const result = await orchestrateTask(request.body);
+    return result;
+  } catch (e) {
+    fastify.log.error(e);
+    return reply.code(500).send({ error: e.message });
+  }
+});
 
 const PORT = process.env.PORT || 3003;
 const HOST = process.env.HOST || '0.0.0.0';
