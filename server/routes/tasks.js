@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { pipeline } from 'stream/promises';
 import { get as getDb } from '../db/connection.js';
 import { requireString, maxLength } from '../middleware/validate.js';
@@ -24,6 +25,16 @@ import {
   safeFilename
 } from '../lib/shared.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+let GRANJA = { squads: {}, devices: {} };
+try {
+  GRANJA = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'granja.json'), 'utf8'));
+} catch(e) {
+  console.warn(`[tasks] no granja.json: ${e.message}`);
+}
+const GRANJA_SQUADS = Object.keys(GRANJA.squads || {});
+console.log(`[tasks] squads cargados: ${GRANJA_SQUADS.join(', ')}`);
+
 const TASK_TAGS = ['vps', 'kali', 'cel', 'debian', 'hermes'];
 
 function tagFromText(text) {
@@ -42,30 +53,44 @@ export default async function tasksRoutes(fastify) {
     const trimmed = text.trim();
     const cleanForStop = trimmed.replace(/^@\w+\s*/, '').trim();
 
-    const GRANJA_SQUADS = ['quick-review','code-audit','research-deep','architecture','mithos-cap','youtube-auto','memory-consolidation','deploy'];
+    const GRANJA_SQUADS_CURRENT = Object.keys(GRANJA.squads || {});
     const squadMatch = trimmed.match(/^@(\S+)\s+(.*)/s);
-    if (squadMatch && GRANJA_SQUADS.includes(squadMatch[1])) {
+    if (squadMatch && GRANJA_SQUADS_CURRENT.includes(squadMatch[1])) {
       const squad = squadMatch[1];
       const prompt = squadMatch[2];
       const db = getDb();
-      const id = db.prepare("INSERT INTO tasks (text, original_text, squad, status, assigned_to, created) VALUES (?, ?, ?, 'en_proceso', 'orchestrator', datetime('now'))").run(`@${squad} ${prompt}`, trimmed, squad).lastInsertRowid;
+
+      const existing = db.prepare("SELECT id FROM tasks WHERE squad=? AND status='en_proceso' ORDER BY id DESC LIMIT 1").get(squad);
+      let id;
+      if (existing) {
+        id = existing.id;
+        db.prepare("UPDATE tasks SET text=text || char(10) || '→ ' || ?, updated_at=datetime('now') WHERE id=?").run(prompt, id);
+      } else {
+        id = db.prepare("INSERT INTO tasks (text, original_text, squad, status, assigned_to, created) VALUES (?, ?, ?, 'en_proceso', 'orchestrator', datetime('now'))").run(`@${squad} ${prompt}`, trimmed, squad).lastInsertRowid;
+      }
 
       setImmediate(async () => {
         try {
-          const { orchestrateTask } = await import('../lib/orchestrator.js');
-          const result = await orchestrateTask({ text: prompt, squad });
+          const { handleSquadMessage, squadSessions } = await import('../lib/orchestrator.js');
+          if (squadSessions.has(squad)) squadSessions.get(squad).taskId = id;
+          const response = await handleSquadMessage(squad, prompt, request.body?.from || 'api');
           const doneTs = new Date().toISOString();
-          db.prepare("UPDATE tasks SET status='hecho', result=?, completed_at=datetime('now') WHERE id=?").run(result.final, id);
-          db.prepare("UPDATE tasks SET stage='done', stage_updated_at=? WHERE id=?").run(doneTs, id);
-          if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'hecho', stage: 'done' });
+          db.prepare("UPDATE tasks SET status='hecho', result=?, completed_at=datetime('now'), stage='done', stage_updated_at=? WHERE id=?").run(response, doneTs, id);
+          if (globalThis._io) {
+            globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'hecho', stage: 'done' });
+            globalThis._io.of('/enjambre').emit('chat:message', { id: crypto.randomUUID(), from: squad, text: response.slice(0,2000), timestamp: doneTs });
+          }
         } catch (e) {
           fastify.log.error(e);
           db.prepare("UPDATE tasks SET status='error', result=?, error_at=datetime('now') WHERE id=?").run(e.message, id);
-          if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'error' });
+          if (globalThis._io) {
+            globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'error' });
+            globalThis._io.of('/enjambre').emit('chat:message', { id: crypto.randomUUID(), from: squad, text: `Error: ${e.message}`, timestamp: now() });
+          }
         }
       });
 
-      return { orchestrator: true, squad, status: 'en_proceso', id };
+      return { orchestrator: true, squad, status: 'en_proceso', id, followUp: !!existing };
     }
 
     if (STOP_WORDS.test(cleanForStop) || !tagFromText(trimmed)) {
