@@ -18,6 +18,25 @@ async function boardStart(modelKey){
   }
 }
 async function boardStop(){ try{ await fetch(`${API_BOARD}/stop`,{method:'POST'});}catch{} }
+function injectCode(prompt){
+  const codeRoot = import.meta.dirname + '/..';
+  const patterns = [
+    /(?:revisa|analiza|audita|check|lee)\s+([\w\/\.\-]+(?:\.js|\.ts|\.json|\.md))/gi,
+    /(server\/server\.js|server\.js|routes\/[\w\-]+\.js|lib\/[\w\-]+\.js)/gi
+  ];
+  let code = '';
+  for(const re of patterns){
+    for(const m of prompt.matchAll(re)){
+      const filePath = m[1];
+      const full = filePath.startsWith('/') ? filePath : `${codeRoot}/${filePath}`;
+      try{
+        const content = fs.readFileSync(full,'utf8').slice(0,12000);
+        code += `\n=== CODIGO REAL ${filePath} ===\n${content}\n=== FIN CODIGO ===\n`;
+      }catch{}
+    }
+  }
+  return code ? `${prompt}\n\n${code}` : prompt;
+}
 async function callLlama(prompt){
   const res = await fetch(`${LLAMA}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'local',messages:[{role:'user',content:prompt}],stream:false})});
   const j=await res.json(); return j.choices?.[0]?.message?.content||'';
@@ -29,7 +48,7 @@ export async function orchestrateTask(task){
   for(const atomic of atomics){
     const round=[];
     for(const agent of squad.agents){
-      try{ await boardStart(agent.model_ref); const r=await callLlama(`[${agent.role}] ${atomic}`); round.push({role:agent.role,result:r}); await boardStop(); }
+      try{ await boardStart(agent.model_ref); const r=await callLlama(`[${agent.role}] ${injectCode(atomic)}`); round.push({role:agent.role,result:r}); await boardStop(); }
       catch(e){ round.push({role:agent.role,error:e.message}); await boardStop(); }
     }
     all.push({atomic, results:round});
