@@ -6,8 +6,8 @@ const API_BOARD = 'http://localhost:9998';
 const LLAMA = 'http://localhost:8080';
 
 async function boardStart(modelKey){
-  const entry = REGISTRY.registry[modelKey];
-  const boardKey = entry?.board_key || modelKey;
+  const entry = REGISTRY.registry[modelKey] || REGISTRY.registry['code-review'];
+  const boardKey = entry?.board_key || 'qwen';
   console.log(`[orchestrator] start ${modelKey} -> board:${boardKey}`);
   await fetch(`${API_BOARD}/start?model=${boardKey}`, {method:'POST'}).catch(async()=>{
     await fetch(`${API_BOARD}/start`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model:boardKey})}).catch(()=>{});

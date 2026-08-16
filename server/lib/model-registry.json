@@ -34,6 +34,22 @@
       "service": "gemma4-26b-a4b.service",
       "vram": "11.4GB",
       "toks": 55
+    },
+    "quick-review": {
+      "board_key": "qwen",
+      "model": "qwen3.6-35b-A3B-MXFP4_MOE",
+      "service": "qwen3-35b.service",
+      "vram": "10.6GB",
+      "toks": 45,
+      "alias": "code-review"
+    },
+    "code-audit": {
+      "board_key": "qwen",
+      "model": "qwen3.6-35b-A3B-MXFP4_MOE",
+      "service": "qwen3-35b.service",
+      "vram": "10.6GB",
+      "toks": 45,
+      "alias": "code-review"
     }
   },
   "board": {
