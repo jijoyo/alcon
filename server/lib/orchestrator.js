@@ -278,18 +278,24 @@ export async function handleSquadMessage(squad, prompt, from='user'){
   const perspectivesText = results.map(r=> `[${r.device}/${r.model}/${r.role}]: ${r.response}`).join('\n---\n');
   const synthesisPrompt = `Sintetiza estas ${results.length} perspectivas sobre: "${prompt}"\n\n${perspectivesText}\n\nSintesis final en español, corta, accionable. Menciona quien dijo que.`;
 
+  // Si hay agentes locales, intenta síntesis con llama; si no, vai directo a OpenCode
+  const hasLocalAgents = localAgents.length > 0;
   let synthesis;
-  try{
-    await boardStart('code-review');
-    synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.');
-    await boardStop();
-  }catch{
-    // fallback: usa OpenCode para síntesis si local falla
+  if(hasLocalAgents){
+    try{
+      await boardStart('code-review');
+      synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.');
+      await boardStop();
+    }catch{
+      try{
+        synthesis = await callOpenCode(synthesisPrompt, 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente. Responde en español, corto.');
+      }catch{ synthesis = perspectivesText.slice(0,2000) || '(sin resultado)'; }
+    }
+  } else {
+    // todo cloud: sintetiza con OpenCode (sin tocar GPU)
     try{
       synthesis = await callOpenCode(synthesisPrompt, 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente. Responde en español, corto.');
-    }catch{
-      synthesis = perspectivesText.slice(0,2000) || '(sin resultado)';
-    }
+    }catch{ synthesis = perspectivesText.slice(0,2000) || '(sin resultado)'; }
   }
 
   session.history.push({role:'assistant', content:synthesis});
