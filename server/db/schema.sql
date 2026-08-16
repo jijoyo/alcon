@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   stage TEXT DEFAULT 'backlog',
   stage_updated_at TEXT,
   artifacts TEXT DEFAULT '[]',
-  blocked_by TEXT DEFAULT '[]'
+  blocked_by TEXT DEFAULT '[]',
+  squad TEXT
 );
 
 CREATE TABLE IF NOT EXISTS messages (

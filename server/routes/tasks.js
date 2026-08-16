@@ -45,15 +45,25 @@ export default async function tasksRoutes(fastify) {
     const GRANJA_SQUADS = ['quick-review','code-audit','research-deep','architecture','mithos-cap','youtube-auto','memory-consolidation','deploy'];
     const squadMatch = trimmed.match(/^@(\S+)\s+(.*)/s);
     if (squadMatch && GRANJA_SQUADS.includes(squadMatch[1])) {
+      const squad = squadMatch[1];
+      const prompt = squadMatch[2];
+      const db = getDb();
+      const id = db.prepare("INSERT INTO tasks (text, original_text, squad, status, assigned_to, created) VALUES (?, ?, ?, 'en_proceso', 'orchestrator', datetime('now'))").run(`@${squad} ${prompt}`, trimmed, squad).lastInsertRowid;
+
       setImmediate(async () => {
         try {
           const { orchestrateTask } = await import('../lib/orchestrator.js');
-          await orchestrateTask({ text: squadMatch[2], squad: squadMatch[1] });
+          const result = await orchestrateTask({ text: prompt, squad });
+          db.prepare("UPDATE tasks SET status='hecho', result=?, completed_at=datetime('now') WHERE id=?").run(result.final, id);
+          if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'hecho' });
         } catch (e) {
           fastify.log.error(e);
+          db.prepare("UPDATE tasks SET status='error', result=?, error_at=datetime('now') WHERE id=?").run(e.message, id);
+          if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'error' });
         }
       });
-      return { orchestrator: true, squad: squadMatch[1], status: 'en_proceso' };
+
+      return { orchestrator: true, squad, status: 'en_proceso', id };
     }
 
     if (STOP_WORDS.test(cleanForStop) || !tagFromText(trimmed)) {
