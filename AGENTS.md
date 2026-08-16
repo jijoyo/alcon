@@ -1,7 +1,7 @@
-# AGENTS.md — Alcon v4.1-conversacional
+# AGENTS.md — Alcon v4.2-go
 
-> Sistema multi-agente con 8 squards de IA que compiten, debaten y colaboran.
-> Hybrid: local primero (0ms), nube si falla (4s throttle). 4 devices × 2 backends.
+> Sistema multi-agente con squads de IA que compiten, debatan y colaboran.
+> v4.2 Go: 4/4 perspectivas en 13.6s, 60MB RAM, 13.2MB Docker. OpenRouter HTTP direct.
 
 ## Infra
 
@@ -14,9 +14,9 @@
 
 ## Stack
 
-- **Server:** Fastify + Socket.io (Node.js, ESM)
+- **Orchestrator:** Go v4.2 Go (server/go/) — 13.2MB Docker, 60MB RAM para 4 workers
 - **PWA:** React + TypeScript + Tailwind + Capacitor
-- **Deploy:** PM2 en VPS Oracle ARM (usar `ecosystem.config.cjs`, NO `.env` — pm2 no lo lee)
+- **Deploy:** Go binario en VPS Oracle ARM :3001, Node v4.1 backup en :3003
 - **GPU:** 1 modelo a la vez en :8080, switch via systemd + Board API :9998
 - **Dashboard:** :8081 (monitor de modelos)
 
@@ -148,9 +148,12 @@ ls -la server/lib/memory/pending-*.md
 
 ## Referencias
 
-- `server/lib/granja.json` — Definición de squads v4.1
+- `server/go/orchestrator.go` — Orchestrator v4.2 Go (goroutines + HTTP direct OpenRouter)
+- `server/go/granja.json` — 4 devices reales, 2 squads
+- `server/go/Dockerfile` — distroless 13.2MB
+- `server/lib/granja.json` — Definición de squads v4.1 (Node backup)
 - `server/lib/model-registry.json` — Mapeo de modelos a board_key
-- `server/lib/orchestrator.js` — Orchestrator v4.1 (circuit breaker + hybrid + throttle)
+- `server/lib/orchestrator.js` — Orchestrator v4.1 Node (backup, v4.1-conversacional tag)
 - `server/routes/chat.js` — Chat con squad detection + parseOverrides
 - `server/routes/tasks.js` — Granja guard + single task per squad
 - `server/lib/memory/conversations/` — Historial JSON por squad
