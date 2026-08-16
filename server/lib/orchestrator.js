@@ -1,7 +1,10 @@
 
 import fs from 'fs';
-const GRANJA = JSON.parse(fs.readFileSync('./lib/granja.json','utf8'));
-const REGISTRY = JSON.parse(fs.readFileSync('./lib/model-registry.json','utf8'));
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const GRANJA = JSON.parse(fs.readFileSync(path.join(__dirname, 'granja.json'), 'utf8'));
+const REGISTRY = JSON.parse(fs.readFileSync(path.join(__dirname, 'model-registry.json'), 'utf8'));
 const API_BOARD = 'http://localhost:9998';
 const LLAMA = process.env.LLAMA_URL || 'http://localhost:8080';
 
@@ -57,7 +60,7 @@ export async function orchestrateTask(task){
   await boardStart('code-review');
   const final = await callLlama(`Sintetiza squad ${squad.pattern}: ${JSON.stringify(all).slice(0,8000)}`);
   await boardStop();
-  const pendingPath=`./lib/memory/pending-${new Date().toISOString().slice(0,10)}.md`;
+  const pendingPath=path.join(__dirname, 'memory', `pending-${new Date().toISOString().slice(0,10)}.md`);
   fs.appendFileSync(pendingPath, `\n## ${new Date().toISOString()} ${task.squad} ${final.slice(0,2000)}\n`);
   return {final, details:all, pendingPath};
 }
