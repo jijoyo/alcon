@@ -10,7 +10,7 @@ const AGENT_COLORS: Record<string, string> = {
   kali: 'text-blue-400',
   vps: 'text-emerald-400',
   cel: 'text-purple-400',
-  debian: 'text-amber-400'
+  debian: 'text-amber-400',
   hermes: 'text-rose-400'
 };
 
