@@ -1,0 +1,49 @@
+{
+  "version": "4.2-go-fase1-fixed",
+  "devices": {
+    "debian": {
+      "name": "debian",
+      "backend": "llama",
+      "ip": "100.121.64.26",
+      "throttle": 0,
+      "role": "arquitectura"
+    },
+    "kali": {
+      "name": "kali",
+      "backend": "llama",
+      "ip": "100.103.82.104",
+      "throttle": 0,
+      "role": "performance"
+    },
+    "vps": {
+      "name": "vps",
+      "backend": "opencode",
+      "ip": "100.102.63.30",
+      "throttle": 4000,
+      "role": "seguridad"
+    },
+    "cel": {
+      "name": "cel",
+      "backend": "opencode",
+      "ip": "100.76.111.99",
+      "throttle": 4000,
+      "role": "edge"
+    }
+  },
+  "squads": {
+    "quick-review": {
+      "devices": [
+        "debian",
+        "kali"
+      ]
+    },
+    "code-audit": {
+      "devices": [
+        "debian",
+        "kali",
+        "vps",
+        "cel"
+      ]
+    }
+  }
+}
