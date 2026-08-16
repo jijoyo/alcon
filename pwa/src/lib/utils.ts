@@ -6,21 +6,27 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function timeAgo(dateStr: string): string {
+  if (!dateStr) return 'ahora'
+  let iso = dateStr
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateStr)) {
+    iso = dateStr.replace(' ', 'T') + 'Z'
+  }
   const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diff = Math.floor((now - then) / 1000);
-
-  if (diff < 60) return `${diff}s`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-  return `${Math.floor(diff / 86400)}d`;
+  const then = new Date(iso).getTime();
+  let diff = Math.floor((now - then) / 1000);
+  if (isNaN(diff)) return 'ahora'
+  if (diff < 0) diff = 0
+  if (diff < 5) return 'ahora'
+  if (diff < 60) return `${diff}s`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`
+  return `${Math.floor(diff / 86400)}d`
 }
 
 export function timeUntil(dateStr: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diff = Math.floor((then - now) / 1000);
-
   if (diff <= 0) return 'expirado';
   if (diff < 60) return `${diff}s`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m`;
