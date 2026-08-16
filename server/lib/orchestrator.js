@@ -156,7 +156,9 @@ async function throttledCall(agent, prompt, history){
   if(backend === 'opencode'){
     // nube: throttle 3-5s + fallback models + retry
     const throttle = agent.throttle_ms || 4000;
-    const fallback = agent.fallback_models || [agent.model_ref || 'opencode/mimo-v2.5-free'];
+    const allFallback = agent.fallback_models || [agent.model_ref || 'opencode/mimo-v2.5-free'];
+    const fallback = allFallback.filter(m => m.startsWith('opencode/'));
+    if(fallback.length === 0) fallback.push('opencode/mimo-v2.5-free');
     await sleep(throttle + Math.random()*1000);
     
     for(let attempt=0; attempt<fallback.length; attempt++){
