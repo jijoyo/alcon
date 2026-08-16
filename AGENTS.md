@@ -16,9 +16,16 @@
 
 - **Server:** Fastify + Socket.io (Node.js, ESM)
 - **PWA:** React + TypeScript + Tailwind + Capacitor
-- **Deploy:** PM2 en VPS Oracle ARM
+- **Deploy:** PM2 en VPS Oracle ARM (usar `ecosystem.config.cjs`, NO `.env` — pm2 no lo lee)
 - **GPU:** 1 modelo a la vez en :8080, switch via systemd + Board API :9998
 - **Dashboard:** :8081 (monitor de modelos)
+
+### Env vars (ecosystem.config.cjs)
+
+| Variable | VPS | debian (local) |
+|----------|-----|----------------|
+| `LLAMA_URL` | `http://100.121.64.26:8080` | `http://localhost:8080` |
+| `BOARD_API_URL` | `http://100.121.64.26:9998` | `http://localhost:9998` |
 
 ## Board API :9998 — Modelos
 
