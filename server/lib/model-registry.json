@@ -50,6 +50,17 @@
       "vram": "10.6GB",
       "toks": 45,
       "alias": "code-review"
+    },
+    "lfm2.5-1.2b-thinking": {
+      "board_key": "lfm",
+      "model": "LFM2.5-1.2B-Thinking-Q4_K_M",
+      "service": "lfm2.5-1.2b-thinking.service",
+      "device": "kali",
+      "vram": "4GB",
+      "toks": 82,
+      "url": "http://100.103.82.104:8082",
+      "cuda": true,
+      "ctx_size": 32768
     }
   },
   "board": {

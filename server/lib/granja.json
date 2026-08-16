@@ -16,13 +16,14 @@
       "can_run_local": true,
       "can_run_cloud": true
     },
-    "kali": {
-      "type": "laptop",
-      "hardware": "Dell G7",
-      "ip": "100.121.64.26",
-      "can_run_local": true,
-      "can_run_cloud": true
-    },
+   "kali": {
+       "type": "laptop",
+       "hardware": "Dell G7 (GTX 1050 Ti 4GB)",
+       "ip": "100.103.82.104",
+       "llama_url": "http://100.103.82.104:8082",
+       "can_run_local": true,
+       "can_run_cloud": true
+     },
     "vps": {
       "type": "server",
       "hardware": "Oracle ARM 21GB",
@@ -83,15 +84,15 @@
         },
         {
           "id": "audit-kali-perf",
-          "model_ref": "hauhaucs-12b",
+          "model_ref": "lfm2.5-1.2b-thinking",
           "device": "kali",
           "backend": "auto",
-          "url": "http://100.121.64.26:8080",
+          "url": "http://100.103.82.104:8082",
           "role": "performance",
           "throttle_ms": 0,
           "cloud_throttle_ms": 4000,
           "fallback_models": [
-            "hauhaucs-12b",
+            "lfm2.5-1.2b-thinking",
             "opencode/nemotron-3-nano-30b-a3b-free",
             "opencode/mimo-v2.5-free"
           ]
@@ -146,15 +147,15 @@
         },
         {
           "id": "res-kali",
-          "model_ref": "hauhaucs-12b",
+          "model_ref": "lfm2.5-1.2b-thinking",
           "device": "kali",
           "backend": "auto",
-          "url": "http://100.121.64.26:8080",
+          "url": "http://100.103.82.104:8082",
           "role": "critic",
           "throttle_ms": 0,
           "cloud_throttle_ms": 4000,
           "fallback_models": [
-            "hauhaucs-12b",
+            "lfm2.5-1.2b-thinking",
             "opencode/deepseek-v3.1-free"
           ]
         },

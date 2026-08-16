@@ -1,7 +1,8 @@
-# AGENTS.md — Alcon v4.1-conversacional
+# AGENTS.md — Alcon v4.2-go
 
 > Sistema multi-agente con 8 squards de IA que compiten, debaten y colaboran.
 > Hybrid: local primero (0ms), nube si falla (4s throttle). 4 devices × 2 backends.
+> v4.2: Orchestrator en Go (15MB vs 520MB Node), OpenRouter HTTP direct.
 
 ## Infra
 
@@ -10,6 +11,7 @@
 | **debian** | RTX 3060 12GB, 32GB RAM | 100.121.64.26 | Brain (desarrollo + GPU) | ✅ |
 | **vps** | Oracle ARM 21GB | 100.102.63.30 | Server (Fastify + PM2) | ✅ |
 | **kali** | GTX 1050 4GB, 16GB RAM | 100.103.82.104 | Git executor | ✅ |
+| | | | LLM: LFM2.5-1.2B-Thinking-Q4_K_M @ :8082 (CUDA) | |
 | **cel** | Redmi Note 11, 1GB | 100.76.111.99 | Reviewer/approver | ✅ |
 
 ## Stack
@@ -17,15 +19,15 @@
 - **Server:** Fastify + Socket.io (Node.js, ESM)
 - **PWA:** React + TypeScript + Tailwind + Capacitor
 - **Deploy:** PM2 en VPS Oracle ARM (usar `ecosystem.config.cjs`, NO `.env` — pm2 no lo lee)
-- **GPU:** 1 modelo a la vez en :8080, switch via systemd + Board API :9998
+- **GPU:** 1 modelo a la vez en :8080 (debian), :8082 (kali) — switch via systemd + Board API :9998
 - **Dashboard:** :8081 (monitor de modelos)
 
 ### Env vars (ecosystem.config.cjs)
 
 | Variable | VPS | debian (local) |
 |----------|-----|----------------|
-| `LLAMA_URL` | `http://100.121.64.26:8080` | `http://localhost:8080` |
-| `BOARD_API_URL` | `http://100.121.64.26:9998` | `http://localhost:9998` |
+| `LLAMA_URL` | `http://100.121.64.26:8080` | `http://localhost:8080` | `http://100.103.82.104:8082` |
+| `BOARD_API_URL` | `http://100.121.64.26:9998` | `http://localhost:9998` | `http://100.103.82.104:8082` |
 
 ### CLI Overrides (v4.1)
 
@@ -64,10 +66,10 @@
 
 **Endpoint:** `POST /api/orchestrate` + Socket.IO `squad:message`
 
-**Flujo (v4.1):**
+**Flujo (v4.2 Go):**
 1. Usuario escribe `@code-audit --local revisa server.js`
 2. `chat.js` detecta squad → parseOverrides (--local, --cloud, --device=)
-3. `orchestrator.js` crea sesión + historial en `memory/conversations/{squad}.json`
+3. `orchestrator.go` (Go 15MB) crea sesión + historial en `memory/conversations/{squad}.json`
 4. Fan-out: locales en paralelo (0ms), nube secuencial (4s throttle)
 5. Si provider retorna 429 → circuit breaker 5min → rota al siguiente fallback
 6. Fan-in: sintetiza perspectivas con local llama
