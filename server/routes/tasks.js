@@ -145,6 +145,21 @@ export default async function tasksRoutes(fastify) {
     return formatTask(task);
   });
 
+  fastify.patch('/api/tasks/:id', async (request, reply) => {
+    const id = Number(request.params.id);
+    const db = getDb();
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+    if (!task) return reply.code(404).send({ error:'Task not found' });
+    const { status, stage, result } = request.body || {};
+    const finalStage = status === 'hecho' ? 'done' : (stage || task.stage);
+    const finalStatus = status || task.status;
+    const ts = now();
+    db.prepare(`UPDATE tasks SET status = ?, stage = ?, stage_updated_at = ?, completed_at = CASE WHEN ? = 'hecho' THEN ? ELSE completed_at END WHERE id = ?`).run(finalStatus, finalStage, ts, finalStatus, ts, id);
+    if (result !== undefined) db.prepare('UPDATE tasks SET result = ? WHERE id = ?').run(result, id);
+    if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, status: finalStatus, stage: finalStage });
+    return formatTask(db.prepare('SELECT * FROM tasks WHERE id = ?').get(id));
+  });
+
   fastify.post('/api/task/:id/claim', async (request, reply) => {
     const id = Number(request.params.id);
     const { owner } = request.body || {};
@@ -227,16 +242,9 @@ export default async function tasksRoutes(fastify) {
       fs.writeFileSync(path.join(ARTIFACTS_DIR, filename), result);
       artifacts.push(filename);
     }
-    db.prepare(`UPDATE tasks SET status = 'hecho', result = ?, artifacts = ?, lock_owner = NULL, lock_acquired_at = NULL, lock_expires_at = NULL, last_heartbeat = NULL, completed_at = ? WHERE id = ?`).run(result || null, JSON.stringify(artifacts), ts, id);
-    db.prepare('UPDATE tasks SET stage = ?, stage_updated_at = ? WHERE id = ?').run('review', ts, id);
+    db.prepare(`UPDATE tasks SET status = 'hecho', stage = 'done', stage_updated_at = ?, result = ?, artifacts = ?, lock_owner = NULL, lock_acquired_at = NULL, lock_expires_at = NULL, last_heartbeat = NULL, completed_at = ? WHERE id = ?`).run(ts, result || null, JSON.stringify(artifacts), ts, id);
     cleanupSessionByTaskId(id);
-    if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, stage:'review' });
-    setTimeout(() => {
-      const db2 = getDb();
-      const doneTs = new Date().toISOString();
-      db2.prepare('UPDATE tasks SET stage = ?, stage_updated_at = ? WHERE id = ?').run('done', doneTs, id);
-      if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, stage:'done' });
-    }, 5000);
+    if (globalThis._io) globalThis._io.of('/enjambre').emit('task:updated', { id, status:'hecho', stage:'done' });
     const blocked = db.prepare("SELECT id, blocked_by FROM tasks WHERE status = 'bloqueada'").all();
     for (const t of blocked) {
       let deps = JSON.parse(t.blocked_by || '[]');
