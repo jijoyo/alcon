@@ -23,3 +23,5 @@ __pycache__/
 pwa/dist/
 server/artifacts/
 server/go/granjero
+package-lock.json
+package.json
