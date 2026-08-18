@@ -25,3 +25,4 @@ server/artifacts/
 server/go/granjero
 package-lock.json
 package.json
+start-alcon.sh
