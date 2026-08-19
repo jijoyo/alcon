@@ -25,6 +25,7 @@ const WORKDIR = process.env.ALCON_WORKDIR || (() => {
 })();
 
 import { spawn } from 'child_process';
+import { recommendBestConfig } from './self-config.js';
 
 const CONVERSATIONS_DIR = path.join(__dirname, 'memory', 'conversations');
 if (!fs.existsSync(CONVERSATIONS_DIR)) fs.mkdirSync(CONVERSATIONS_DIR, { recursive: true });
@@ -297,6 +298,9 @@ export async function handleSquadMessage(squad, prompt, from='user'){
       synthesis = await callOpenCode(synthesisPrompt, 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente. Responde en español, corto.');
     }catch{ synthesis = perspectivesText.slice(0,2000) || '(sin resultado)'; }
   }
+
+  const rec = recommendBestConfig(effectivePrompt, squad);
+  if (rec.accion) console.log(`[self-config] ${rec.accion} (confianza: ${rec.confianza})`);
 
   session.history.push({role:'assistant', content:synthesis});
   saveConversation(squad);

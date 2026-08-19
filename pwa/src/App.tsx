@@ -7,6 +7,7 @@ import { StatusPanel } from './components/StatusPanel';
 import { ChatView } from './components/ChatView';
 import { InterruptorMaestro } from './components/InterruptorMaestro';
 import { KanbanBoard } from './components/KanbanBoard';
+import RuntimeBanner from './components/RuntimeBanner.jsx';
 
 type View = 'tasks' | 'kanban' | 'status' | 'chat';
 
@@ -87,6 +88,8 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      <RuntimeBanner />
 
       <main className="max-w-6xl mx-auto px-4 py-4">
         {view === 'chat' ? (

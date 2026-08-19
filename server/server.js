@@ -8,6 +8,10 @@ import tasksRoutes from './routes/tasks.js';
 import { registerChat } from './routes/chat.js';
 import { ARTIFACTS_DIR, agentRunning, now } from './lib/shared.js';
 import { orchestrateTask } from './lib/orchestrator.js';
+import { discover } from './lib/auto-discovery.js';
+import granjaRoutes from './routes/granja.js';
+import espanolRoutes from './routes/espanol.js';
+import memoriaRoutes from './routes/memoria.js';
 
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
@@ -20,6 +24,12 @@ await openDb();
 await fastify.register(cors, { origin: ALLOWED, credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] });
 await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
 await fastify.register(tasksRoutes);
+
+await discover();
+setInterval(() => discover(), 60000);
+fastify.register(granjaRoutes);
+fastify.register(espanolRoutes);
+fastify.register(memoriaRoutes);
 
 fastify.get('/health', async () => {
   const db = getDb();

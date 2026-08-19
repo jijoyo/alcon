@@ -1,0 +1,49 @@
+{
+  "updated_at": "2026-08-19T22:16:47.946Z",
+  "devices": {
+    "debian": {
+      "ip": "100.121.64.26",
+      "online": true,
+      "name": "forja"
+    },
+    "kali": {
+      "ip": "100.103.82.104",
+      "online": true,
+      "name": "kali"
+    },
+    "vps": {
+      "ip": "100.102.63.30",
+      "online": true,
+      "name": "vps"
+    },
+    "cel": {
+      "ip": "100.76.111.99",
+      "online": true,
+      "name": "cel"
+    }
+  },
+  "modelsLoaded": [
+    "/home/israel/Documentos/montar-modelos/modelos/nomic-embed-text-v1.5.Q5_K_M.gguf"
+  ],
+  "projects": [
+    ".archive-otros",
+    "Default Project",
+    "PROYECTO CERO",
+    "ai-automation-agency",
+    "alcon",
+    "azteca-unlocked",
+    "carrera ingenieria industrial",
+    "creacion de contenido",
+    "dose-dash-digital",
+    "dosedash-contexto",
+    "forja-factory",
+    "kodi-mcp-server",
+    "montar-modelos",
+    "opencode-lab",
+    "quemu",
+    "remote-control-tv",
+    "taller-de-planes",
+    "youtube-knowledge",
+    "yt-dlp-power"
+  ]
+}
