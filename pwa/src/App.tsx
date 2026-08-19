@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Activity, List, BarChart3, MessageSquare, LayoutGrid } from 'lucide-react';
+import { Activity, List, BarChart3, MessageSquare, LayoutGrid, Database } from 'lucide-react';
 import { taskApi, type Task } from './lib/api';
 import { TaskInput, TaskList } from './components/TaskInput';
 import { TaskChat } from './components/TaskChat';
@@ -8,8 +8,9 @@ import { ChatView } from './components/ChatView';
 import { InterruptorMaestro } from './components/InterruptorMaestro';
 import { KanbanBoard } from './components/KanbanBoard';
 import RuntimeBanner from './components/RuntimeBanner.jsx';
+import { MemoriaBuscador } from './components/MemoriaBuscador';
 
-type View = 'tasks' | 'kanban' | 'status' | 'chat';
+type View = 'tasks' | 'kanban' | 'status' | 'chat' | 'memoria';
 
 export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -84,6 +85,14 @@ export default function App() {
               }`}
             >
               <BarChart3 size={18} />
+            </button>
+            <button
+              onClick={() => setView('memoria')}
+              className={`p-2 rounded-lg transition-colors ${
+                view === 'memoria' ? 'bg-slate-800 text-purple-400' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <Database size={18} />
             </button>
           </div>
         </div>
@@ -182,6 +191,11 @@ export default function App() {
               /* Kanban Board */
               <div className="h-[calc(100vh-140px)]">
                 <KanbanBoard />
+              </div>
+            ) : view === 'memoria' ? (
+              /* Memoria RAG */
+              <div className="max-w-2xl mx-auto">
+                <MemoriaBuscador />
               </div>
             ) : (
               /* Status view */
