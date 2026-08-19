@@ -18,7 +18,7 @@ export async function discover() {
     debian: { ip: '100.121.64.26', online: ts.includes('100.121.64.26'), name: 'forja' },
     kali: { ip: '100.103.82.104', online: ts.includes('100.103.82.104'), name: 'kali' },
     vps: { ip: '100.102.63.30', online: true, name: 'vps' },
-    cel: { ip: '100.76.111.99', online: ts.includes('100.76.111.99'), name: 'cel' }
+    cel: { ip: '100.122.196.23', online: ts.includes('100.122.196.23'), name: 'cel' }
   };
 
   let modelsLoaded = [];
