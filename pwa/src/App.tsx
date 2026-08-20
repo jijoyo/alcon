@@ -25,7 +25,8 @@ export default function App() {
     try {
       const agent = filter === 'all' ? undefined : filter;
       const data = await taskApi.list(agent);
-      setTasks(data.tasks.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()));
+      const arr = Array.isArray(data) ? data : (data.tasks || [])
+      setTasks(arr.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()));
     } catch (e) {
       console.error('Failed to fetch tasks:', e);
     } finally {
