@@ -2,11 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+import Database from 'better-sqlite3';
+import crypto from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
-const LLAMA_URL = process.env.LLAMA_URL || 'http://localhost:8080';
-const COLLECTION = 'granja_memoria';
+const LLAMA_URL = process.env.LLAMA_EMBED_URL || 'http://localhost:8085';
+const COLLECTION = 'alcon';
 const VECTOR_SIZE = 768;
 
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -182,3 +184,165 @@ export async function countByDevice() {
 }
 
 export { COLLECTION, QDRANT_URL };
+
+// CLI: node server/lib/memory-rag.js --reindex
+// O auto-reindex si no existe .qdrant-initialized
+
+async function copyDbViaSsh(host, user, remoteDb, localDb) {
+  const ip = host.split('@')[1];
+  const cmd = ip === '100.102.63.30'
+    ? `scp -o "ProxyCommand=tailscale nc %h %p" -o StrictHostKeyChecking=no ${user}@${ip}:${remoteDb} ${localDb}`
+    : `scp -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${user}@${ip}:${remoteDb} ${localDb}`;
+  try {
+    execSync(cmd, { timeout: 120000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function ingestAll() {
+  const sshDevices = [
+    { host: 'israel@100.121.64.26', name: 'forja', remoteDb: '/home/israel/.local/share/opencode/opencode.db' },
+    { host: 'jijoyo@100.103.82.104', name: 'kali', remoteDb: '/home/jijoyo/.local/share/opencode/opencode.db' },
+    { host: 'ubuntu@100.102.63.30', name: 'vps', remoteDb: '/home/ubuntu/.local/share/opencode/opencode.db' },
+    { host: 'u0_a366@100.122.196.23', name: 'cel', remoteDb: '/data/data/com.termux/files/home/.local/share/opencode/opencode.db' }
+  ];
+
+  await ensureCollection();
+
+  let totalIngested = 0;
+  let totalSkipped = 0;
+
+  for (const d of sshDevices) {
+    const localDb = `/tmp/opencode_${d.name}.db`;
+    console.log(`[memory-rag] ${d.name}: copiando DB...`);
+
+    if (!await copyDbViaSsh(d.host, d.name === 'forja' ? 'israel' : d.host.split('@')[0], d.remoteDb, localDb)) {
+      console.log(`[memory-rag] ${d.name}: SCP falló, saltando`);
+      continue;
+    }
+
+    if (!fs.existsSync(localDb)) {
+      console.log(`[memory-rag] ${d.name}: DB no llegó`);
+      continue;
+    }
+
+    console.log(`[memory-rag] ${d.name}: DB recibido, procesando...`);
+
+    try {
+      const db = new Database(localDb, { readonly: true });
+      let sessions = [];
+      try {
+        sessions = db.prepare(`
+          SELECT id, time_created, directory, model, title,
+                 tokens_input, tokens_output
+          FROM session ORDER BY time_created DESC
+        `).all();
+      } catch {
+        try {
+          sessions = db.prepare(`
+            SELECT id, time_created, directory, model, title, tokens
+            FROM sessions ORDER BY time_created DESC
+          `).all();
+        } catch {
+          console.log(`[memory-rag] ${d.name}: No session table`);
+          db.close();
+          fs.unlinkSync(localDb);
+          continue;
+        }
+      }
+
+      let ingested = 0;
+      let skipped = 0;
+
+      for (const session of sessions) {
+        let messages = [];
+        try {
+          messages = db.prepare(`
+            SELECT data FROM part WHERE session_id = ? ORDER BY time_created ASC
+          `).all(session.id);
+        } catch {
+          try {
+            messages = db.prepare(`
+              SELECT text FROM messages WHERE session_id = ? ORDER BY timestamp ASC
+            `).all(session.id);
+          } catch {}
+        }
+
+        const content = messages.map(m => {
+          try {
+            const d = JSON.parse(m.data);
+            return d.text || '';
+          } catch {
+            return m.text || m.data || '';
+          }
+        }).filter(Boolean).join('\n');
+        if (!content || content.length < 10) continue;
+
+        let modelId = session.model;
+        try { const p = JSON.parse(session.model); modelId = p.id || p.model || session.model; } catch { modelId = session.model; }
+
+        const title = session.title || content.slice(0, 200).replace(/\n/g, ' ').trim();
+        const tokens = (session.tokens_input || 0) + (session.tokens_output || 0) || session.tokens || 0;
+
+        const rawId = `${d.name}_${session.session_id}`;
+        const pointId = crypto.createHash('md5').update(rawId).digest('hex');
+
+        const vector = await embed(session.title + '\n' + content.slice(0, 2000));
+        if (vector) {
+          const payload = {
+            device: d.name,
+            fecha: new Date(session.time_created).toISOString(),
+            texto: (content || '').slice(0, 8000),
+            session_id: session.id,
+            model: modelId,
+            tokens,
+            title,
+            directory: session.directory || ''
+          };
+          try {
+            await qdrantFetch(`/collections/${COLLECTION}/points`, {
+              method: 'PUT',
+              body: JSON.stringify({
+                points: [{ id: pointId, vector, payload }]
+              })
+            });
+            ingested++;
+          } catch (e) {
+            console.log(`[memory-rag] ${d.name} upsert failed ${pointId}: ${e.message}`);
+            skipped++;
+          }
+        } else {
+          skipped++;
+        }
+      }
+
+      db.close();
+      fs.unlinkSync(localDb);
+      console.log(`[memory-rag] ${d.name}: ${ingested} ingested, ${skipped} skipped`);
+      totalIngested += ingested;
+      totalSkipped += skipped;
+    } catch (e) {
+      console.log(`[memory-rag] ${d.name} error: ${e.message}`);
+      try { fs.unlinkSync(localDb); } catch {}
+    }
+  }
+
+  console.log(`[memory-rag] Total: ${totalIngested} ingested, ${totalSkipped} skipped`);
+  fs.writeFileSync('.qdrant-initialized', 'true');
+}
+
+if (process.argv.includes('--reindex')) {
+  (async () => {
+    await qdrantFetch('/collections/alcon', { method: 'DELETE' }).catch(() => {});
+    await qdrantFetch('/collections/granja_memoria', { method: 'DELETE' }).catch(() => {});
+    console.log('[memory-rag] Collections deleted, reindexing...');
+    await ingestAll();
+  })();
+} else if (!fs.existsSync('.qdrant-initialized')) {
+  (async () => {
+    console.log('[memory-rag] No .qdrant-initialized found, auto-reindexing...');
+    await ingestAll();
+  })();
+}

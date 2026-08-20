@@ -1,10 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function MemoriaBuscador() {
   const [q, setQ] = useState('')
   const [device, setDevice] = useState('')
   const [res, setRes] = useState([])
   const [loading, setLoading] = useState(false)
+  const [total, setTotal] = useState(null)
+  const [stats, setStats] = useState({})
+  const [statsLoaded, setStatsLoaded] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/memoria/stats')
+      .then(r => r.json())
+      .then(data => {
+        setStats(data)
+        setTotal(data.total || 0)
+        setStatsLoaded(true)
+      })
+      .catch(() => setStatsLoaded(false))
+  }, [])
 
   const buscar = async () => {
     if(!q.trim()) return
@@ -20,7 +34,7 @@ export function MemoriaBuscador() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-xl font-bold mb-4">Memoria Granja (530 sesiones)</h1>
+      <h1 className="text-xl font-bold mb-4">Memoria Granja ({statsLoaded ? total : '...'} sesiones)</h1>
       <div className="flex gap-2 mb-6">
         <input
           value={q}
@@ -30,11 +44,10 @@ export function MemoriaBuscador() {
           className="flex-1 p-2 border rounded bg-zinc-900 text-white"
         />
         <select value={device} onChange={e=>setDevice(e.target.value)} className="p-2 border rounded bg-zinc-900 text-white">
-          <option value="">Todos (530)</option>
-          <option value="forja">Forja (72)</option>
-          <option value="kali">Kali (77)</option>
-          <option value="vps">VPS (345)</option>
-          <option value="cel">Cel (36)</option>
+          <option value="">Todos ({statsLoaded ? total : '...'})</option>
+          {statsLoaded && Object.entries(stats.by_device || {}).map(([d,c]) => (
+            <option key={d} value={d}>{d} ({c})</option>
+          ))}
         </select>
         <button onClick={buscar} disabled={loading} className="px-6 bg-white text-black rounded font-medium">{loading?'...':'buscar'}</button>
       </div>
@@ -45,16 +58,17 @@ export function MemoriaBuscador() {
             const p = r.payload || {};
             const device = p.device || r.device || 'forja';
             const title = p.title || r.texto || r.title || 'sin título';
-            const time = p.time_created || r.time_created;
+            const time = p.fecha || p.time_created || r.time_created;
             const directory = p.directory || r.directory || '';
-            const summary = p.summary_files || p.content || r.content || title;
+            const texto = p.texto || r.texto || '';
+            const summary = texto.slice(0, 400);
             const model = p.model || r.model || '';
             const score = r.score?.toFixed(3) || '0';
             return (
               <div key={r.id} className="p-3 border border-zinc-800 rounded bg-zinc-900/50">
                 <div className="text-xs text-zinc-500">{device} • {time ? new Date(time).toLocaleString() : 'sin fecha'} • {title}</div>
                 <div className="font-mono text-xs text-yellow-400 mt-1">{directory}</div>
-                <div className="text-sm mt-1 text-zinc-200 line-clamp-3">{summary}</div>
+                <div className="text-sm mt-1 text-zinc-200 line-clamp-3">{summary || 'sin contenido'}</div>
                 <div className="text-xs mt-2 text-zinc-600">score {score} • {model}</div>
               </div>
             );

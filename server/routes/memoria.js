@@ -136,17 +136,20 @@ export default async function memoriaRoutes(fastify) {
         exported++;
       }
 
+      let modelId = session.model;
+      try { const p = JSON.parse(session.model); modelId = p.id || p.model || session.model; } catch { modelId = session.model; }
+
       const vector = await embed(session.title + '\n' + session.content.slice(0, 2000));
       if (vector) {
         const payload = {
-          device: device,
-          title: session.title,
-          time_created: session.time_created,
-          directory: session.directory,
-          model: session.model,
+          device,
+          fecha: new Date(session.time_created).toISOString(),
+          texto: (session.content || '').slice(0, 8000),
+          session_id: session.session_id,
+          model: modelId,
           tokens: session.tokens,
-          summary_files: session.summary_files,
-          evidencia_path: evidenciaFile
+          title: session.title,
+          directory: session.directory
         };
         const ok = await upsert(pointId, payload, vector);
         if (ok) ingested++;
@@ -170,13 +173,8 @@ export default async function memoriaRoutes(fastify) {
       results: results.map(r => ({
         id: r.id,
         score: r.score,
-        device: r.payload?.device,
-        title: r.payload?.title,
-        time_created: r.payload?.time_created,
-        model: r.payload?.model,
-        tokens: r.payload?.tokens,
-        summary_files: r.payload?.summary_files,
-        evidencia_path: r.payload?.evidencia_path
+        payload: r.payload,
+        texto: r.payload?.texto
       }))
     };
   });
