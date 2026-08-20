@@ -63,7 +63,7 @@ fastify.post('/api/orchestrate', async (request, reply) => {
 const PORT = process.env.PORT || 3003;
 const HOST = process.env.HOST || '0.0.0.0';
 
-const io = new Server(fastify.server, { cors: { origin: ALLOWED, methods: ['GET', 'POST'], credentials: true }, transports: ['websocket', 'polling'] });
+const io = new Server(fastify.server, { cors: { origin: true, methods: ['GET', 'POST'], credentials: true }, transports: ['websocket', 'polling'] });
 globalThis._io = io;
 registerChat(io);
 
