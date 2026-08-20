@@ -1,12 +1,46 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
 const LLAMA_URL = process.env.LLAMA_URL || 'http://localhost:8080';
 const COLLECTION = 'granja_memoria';
 const VECTOR_SIZE = 768;
+
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+let lastEmbedTime = 0;
+let idleTimer = null;
+
+function ensureEmbedRunning() {
+  try {
+    execSync('systemctl --user is-active llama-embed', { stdio: 'pipe' });
+  } catch {
+    console.log('[memory-rag] Starting llama-embed service...');
+    try {
+      execSync('systemctl --user start llama-embed', { stdio: 'pipe', timeout: 10000 });
+      console.log('[memory-rag] llama-embed started');
+    } catch (e) {
+      console.log(`[memory-rag] Failed to start llama-embed: ${e.message}`);
+    }
+  }
+  scheduleStop();
+}
+
+function scheduleStop() {
+  lastEmbedTime = Date.now();
+  if (idleTimer) clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    const idle = Date.now() - lastEmbedTime;
+    if (idle >= IDLE_TIMEOUT_MS) {
+      try {
+        execSync('systemctl --user stop llama-embed', { stdio: 'pipe' });
+        console.log('[memory-rag] llama-embed stopped (idle)');
+      } catch {}
+    }
+  }, IDLE_TIMEOUT_MS + 1000);
+}
 
 async function qdrantFetch(endpoint, options = {}) {
   const res = await fetch(`${QDRANT_URL}${endpoint}`, {
@@ -46,6 +80,7 @@ export async function ensureCollection() {
 }
 
 export async function embed(text) {
+  ensureEmbedRunning();
   const truncated = text.slice(0, 2000);
   try {
     const res = await fetch(`${LLAMA_URL}/v1/embeddings`, {

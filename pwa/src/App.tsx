@@ -7,7 +7,9 @@ import { StatusPanel } from './components/StatusPanel';
 import { ChatView } from './components/ChatView';
 import { InterruptorMaestro } from './components/InterruptorMaestro';
 import { KanbanBoard } from './components/KanbanBoard';
+// @ts-ignore
 import RuntimeBanner from './components/RuntimeBanner.jsx';
+// @ts-ignore
 import { MemoriaBuscador } from './components/MemoriaBuscador';
 
 type View = 'tasks' | 'kanban' | 'status' | 'chat' | 'memoria';

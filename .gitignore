@@ -26,3 +26,9 @@ server/go/granjero
 package-lock.json
 package.json
 start-alcon.sh
+
+# RAG system
+rag_data/
+evidencia/
+.qdrant-initialized
+server/lib/runtime-state.json

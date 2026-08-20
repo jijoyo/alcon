@@ -1,0 +1,11 @@
+[Unit]
+Description=llama-server embeddings nomic-embed-text
+After=network.target
+
+[Service]
+ExecStart=/home/israel/llama-cpp-13/build/bin/llama-server --model /home/israel/Documentos/montar-modelos/modelos/nomic-embed-text-v1.5.Q5_K_M.gguf --host 0.0.0.0 --port 8080 --embeddings --batch-size 2048 --ubatch-size 1024 --ctx-size 8192 -ngl 0
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
