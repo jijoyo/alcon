@@ -12,7 +12,7 @@
 | **debian** (forja) | Desktop | RTX 3060 12GB | 32GB | 100.121.64.26 | Brain (desarrollo + GPU) |
 | **kali** | Laptop Dell G7 | GTX 1050 Ti 4GB | 16GB | 100.103.82.104 | Git executor |
 | **vps** (oracle) | Cloud ARM | — | 21GB | 100.102.63.30 | Server (Fastify + PM2) |
-| **cel** (redmi-note-11) | Phone Android | — | 1GB | 100.76.111.99 | Reviewer/approver |
+| **cel** (redmi-note-11) | Phone Android | — | 1GB | 100.122.196.23 | Reviewer/approver |
 
 ---
 
@@ -92,12 +92,14 @@
 | **Modelo** | Xiaomi Redmi Note 11 |
 | **OS** | Android 13 + Termux |
 | **RAM** | 1GB |
-| **IP Tailscale** | 100.76.111.99 |
+| **IP Tailscale** | 100.122.196.23 |
+| **SSH** | Puerto 8022, user u0_a366 |
 | **Rol** | Reviewer/approver, testing físico |
 
 ### Servicios Termux
 - API Server (:3002), PWA (:3004)
 - SQLite con `@mmmbuto/better-sqlite3-termux`
+- SSH server en puerto 8022 (`pkg install openssh && sshd`)
 
 ---
 
@@ -110,7 +112,7 @@ debian/forja (100.121.64.26) ──Tailscale──→ vps/oracle (100.102.63.30)
                          │
 kali (100.103.82.104) ───┘
                          │
-cel/redmi-note-11 (100.76.111.99) ──┘
+cel/redmi-note-11 (100.122.196.23) ──┘
 
 Red Tailscale: jijoyo202@gmail.com
 ```
@@ -140,3 +142,42 @@ Red Tailscale: jijoyo202@gmail.com
 5. **Tailscale** conecta todo sin VPN compleja
 6. **OpenRouter** para modelos cloud (vps + cel)
 7. **llama-server** para modelos locales (debian + kali)
+
+---
+
+## RAG Memory System
+
+Sistema centralizado de búsqueda semántica para sesiones de OpenCode.
+
+### Stack
+- **Qdrant** `:6333` — Vector DB (systemd user service `qdrant.service`)
+- **llama-server** `:8080` — nomic-embed-text v1.5 Q5_K_M (768 dim)
+- **alcon server** `:3003` — Endpoints de ingest y búsqueda
+
+### Endpoints
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/memoria/ingest-granja` | Ingest DB → embed → upsert → export .md |
+| GET | `/api/memoria/buscar?q=&device=` | Búsqueda semántica cosine |
+| GET | `/api/memoria/stats` | Conteo por dispositivo |
+
+### Datos Actuales
+| Device | Sesiones | Puerto SSH | User |
+|--------|----------|------------|------|
+| forja | 72 | 22 | israel |
+| kali | 77 | 22 | jijoyo |
+| vps | 345 | 22 (tailscale) | ubuntu |
+| cel | 36 | 8022 | u0_a366 |
+| **Total** | **530** | | |
+
+### Recolecta
+```bash
+./scripts/recolectar-granja.sh
+```
+Best-effort: ping check → SSH check → SCP → ingest. No falla si device offline.
+
+### Notas de Conectividad
+- **VPS**: SCP via `ProxyCommand=tailscale nc %h %p` (no tiene SSH key directa)
+- **Cel**: Puerto 8022 (Termux SSH), user u0_a366
+- **Kali**: SSH key instalada vía paramiko
+- **Tailscale**: DNS puede ser secuestrado por ISP (192.200.0.x). Solución: `tailscale set --operator=$USER` con sudo

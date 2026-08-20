@@ -10,7 +10,7 @@
 | **debian** | RTX 3060 12GB, 32GB RAM | 100.121.64.26 | Brain (desarrollo + GPU) | ✅ |
 | **vps** | Oracle ARM 21GB | 100.102.63.30 | Server (Fastify + PM2) | ✅ |
 | **kali** | GTX 1050 4GB, 16GB RAM | 100.103.82.104 | Git executor | ✅ |
-| **cel** | Redmi Note 11, 1GB | 100.76.111.99 | Reviewer/approver | ✅ |
+| **cel** | Redmi Note 11, 1GB | 100.122.196.23 | Reviewer/approver | ✅ |
 
 ## Stack
 
