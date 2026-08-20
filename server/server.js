@@ -17,11 +17,17 @@ fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
 const fastify = Fastify({ logger: true });
 
-const ALLOWED = (process.env.ALLOWED_ORIGINS || 'http://100.102.63.30:3004,http://localhost:3004,http://100.121.64.26:3004,http://100.103.82.104:3004,http://100.76.111.99:3004').split(',');
-
 await openDb();
 
-await fastify.register(cors, { origin: ALLOWED, credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] });
+await fastify.register(cors, { 
+  origin: (origin, cb) => { 
+    if (!origin) return cb(null, true);
+    cb(null, true);
+  }, 
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  allowedHeaders: ['Content-Type', 'Authorization'] 
+});
 await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
 await fastify.register(tasksRoutes);
 

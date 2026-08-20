@@ -39,14 +39,26 @@ export function MemoriaBuscador() {
         <button onClick={buscar} disabled={loading} className="px-6 bg-white text-black rounded font-medium">{loading?'...':'buscar'}</button>
       </div>
       <div className="space-y-2">
-        {res.map(r=>(
-          <div key={r.id} className="p-3 border border-zinc-800 rounded bg-zinc-900/50">
-            <div className="text-xs text-zinc-500">{r.payload.device} • {new Date(r.payload.time_created).toLocaleString()} • {r.payload.title}</div>
-            <div className="font-mono text-xs text-yellow-400 mt-1">{r.payload.directory}</div>
-            <div className="text-sm mt-1 text-zinc-200 line-clamp-3">{r.payload.summary_files || r.payload.title}</div>
-            <div className="text-xs mt-2 text-zinc-600">score {r.score?.toFixed(3)} • {r.payload.model}</div>
-          </div>
-        ))}
+        {res
+          .filter(r => r && (r.payload || r.device || r.texto))
+          .map(r => {
+            const p = r.payload || {};
+            const device = p.device || r.device || 'forja';
+            const title = p.title || r.texto || r.title || 'sin título';
+            const time = p.time_created || r.time_created;
+            const directory = p.directory || r.directory || '';
+            const summary = p.summary_files || p.content || r.content || title;
+            const model = p.model || r.model || '';
+            const score = r.score?.toFixed(3) || '0';
+            return (
+              <div key={r.id} className="p-3 border border-zinc-800 rounded bg-zinc-900/50">
+                <div className="text-xs text-zinc-500">{device} • {time ? new Date(time).toLocaleString() : 'sin fecha'} • {title}</div>
+                <div className="font-mono text-xs text-yellow-400 mt-1">{directory}</div>
+                <div className="text-sm mt-1 text-zinc-200 line-clamp-3">{summary}</div>
+                <div className="text-xs mt-2 text-zinc-600">score {score} • {model}</div>
+              </div>
+            );
+          })}
       </div>
     </div>
   )

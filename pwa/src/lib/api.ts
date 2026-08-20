@@ -1,4 +1,13 @@
-export const API_BASE = import.meta.env.VITE_API_URL || '';
+const getApiBase = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    return origin.replace(':3004', ':3003').replace(':5173', ':3003').replace(':5175', ':3003');
+  }
+  return 'http://localhost:3003';
+};
+
+export const API_BASE = getApiBase();
 
 export type Stage = 'backlog' | 'plan' | 'implement' | 'test' | 'review' | 'done';
 
