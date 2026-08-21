@@ -7,7 +7,7 @@ import crypto from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
-const LLAMA_URL = process.env.LLAMA_EMBED_URL || 'http://localhost:8085';
+const LLAMA_URL = process.env.LLAMA_EMBED_URL || 'http://localhost:8086';
 const COLLECTION = 'alcon';
 const VECTOR_SIZE = 768;
 
@@ -81,15 +81,14 @@ export async function ensureCollection() {
   console.log(`[memory-rag] Created collection ${COLLECTION}`);
 }
 
-export async function embed(text) {
-  ensureEmbedRunning();
+export async function embed(text, attempt = 0) {
   const truncated = text.slice(0, 2000);
   try {
     const res = await fetch(`${LLAMA_URL}/v1/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'nomic-embed-text',
+        model: 'nomic',
         input: truncated
       })
     });
@@ -97,7 +96,11 @@ export async function embed(text) {
     const data = await res.json();
     return data.data?.[0]?.embedding;
   } catch (e) {
-    console.log(`[memory-rag] Embed failed (${e.message}), using fallback`);
+    if (attempt < 3) {
+      await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+      return embed(text, attempt + 1);
+    }
+    console.log(`[memory-rag] Embed failed (${e.message})`);
     return null;
   }
 }
@@ -201,7 +204,113 @@ async function copyDbViaSsh(host, user, remoteDb, localDb) {
   }
 }
 
+async function ingestDb(name, dbPath) {
+  console.log(`[memory-rag] ${name}: procesando ${dbPath}...`);
+  try {
+    const db = new Database(dbPath, { readonly: true });
+    let sessions = [];
+    try {
+      sessions = db.prepare(`
+        SELECT id, time_created, directory, model, title,
+               tokens_input, tokens_output
+        FROM session ORDER BY time_created DESC
+      `).all();
+    } catch {
+      try {
+        sessions = db.prepare(`
+          SELECT id, time_created, directory, model, title, tokens
+          FROM sessions ORDER BY time_created DESC
+        `).all();
+      } catch {
+        console.log(`[memory-rag] ${name}: No session table`);
+        db.close();
+        return { ingested: 0, skipped: 0 };
+      }
+    }
+
+    let ingested = 0;
+    let skipped = 0;
+
+    for (const session of sessions) {
+      let messages = [];
+      try {
+        messages = db.prepare(`
+          SELECT data FROM part WHERE session_id = ? ORDER BY time_created ASC
+        `).all(session.id);
+      } catch {
+        try {
+          messages = db.prepare(`
+            SELECT text FROM messages WHERE session_id = ? ORDER BY timestamp ASC
+          `).all(session.id);
+        } catch {}
+      }
+
+      const content = messages.map(m => {
+        try {
+          const d = JSON.parse(m.data);
+          return d.text || '';
+        } catch {
+          return m.text || m.data || '';
+        }
+      }).filter(Boolean).join('\n');
+      if (!content || content.length < 10) continue;
+
+      let modelId = session.model;
+      try { const p = JSON.parse(session.model); modelId = p.id || p.model || session.model; } catch { modelId = session.model; }
+
+      const title = session.title || content.slice(0, 200).replace(/\n/g, ' ').trim();
+      const tokens = (session.tokens_input || 0) + (session.tokens_output || 0) || session.tokens || 0;
+
+      const rawId = `${name}_${session.id}`;
+      const pointId = crypto.createHash('md5').update(rawId).digest('hex');
+
+      const vector = await embed(session.title + '\n' + content.slice(0, 2000));
+      if (vector) {
+        const payload = {
+          device: name,
+          fecha: new Date(session.time_created).toISOString(),
+          texto: (content || '').slice(0, 8000),
+          session_id: session.id,
+          model: modelId,
+          tokens,
+          title,
+          directory: session.directory || ''
+        };
+        try {
+          await qdrantFetch(`/collections/${COLLECTION}/points`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              points: [{ id: pointId, vector, payload }]
+            })
+          });
+          ingested++;
+          await new Promise(r => setTimeout(r, 500));
+        } catch (e) {
+          console.log(`[memory-rag] ${name} upsert failed ${pointId}: ${e.message}`);
+          skipped++;
+        }
+      } else {
+        skipped++;
+      }
+    }
+
+    db.close();
+    console.log(`[memory-rag] ${name}: ${ingested} ingested, ${skipped} skipped`);
+    return { ingested, skipped };
+  } catch (e) {
+    console.log(`[memory-rag] ${name} error: ${e.message}`);
+    return { ingested: 0, skipped: 0 };
+  }
+}
+
 async function ingestAll() {
+  const localDbs = {
+    forja: '/home/ubuntu/opencode-dbs/forja.db',
+    kali: '/home/ubuntu/opencode-dbs/kali.db',
+    vps: '/home/ubuntu/opencode-dbs/vps.db',
+    cel: '/home/ubuntu/opencode-dbs/cel.db'
+  };
+
   const sshDevices = [
     { host: 'israel@100.121.64.26', name: 'forja', remoteDb: '/home/israel/.local/share/opencode/opencode.db' },
     { host: 'jijoyo@100.103.82.104', name: 'kali', remoteDb: '/home/jijoyo/.local/share/opencode/opencode.db' },
@@ -211,120 +320,41 @@ async function ingestAll() {
 
   await ensureCollection();
 
+  const useLocal = fs.existsSync(localDbs.forja);
+  console.log(`[memory-rag] Mode: ${useLocal ? 'LOCAL (VPS)' : 'SSH (forja)'}`);
+
   let totalIngested = 0;
   let totalSkipped = 0;
 
-  for (const d of sshDevices) {
-    const localDb = `/tmp/opencode_${d.name}.db`;
-    console.log(`[memory-rag] ${d.name}: copiando DB...`);
-
-    if (!await copyDbViaSsh(d.host, d.name === 'forja' ? 'israel' : d.host.split('@')[0], d.remoteDb, localDb)) {
-      console.log(`[memory-rag] ${d.name}: SCP falló, saltando`);
-      continue;
+  if (useLocal) {
+    for (const [name, dbPath] of Object.entries(localDbs)) {
+      if (!fs.existsSync(dbPath)) {
+        console.log(`[memory-rag] ${name}: DB no encontrado en ${dbPath}, saltando`);
+        continue;
+      }
+      const result = await ingestDb(name, dbPath);
+      totalIngested += result.ingested;
+      totalSkipped += result.skipped;
     }
+  } else {
+    for (const d of sshDevices) {
+      const localDb = `/tmp/opencode_${d.name}.db`;
+      console.log(`[memory-rag] ${d.name}: copiando DB via SSH...`);
 
-    if (!fs.existsSync(localDb)) {
-      console.log(`[memory-rag] ${d.name}: DB no llegó`);
-      continue;
-    }
-
-    console.log(`[memory-rag] ${d.name}: DB recibido, procesando...`);
-
-    try {
-      const db = new Database(localDb, { readonly: true });
-      let sessions = [];
-      try {
-        sessions = db.prepare(`
-          SELECT id, time_created, directory, model, title,
-                 tokens_input, tokens_output
-          FROM session ORDER BY time_created DESC
-        `).all();
-      } catch {
-        try {
-          sessions = db.prepare(`
-            SELECT id, time_created, directory, model, title, tokens
-            FROM sessions ORDER BY time_created DESC
-          `).all();
-        } catch {
-          console.log(`[memory-rag] ${d.name}: No session table`);
-          db.close();
-          fs.unlinkSync(localDb);
-          continue;
-        }
+      if (!await copyDbViaSsh(d.host, d.name === 'forja' ? 'israel' : d.host.split('@')[0], d.remoteDb, localDb)) {
+        console.log(`[memory-rag] ${d.name}: SCP falló, saltando`);
+        continue;
       }
 
-      let ingested = 0;
-      let skipped = 0;
-
-      for (const session of sessions) {
-        let messages = [];
-        try {
-          messages = db.prepare(`
-            SELECT data FROM part WHERE session_id = ? ORDER BY time_created ASC
-          `).all(session.id);
-        } catch {
-          try {
-            messages = db.prepare(`
-              SELECT text FROM messages WHERE session_id = ? ORDER BY timestamp ASC
-            `).all(session.id);
-          } catch {}
-        }
-
-        const content = messages.map(m => {
-          try {
-            const d = JSON.parse(m.data);
-            return d.text || '';
-          } catch {
-            return m.text || m.data || '';
-          }
-        }).filter(Boolean).join('\n');
-        if (!content || content.length < 10) continue;
-
-        let modelId = session.model;
-        try { const p = JSON.parse(session.model); modelId = p.id || p.model || session.model; } catch { modelId = session.model; }
-
-        const title = session.title || content.slice(0, 200).replace(/\n/g, ' ').trim();
-        const tokens = (session.tokens_input || 0) + (session.tokens_output || 0) || session.tokens || 0;
-
-        const rawId = `${d.name}_${session.session_id}`;
-        const pointId = crypto.createHash('md5').update(rawId).digest('hex');
-
-        const vector = await embed(session.title + '\n' + content.slice(0, 2000));
-        if (vector) {
-          const payload = {
-            device: d.name,
-            fecha: new Date(session.time_created).toISOString(),
-            texto: (content || '').slice(0, 8000),
-            session_id: session.id,
-            model: modelId,
-            tokens,
-            title,
-            directory: session.directory || ''
-          };
-          try {
-            await qdrantFetch(`/collections/${COLLECTION}/points`, {
-              method: 'PUT',
-              body: JSON.stringify({
-                points: [{ id: pointId, vector, payload }]
-              })
-            });
-            ingested++;
-          } catch (e) {
-            console.log(`[memory-rag] ${d.name} upsert failed ${pointId}: ${e.message}`);
-            skipped++;
-          }
-        } else {
-          skipped++;
-        }
+      if (!fs.existsSync(localDb)) {
+        console.log(`[memory-rag] ${d.name}: DB no llegó`);
+        continue;
       }
 
-      db.close();
-      fs.unlinkSync(localDb);
-      console.log(`[memory-rag] ${d.name}: ${ingested} ingested, ${skipped} skipped`);
-      totalIngested += ingested;
-      totalSkipped += skipped;
-    } catch (e) {
-      console.log(`[memory-rag] ${d.name} error: ${e.message}`);
+      const result = await ingestDb(d.name, localDb);
+      totalIngested += result.ingested;
+      totalSkipped += result.skipped;
+
       try { fs.unlinkSync(localDb); } catch {}
     }
   }
