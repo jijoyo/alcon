@@ -19,6 +19,22 @@
 | kali | 100.103.82.104 | Git executor |
 | cel | 100.76.111.99 | Reviewer |
 
+## SSH entre equipos
+
+| Desde → Hacia | Comando | Notas |
+|---------------|---------|-------|
+| debian → kali | `ssh kali` | alias en `~/.ssh/config`; llave `israel@debian` autorizada para user `jijoyo` |
+| kali → debian | `ssh israel@100.121.64.26` | Tailscale SSH: puede pedir check de navegador la primera vez |
+
+## Memoria compartida entre agentes
+
+| Canal | Dónde | Cómo |
+|-------|-------|------|
+| Engram cloud | VPS :7438 | `export ENGRAM_CLOUD_TOKEN=$(python3 -c "import json;print(json.load(open(0+chr(39)+$HOME+/engram/cloud.json+chr(39)))["'token']))` → `engram search/save --project alcon` |
+| Obsidian vault | Syncthing | kali: `~/Documents/obsidian-vault`, vps: `/home/ubuntu/obsidian-vault`, cel: Syncthing Fork |
+| Repo git | BOOTSTRAP.md | Este archivo — contexto rápido sincronizado por pull/push |
+
+
 ## Paths
 
 - **alcon:** `~/Documentos/alcon/`
