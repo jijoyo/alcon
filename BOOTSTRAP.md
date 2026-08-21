@@ -30,7 +30,7 @@
 
 | Canal | Dónde | Cómo |
 |-------|-------|------|
-| Engram cloud | VPS :7438 | `export ENGRAM_CLOUD_TOKEN=$(python3 -c "import json;print(json.load(open(0+chr(39)+$HOME+/engram/cloud.json+chr(39)))["'token']))` → `engram search/save --project alcon` |
+| Engram cloud | VPS :7438 | instalar engram; token compartido en vps `/home/ubuntu/.engram/.kali_token`; luego `export ENGRAM_CLOUD_TOKEN=<token>` → `engram search --project alcon` |
 | Obsidian vault | Syncthing | kali: `~/Documents/obsidian-vault`, vps: `/home/ubuntu/obsidian-vault`, cel: Syncthing Fork |
 | Repo git | BOOTSTRAP.md | Este archivo — contexto rápido sincronizado por pull/push |
 
