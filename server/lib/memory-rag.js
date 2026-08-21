@@ -82,7 +82,7 @@ export async function ensureCollection() {
 }
 
 export async function embed(text, attempt = 0) {
-  const truncated = text.slice(0, 8000);
+  const truncated = text.slice(0, 500);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
   try {
@@ -274,7 +274,10 @@ async function ingestDb(name, dbPath) {
       const rawId = `${name}_${session.id}`;
       const pointId = crypto.createHash('md5').update(rawId).digest('hex');
 
-      const vector = await embed(session.title + '\n' + content.slice(0, 2000));
+      const clean = content.replace(/\n+/g, ' ').slice(0, 500).trim();
+      if (clean.length < 10) { skipped++; continue; }
+
+      const vector = await embed(session.title + '\n' + clean);
       if (vector) {
         const payload = {
           device: name,
