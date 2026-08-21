@@ -82,22 +82,29 @@ export async function ensureCollection() {
 }
 
 export async function embed(text, attempt = 0) {
-  const truncated = text.slice(0, 2000);
+  const truncated = text.slice(0, 8000);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
   try {
     const res = await fetch(`${LLAMA_URL}/v1/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'nomic',
+        model: 'nomic-embed-text',
         input: truncated
-      })
+      }),
+      signal: controller.signal
     });
+    clearTimeout(timeout);
     if (!res.ok) throw new Error(`llama ${res.status}`);
     const data = await res.json();
     return data.data?.[0]?.embedding;
   } catch (e) {
+    clearTimeout(timeout);
     if (attempt < 3) {
-      await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+      const delay = 2000 * (attempt + 1);
+      console.log(`[memory-rag] Embed retry ${attempt+1}/3 in ${delay}ms (${e.message})`);
+      await new Promise(r => setTimeout(r, delay));
       return embed(text, attempt + 1);
     }
     console.log(`[memory-rag] Embed failed (${e.message})`);
@@ -231,7 +238,10 @@ async function ingestDb(name, dbPath) {
     let ingested = 0;
     let skipped = 0;
 
+    let processed = 0;
     for (const session of sessions) {
+      processed++;
+      if (processed % 10 === 0) console.log(`[memory-rag] ${name}: ${processed}/${sessions.length} processed, ${ingested} OK, ${skipped} skipped`);
       let messages = [];
       try {
         messages = db.prepare(`
@@ -284,7 +294,7 @@ async function ingestDb(name, dbPath) {
             })
           });
           ingested++;
-          await new Promise(r => setTimeout(r, 500));
+          await new Promise(r => setTimeout(r, 2000));
         } catch (e) {
           console.log(`[memory-rag] ${name} upsert failed ${pointId}: ${e.message}`);
           skipped++;
