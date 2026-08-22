@@ -1,35 +1,52 @@
-# AGENTS.md — Alcon v4.2-go
+# AGENTS.md — Alcon v4.3-regla-oro
 
-> Sistema multi-agente con squads de IA que compiten, debatan y colaboran.
-> v4.2 Go: 4/4 perspectivas en 13.6s, 60MB RAM, 13.2MB Docker. OpenRouter HTTP direct.
+> Sistema multi-agente con squads de IA que compiten, debaten y colaboran.
+> v4.3: Regla de Oro + Ghost Fix (4f21091) - 5 PM2 estables, 507 engrams Qdrant green.
 
 ## 🚨 GUARDRAIL CRÍTICO - ANTES DE TOCAR VPS O ~/alcon
 
-LEE BOOTSTRAP.md sección GOLDEN RULE. Si el usuario o tú intentan:
+LEE BOOTSTRAP.md v4.3 sección GOLDEN RULE. Si el usuario o tú intentan:
 - ssh root@100.102.63.30
 - scp archivo trackeado
-- pm2 como root
+- pm2 como root / ver /root/alcon
 - editar ~/alcon sin git commit/push
+- crear server/presence-vps.js de nuevo
+
 DEBES detenerte y decir:
-"Hey, BOOTSTRAP dice que vas a hacer un cagadero si continúas. Golden Rule: GitHub = verdad, VPS = espejo, forja = fábrica. ¿Quieres que haga el flujo correcto? forja: edit+push, vps: pull+restart"
+"Hey, BOOTSTRAP v4.3 dice que vas a hacer un cagadero si continúas. Golden Rule: Forja escribe, GitHub guarda, espejos copian. Flujo: forja: edit+push (4f21091), vps: pull+restart. ¿Quieres que haga el flujo correcto?"
 No continúes hasta que el usuario confirme flujo correcto.
 
-## Infra
+## Infra v4.3
 
-| Dispositivo | Hardware | IP Tailscale | Rol | OpenCode |
-|-------------|----------|--------------|-----|----------|
-| **debian** | RTX 3060 12GB, 32GB RAM | 100.121.64.26 | Brain (desarrollo + GPU) | ✅ |
-| **vps** | Oracle ARM 21GB | 100.102.63.30 | Server (Fastify + PM2) | ✅ |
-| **kali** | GTX 1050 4GB, 16GB RAM | 100.103.82.104 | Git executor | ✅ |
-| **cel** | Redmi Note 11, 1GB | 100.122.196.23 | Reviewer/approver | ✅ |
+| Dispositivo | Hardware | IP Tailscale | Rol | Branch |
+|-------------|----------|--------------|-----|--------|
+| **forja/debian** | RTX 3060 12GB, 32GB RAM | 100.121.64.26 | Brain (GPU) + FABRICA | main |
+| **vps** | Oracle ARM 21GB | 100.102.63.30 | Server + PM2 + ESPEJO | main |
+| **kali** | GTX 1050 4GB, 16GB RAM | 100.103.82.104 | Git executor | v4.2-kali |
+| **cel note-11** | Redmi Note 11, 1GB | 100.122.196.23 | Reviewer | cel-experimental |
+| **cel note-12s** |  | 100.96.34.100 | Reviewer |  |
 
-## Stack
+## Stack v4.3
 
-- **Orchestrator:** Go v4.2 Go (server/go/) — 13.2MB Docker, 60MB RAM para 4 workers
-- **PWA:** React + TypeScript + Tailwind + Capacitor
-- **Deploy:** Go binario en VPS Oracle ARM :3001, Node v4.1 backup en :3003
+- **Orchestrator:** Go v4.2 Go (server/go/) — 13.2MB Docker, 60MB RAM + Node v4.1 backup (orchestrator.js)
+- **PWA:** React + TypeScript + Tailwind + Capacitor :3004
+- **Deploy:** Go :3001 + Node :3003
 - **GPU:** 1 modelo a la vez en :8080, switch via systemd + Board API :9998
-- **Dashboard:** :8081 (monitor de modelos)
+- **Dashboard:** :8081
+- **RAG:** Qdrant :6333 - 507 pts - 768 dim cosine - green + nomic :8086 + engram-cloud :7438
+- **Verdad:** github.com/jijoyo/alcon main hash 4f21091
+
+### PM2 Oficial v4.3 (ubuntu@100.102.63.30)
+
+```
+0 alcon-pwa (3004)
+2 buzz-farm
+3 vps-agent (FIX 4f21091: resilient reconnect)
+4 alcon-api (3003)
+6 alcon-go (3001)
+```
+
+Si `pm2 ls` muestra !=5 o alguno en /root -> ejecutar antidoto BOOTSTRAP.
 
 ### Env vars (ecosystem.config.cjs)
 
@@ -38,15 +55,14 @@ No continúes hasta que el usuario confirme flujo correcto.
 | `LLAMA_URL` | `http://100.121.64.26:8080` | `http://localhost:8080` |
 | `BOARD_API_URL` | `http://100.121.64.26:9998` | `http://localhost:9998` |
 
-### CLI Overrides (v4.1)
+### CLI Overrides (v4.1+)
 
 | Comando | Efecto |
 |---------|--------|
-| `@code-audit --local revisa server.js` | Solo debian/kali local, 0ms, sin gastar tokens |
+| `@code-audit --local revisa server.js` | Solo debian/kali local, 0ms |
 | `@code-audit --cloud revisa server.js` | Todos en nube, 4s throttle |
 | `@code-audit --auto revisa server.js` | Auto: local primero, fallback nube (default) |
 | `@code-audit --device=debian revisa server.js` | Solo debian |
-| `@code-audit --device=kali,vps --cloud revisa server.js` | Solo kali+vps en nube |
 
 ## Board API :9998 — Modelos
 
@@ -58,7 +74,7 @@ No continúes hasta que el usuario confirme flujo correcto.
 | `gemma` | gemma4-12b-uncensored | llama-3060.service | 6.9GB | 80 |
 | `gemma-26b-a4b` | gemma4-26b-a4b | gemma4-26b-a4b.service | 11.4GB | 55 |
 
-## Los 8 Squads (granja.json v4.1)
+## Los 8 Squads (granja.json)
 
 | Squad | Pattern | Backend | Agents | Ejemplo |
 |-------|---------|---------|--------|---------|
@@ -71,104 +87,97 @@ No continúes hasta que el usuario confirme flujo correcto.
 | `memory-consolidation` | single | auto | consolidator | `@memory-consolidation consolida` |
 | `youtube-auto` | fan-out-fan-in | auto | title+thumb+desc | `@youtube-auto genera metadata` |
 
-## Orchestrator
+## Orchestrator v4.3
 
 **Endpoint:** `POST /api/orchestrate` + Socket.IO `squad:message`
 
-**Flujo (v4.1):**
-1. Usuario escribe `@code-audit --local revisa server.js`
-2. `chat.js` detecta squad → parseOverrides (--local, --cloud, --device=)
+**Flujo:**
+1. Usuario: `@code-audit --local revisa server.js`
+2. `chat.js:37` detecta squad → parseOverrides + log [presence] kicking duplicate si hay duplicado
 3. `orchestrator.js` crea sesión + historial en `memory/conversations/{squad}.json`
-4. Fan-out: locales en paralelo (0ms), nube secuencial (4s throttle)
-5. Si provider retorna 429 → circuit breaker 5min → rota al siguiente fallback
-6. Fan-in: sintetiza perspectivas con local llama
-7. Resultado se emite en chat + Kanban + persiste en disco
+4. Fan-out: locales paralelo (0ms), nube secuencial (4s throttle)
+5. Si 429 → circuit breaker 5min → rota fallback
+6. Fan-in: sintetiza con local llama
+7. Emite en chat + Kanban + persiste
 
 ### Circuit Breaker + Throttle
 
 | Backend | Throttle | Parallel | Retry | Backoff |
 |---------|----------|----------|-------|---------|
-| `llama` (local) | 0ms | Sí (GPU encola) | 3 intentos | 5s |
-| `opencode` (nube) | 3-5s + jitter | No (secuencial) | 3 intentos | 10s, 20s, 40s |
+| `llama` (local) | 0ms | Sí | 3 intentos | 5s |
+| `opencode` (nube) | 3-5s + jitter | No | 3 intentos | 10s, 20s, 40s |
 
-Si un provider retorna 429 → circuit breaker lo marca dead 5 min → rota al siguiente fallback.
+**Granja Guard:** Si texto empieza con `@squad`, intercepta ANTES de crear task. Llama directo a `orchestrateTask()`.
 
-**Granja Guard** (en `tasks.js`):
-Si el texto empieza con `@quick-review`, `@code-audit`, etc., se intercepta ANTES de crear tarea en tasks.json. Se llama directo a `orchestrateTask()`. Return: `{orchestrator: true, squad, final, pendingPath}`.
+### Ghost Fix v4.3 (4f21091)
+
+Loop de 389 restarts el 20-Ago:
+- Causa: `presence-vps.js` fantasma registrado como 'vps' + `chat.js` kick `disconnect(true)` -> `io server disconnect` (no auto-reconnect socket.io) -> event loop vacío -> exit 0 -> pm2 relanza 3s
+
+Fix:
+- `server/presence-vps.js` -> eliminado, _deprecated_*.bak gitignored
+- `agents/agent.js:411-427` -> reconnect manual 5s + keepalive setInterval
+- `server/routes/chat.js:37` -> log kicking duplicate
+
+Verificación post-fix: `pm2 logs vps-agent --lines 50` debe mostrar uptime estable >24h, sin restarts cada 3s.
 
 ## Cómo agregar modelo
 
 1. Crear servicio systemd en `~/.config/systemd/user/`:
-```ini
-[Unit]
-Description=llama-server modelo-nuevo
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/home/israel/.local/bin/llama-server -m /home/israel/Documentos/montar-modelos/modelos/modelo.gguf --host 0.0.0.0 --port 8080 --ctx-size 8192 -ngl 99
-Restart=on-failure
-
-[Install]
-WantedBy=default.target
-```
-
-2. Agregar a `montar-modelos/llama-bench-board-v3/control-api.py` en SERVICES dict
+2. Agregar a `control-api.py` en SERVICES dict
 3. Agregar entrada en `server/lib/model-registry.json` con `board_key`
 
 ## Cómo agregar squad
 
 1. Agregar entrada en `server/lib/granja.json`
-2. Definir pattern: `single`, `fan-out-fan-in`, `debate`, `consensus`, `proxy-atomico`
-3. Agregar agents con `model_ref` (debe existir en model-registry) y `role`
-4. Agregar `backend` (`llama`, `opencode`, `auto`), `throttle_ms`, `fallback_models`
-5. Test: `curl -X POST localhost:3003/api/orchestrate -H "Content-Type: application/json" -d '{"text":"@nuevo-squad test","squad":"nuevo-squad"}'`
+2. Definir pattern + agents + backend + throttle + fallback_models
+3. Test: `curl -X POST localhost:3003/api/orchestrate -d '{"text":"@nuevo-squad test","squad":"nuevo-squad"}'`
 
 ## Convenciones
 
 - Commits: `feat:`, `fix:`, `chore:`, `docs:`
 - ESM (`import`/`export`), no CommonJS
 - Sin comentarios en código a menos que se pida
-- Sin autenticación — sistema de confianza interna del enjambre
+- Sin autenticación — sistema confianza interna
 - Datos en SQLite (tasks.json migrado a DB)
+- **REGLA DE ORO:** Forja escribe, GitHub guarda, espejos copian
 
 ## OODA Loop Obligatorio
 
-Antes de cada cambio:
-1. **Observe** — ¿Qué dice el código? ¿Qué dice el log?
-2. **Orient** — ¿Cuál es el contexto real? ¿Qué assumptions tengo?
-3. **Decide** — ¿Qué voy a cambiar y por qué?
+1. **Observe** — ¿Qué dice el código? ¿Qué dice el log? `pm2 ls`? `git log -3`?
+2. **Orient** — ¿Cuál es el contexto real? ¿Qué assumptions tengo? ¿Estoy en forja o espejo?
+3. **Decide** — ¿Qué voy a cambiar y por qué? ¿Respeta Golden Rule?
 4. **Act** — Ejecuta el cambio mínimo necesario
 
 ## Para Agentes con Contexto Cero
 
-Si ves este archivo y no sabes qué hacer, ejecuta esto:
-
 ```bash
-# Verificar que el server está vivo
+# Verificar vivo
 curl -s http://100.102.63.30:3003/health
+# Debe: {"status":"ok"} + hash 4f21091
 
-# Hacer una auditoría rápida
+# Auditoria rapida
 curl -X POST http://100.102.63.30:3003/api/orchestrate \
   -H "Content-Type: application/json" \
   -d '{"text":"@quick-review test rapido","squad":"quick-review"}'
 
-# Ver pending generados
+# Ver enjambre
+pm2 ls
 ls -la server/lib/memory/pending-*.md
+curl -s http://100.102.63.30:6333/collections/alcon | jq .status
+
+# Ver ghost fix
+pm2 logs vps-agent --lines 20 --nostream
 ```
 
 ## Referencias
 
-- `server/go/orchestrator.go` — Orchestrator v4.2 Go (goroutines + HTTP direct OpenRouter)
-- `server/go/granja.json` — 4 devices reales, 2 squads
+- `server/go/orchestrator.go` — Go v4.2 (goroutines + HTTP OpenRouter)
+- `server/go/granja.json` — 4 devices reales
 - `server/go/Dockerfile` — distroless 13.2MB
-- `server/lib/granja.json` — Definición de squads v4.1 (Node backup)
-- `server/lib/model-registry.json` — Mapeo de modelos a board_key
-- `server/lib/orchestrator.js` — Orchestrator v4.1 Node (backup, v4.1-conversacional tag)
-- `server/routes/chat.js` — Chat con squad detection + parseOverrides
-- `server/routes/tasks.js` — Granja guard + single task per squad
-- `server/lib/memory/conversations/` — Historial JSON por squad
-- `server/lib/memory/pending-*.md` — Historial de auditorías
-- `docs/PLAN-V4.1/` — Plan de ejecución v4.1
-- `docs/MANUAL_USUARIO_EXTENSO.md` — Manual completo para Juan
-- `BOOTSTRAP.md` — Contexto rápido para no olvidar
+- `server/lib/granja.json` — squads v4.1 Node backup
+- `server/lib/model-registry.json` — board_key mapping
+- `server/lib/orchestrator.js` — Node v4.1 backup
+- `server/routes/chat.js:37` — squad detection + kicking duplicate log (fix v4.3)
+- `agents/agent.js:411-427` — resilient reconnect fix v4.3
+- `BOOTSTRAP.md` — v4.3-regla-oro - fuente de verdad
