@@ -58,6 +58,8 @@ v4.0-granja-real (commit f21366a)
 |----------|--------|-------------|
 | alcon-api | :3003 | vps (100.102.63.30) |
 | alcon-pwa | :3004 | vps (100.102.63.30) |
+| Qdrant | :6333 | vps (docker, --restart unless-stopped) |
+| nomic embeddings | :8086 | vps (systemd nomic.service, ARM64 CPU) |
 | llama-server | :8080 | debian (100.121.64.26) |
 | board API | :9998 | debian |
 | dashboard | :8081 | debian |
