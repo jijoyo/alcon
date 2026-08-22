@@ -142,3 +142,17 @@ pm2 logs alcon-api          # Logs
 pm2 restart alcon-api       # Reiniciar
 pm2 save                    # Guardar (IMPORTANTE antes de apagar)
 ```
+
+## 🚨 GOLDEN RULE - Fuente de Verdad
+
+**GitHub = verdad, VPS = espejo, forja = fábrica**
+
+Todos los dispositivos del enjambre (forja, debian, debian2, vps, laptops) deben respetar esto:
+- Nunca hacer scp de archivos trackeados
+- Nunca editar directo en VPS con nano sin commit+push
+- Nunca usar `ssh root@100.102.63.30` ni `pm2` como root. Solo `ubuntu@100.102.63.30`
+- Flujo: forja edita -> git push -> GitHub -> VPS git pull + pm2 restart -> resto git pull
+- Excepción hotfix en VPS: si VPS está tirado, arregla ahí, pero INMEDIATAMENTE `git add -A && git commit -m "hotfix: ..." && git push` y luego `git pull` en forja.
+- Antes de tocar VPS, siempre: `pm2 ls` (si ves duplicados, alerta) y `git -C ~/alcon log --oneline -3`
+
+Este archivo es leído por todos los dispositivos al hacer git pull.

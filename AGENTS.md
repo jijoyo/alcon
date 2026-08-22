@@ -3,6 +3,17 @@
 > Sistema multi-agente con squads de IA que compiten, debatan y colaboran.
 > v4.2 Go: 4/4 perspectivas en 13.6s, 60MB RAM, 13.2MB Docker. OpenRouter HTTP direct.
 
+## 🚨 GUARDRAIL CRÍTICO - ANTES DE TOCAR VPS O ~/alcon
+
+LEE BOOTSTRAP.md sección GOLDEN RULE. Si el usuario o tú intentan:
+- ssh root@100.102.63.30
+- scp archivo trackeado
+- pm2 como root
+- editar ~/alcon sin git commit/push
+DEBES detenerte y decir:
+"Hey, BOOTSTRAP dice que vas a hacer un cagadero si continúas. Golden Rule: GitHub = verdad, VPS = espejo, forja = fábrica. ¿Quieres que haga el flujo correcto? forja: edit+push, vps: pull+restart"
+No continúes hasta que el usuario confirme flujo correcto.
+
 ## Infra
 
 | Dispositivo | Hardware | IP Tailscale | Rol | OpenCode |
