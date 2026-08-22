@@ -163,6 +163,15 @@ cd ~/alcon && git status && git pull origin main && pm2 restart all
 - NUNCA editar directo en VPS con nano sin commit+push inmediato
 - Antes de tocar VPS: `pm2 ls` (si ves duplicados, alerta) y `git -C ~/alcon log --oneline -3`
 
+### 🚨 Tailscale SSH bypass (Lección 22-Ago-2026)
+**Problema:** `PermitRootLogin no` + `AuthenticationMethods publickey` NO bloquean root si Tailscale SSH está habilitado. Tailscale intercepta la conexión ANTES de openssh, autentica por su propio mecanismo (ACL), y reporta `using "none"`.
+
+**Fix:** `sudo tailscale set --ssh=false` en el VPS. Luego openssh procesa la conexión y aplica `PermitRootLogin no`.
+
+**Verificación:** `ssh root@100.102.63.30` debe fallar con `Permission denied (publickey)`.
+
+**Regla:** Si en cualquier equipo `ssh root@` funciona a pesar de `PermitRootLogin no`, verificar `tailscale status` y deshabilitar Tailscale SSH.
+
 ### Excepción Hotfix
 Si VPS está tirado y forja no llega: arregla en VPS, pero INMEDIATAMENTE:
 `git add -A && git commit -m "hotfix: ..." && git push origin main` y luego `git pull` en forja.
