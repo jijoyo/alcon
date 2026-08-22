@@ -40,7 +40,7 @@ fastify.register(memoriaRoutes);
 fastify.get('/health', async () => {
   const db = getDb();
   const { count: taskCount } = db.prepare('SELECT COUNT(*) as count FROM tasks').get();
-  return { status: 'ok', version: '4.0-granja-real', timestamp: now(), uptime: process.uptime(), taskCount, agents: agentRunning };
+  return { status: 'ok', version: 'v4.3-regla-oro (fbb6655)', timestamp: now(), uptime: process.uptime(), taskCount, agents: agentRunning };
 });
 
 fastify.post('/api/ping', async (request) => { const { agent } = request.body || {}; return { ok: true, agent, timestamp: now() }; });
