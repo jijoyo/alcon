@@ -35,7 +35,10 @@ export function registerChat(io) {
         if (existingP.name === name) {
           presence.delete(existingId);
           const oldSocket = chatNs.sockets.get(existingId);
-          if (oldSocket) oldSocket.disconnect(true);
+          if (oldSocket) {
+            console.log(`[presence] kicking duplicate ${name} oldSocket=${oldSocket.id}`);
+            oldSocket.disconnect(true);
+          }
         }
       }
       presence.set(socket.id, { name:name||'user', status:'vivo', lastSeen:Date.now(), typing:false });

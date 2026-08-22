@@ -414,6 +414,14 @@ function connectSocket() {
       clearInterval(heartbeatInterval);
       heartbeatInterval = null;
     }
+    if (reason === 'io server disconnect') {
+      log('Kicked by server, reconnecting in 5s...');
+      setTimeout(() => {
+        socket.connect();
+        const keepalive = setInterval(() => {}, 10000);
+        socket.once('connect', () => clearInterval(keepalive));
+      }, 5000);
+    }
   });
 
   socket.on('connect_error', (err) => {
