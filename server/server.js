@@ -12,6 +12,7 @@ import { discover } from './lib/auto-discovery.js';
 import granjaRoutes from './routes/granja.js';
 import espanolRoutes from './routes/espanol.js';
 import memoriaRoutes from './routes/memoria.js';
+import { queryRAG } from './rag-presence.js';
 
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
@@ -43,6 +44,12 @@ fastify.get('/health', async () => {
   return { status: 'ok', version: 'v4.3-regla-oro (fbb6655)', timestamp: now(), uptime: process.uptime(), taskCount, agents: agentRunning };
 });
 
+fastify.get('/rag', async (request) => {
+  const { q } = request.query;
+  if (!q) return { error: 'Falta ?q=pregunta' };
+  return queryRAG(q);
+});
+
 fastify.post('/api/ping', async (request) => { const { agent } = request.body || {}; return { ok: true, agent, timestamp: now() }; });
 
 let orchestrating = false;
@@ -69,7 +76,7 @@ registerChat(io);
 
 fastify.listen({ port: PORT, host: HOST }, (err) => {
   if (err) { fastify.log.error(err); process.exit(1); }
-  fastify.log.info(`Alcon server v4.0-granja-real on ${HOST}:${PORT}`);
+  fastify.log.info(`Alcon server v4.3-regla-oro on ${HOST}:${PORT}`);
   fastify.log.info(`Socket.io namespace /enjambre ready`);
 });
 
