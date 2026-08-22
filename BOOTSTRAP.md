@@ -17,7 +17,9 @@
 | forja (debian) | 100.121.64.26 | Brain + GPU |
 | vps | 100.102.63.30 | Server + PM2 |
 | kali | 100.103.82.104 | Git executor |
-| cel | 100.76.111.99 | Reviewer |
+| note-11 | 100.122.196.23 | Reviewer (ICMP bloqueado por Android, está vivo) |
+| note-12s | 100.96.34.100 | Reviewer |
+| ~~cel viejo~~ | ~~100.76.111.99~~ | Offline 3+ días — borrar en consola Tailscale |
 
 ## SSH entre equipos
 
@@ -25,15 +27,17 @@
 |---------------|---------|-------|
 | debian → kali | `ssh kali` | alias en `~/.ssh/config`; llave `israel@debian` autorizada para user `jijoyo` |
 | kali → debian | `ssh israel@100.121.64.26` | Tailscale SSH: puede pedir check de navegador la primera vez |
+| vps → kali | `ssh jijoyo@100.103.82.104` | llave `root@oracle-arm` autorizada |
+| vps → debian | `ssh israel@100.121.64.26` | Tailscale SSH check navegador ocasional |
+| celulares → vps | `granja` = alias de `ssh ubuntu@100.102.63.30` | Termux; sin engram local, corren el CLI del vps |
 
-## Memoria compartida entre agentes
+## Memoria compartida (engram cloud)
 
-| Canal | Dónde | Cómo |
-|-------|-------|------|
-| Engram cloud | VPS :7438 | instalar engram; token compartido en vps `/home/ubuntu/.engram/.kali_token`; luego `export ENGRAM_CLOUD_TOKEN=<token>` → `engram search --project alcon` |
-| Obsidian vault | Syncthing | kali: `~/Documents/obsidian-vault`, vps: `/home/ubuntu/obsidian-vault`, cel: Syncthing Fork |
-| Repo git | BOOTSTRAP.md | Este archivo — contexto rápido sincronizado por pull/push |
-
+- Server: vps `:7438` (systemd `engram-cloud.service`, backend Postgres docker). Token legacy en `~/.engram/cloud.json`.
+- Clientes con daemon autosync (systemd user `engram.service`): debian, kali, y **vps como espejo** (`http://127.0.0.1:7438`).
+- Celulares: `granja engram search "..." --project alcon` (~30-60s de propagación).
+- Enroll es POR CLIENTE: proyecto nuevo → `engram cloud enroll <p>` en cada máquina + allowlist del server (`/home/ubuntu/.engram/cloud.env`) + restart.
+- ⚠️ Lección dura: observaciones pueden llegar al stream SIN su sesión upsert → espejo nuevo se traba en FK. Fix aplicado: backfill de sesiones huérfanas en Postgres (`/tmp/backfill-sessions.sh` del 2026-08-21) + patch directo en sqlite del espejo. Si un espejo nuevo se traba: buscar `reason_code` en `sync_state`.
 
 ## Paths
 
