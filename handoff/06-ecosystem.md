@@ -41,7 +41,7 @@
 | Nodo | IP Tailscale | Capacidad |
 |------|-------------|-----------|
 | Kali (PC) | 100.103.82.104 | Builds, debugging, git |
-| Cel (Mimo) | 100.76.111.99 | Testing físico, vite dev, opencode web |
+| Note 11 (Mimo) | 100.122.196.23 | Testing físico, vite dev, opencode web |
 | VPS Oracle | 100.102.63.30 | 24/7 uptime, server, engram |
 | Reina Debian | Pendiente | Desarrollo pesado |
 

@@ -31,7 +31,7 @@
 | **debian** | RTX 3060 12GB, 32GB RAM | 100.121.64.26 | Brain (desarrollo + GPU) | OpenCode ✅ |
 | **vps** | Oracle ARM 21GB | 100.102.63.30 | Server (Fastify + PM2) | OpenCode ✅ |
 | **kali** | GTX 1050 4GB, 16GB RAM | 100.103.82.104 | Git executor | OpenCode ✅ |
-| **cel** | Redmi Note 11, 1GB | 100.76.111.99 | Reviewer/approver | OpenCode ✅ |
+| **note-11** | Redmi Note 11, 1GB | 100.122.196.23 | Reviewer/approver | OpenCode ✅ |
 ```
 
 ### Después de L28: Agregar CLI Overrides
