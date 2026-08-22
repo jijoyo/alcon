@@ -10,6 +10,7 @@
 - 32GB RAM
 - AMD Ryzen 5 5600GT
 - VPS Oracle ARM (21GB)
+- **Sesión: X11 (gnome-xorg)** — Wayland causa CPU hog en gnome-shell 48.7 con uptime largo. Fix: `WaylandEnable=false` en `/etc/gdm3/daemon.conf`
 
 ## IPs Tailscale
 
