@@ -166,7 +166,35 @@ export default async function memoriaRoutes(fastify) {
     const { q, device, limit } = request.query || {};
     if (!q) return reply.code(400).send({ error: 'q parameter required' });
 
-    const results = await search(q, parseInt(limit) || 10, device || null);
+    const k = parseInt(limit) || 10;
+
+    // PRIMARY: Qwen3 sidecar :3005
+    try {
+      const sidecarUrl = `http://127.0.0.1:3005/rag?q=${encodeURIComponent(q)}&k=${k}`;
+      const res = await fetch(sidecarUrl, { signal: AbortSignal.timeout(30000) });
+      if (!res.ok) throw new Error(`sidecar ${res.status}`);
+      const data = await res.json();
+      if (data.hits && data.hits.length > 0) {
+        return {
+          query: q,
+          device: device || 'all',
+          results: data.hits.map(h => ({
+            id: h.path,
+            score: h.score,
+            payload: { path: h.path, texto: h.text },
+            texto: h.text
+          })),
+          source: 'qwen3-sidecar:3005',
+          used_rerank: data.used_rerank,
+          model: 'Qwen3-Embedding-0.6B-ONNX-Q4F16'
+        };
+      }
+    } catch (err) {
+      console.log('[memoria] sidecar unavailable, falling back to Qdrant:', err.message);
+    }
+
+    // FALLBACK: Qdrant + mimo (viejo)
+    const results = await search(q, k, device || null);
     return {
       query: q,
       device: device || 'all',
@@ -175,12 +203,28 @@ export default async function memoriaRoutes(fastify) {
         score: r.score,
         payload: r.payload,
         texto: r.payload?.texto
-      }))
+      })),
+      source: 'qdrant-fallback'
     };
   });
 
   fastify.get('/api/memoria/stats', async () => {
+    // PRIMARY: Qwen3 sidecar health
+    try {
+      const res = await fetch('http://127.0.0.1:3005/health', { signal: AbortSignal.timeout(3000) });
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          total: data.docs_indexed || 0,
+          by_device: {},
+          model: data.model,
+          reranker_loaded: data.reranker_loaded,
+          source: 'qwen3-sidecar:3005'
+        };
+      }
+    } catch {}
+    // FALLBACK: Qdrant
     const stats = await countByDevice();
-    return stats;
+    return { ...stats, source: 'qdrant-fallback' };
   });
 }

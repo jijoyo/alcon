@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-19T23:03:48.119Z",
+  "updated_at": "2026-08-23T00:17:37.285Z",
   "devices": {
     "debian": {
       "ip": "100.121.64.26",
@@ -22,28 +22,9 @@
       "name": "cel"
     }
   },
-  "modelsLoaded": [
-    "/home/israel/Documentos/montar-modelos/modelos/nomic-embed-text-v1.5.Q5_K_M.gguf"
-  ],
+  "modelsLoaded": [],
   "projects": [
-    ".archive-otros",
-    "Default Project",
-    "PROYECTO CERO",
-    "ai-automation-agency",
     "alcon",
-    "azteca-unlocked",
-    "carrera ingenieria industrial",
-    "creacion de contenido",
-    "dose-dash-digital",
-    "dosedash-contexto",
-    "forja-factory",
-    "kodi-mcp-server",
-    "montar-modelos",
-    "opencode-lab",
-    "quemu",
-    "remote-control-tv",
-    "taller-de-planes",
-    "youtube-knowledge",
-    "yt-dlp-power"
+    "montar-modelos"
   ]
 }

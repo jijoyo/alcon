@@ -12,7 +12,7 @@ import { discover } from './lib/auto-discovery.js';
 import granjaRoutes from './routes/granja.js';
 import espanolRoutes from './routes/espanol.js';
 import memoriaRoutes from './routes/memoria.js';
-import { queryRAG } from './rag-presence.js';
+import { queryRAG } from './rag-qwen.js';
 
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
@@ -47,7 +47,7 @@ fastify.get('/health', async () => {
 fastify.get('/rag', async (request) => {
   const { q } = request.query;
   if (!q) return { error: 'Falta ?q=pregunta' };
-  return queryRAG(q);
+  return await queryRAG(q);
 });
 
 fastify.post('/api/ping', async (request) => { const { agent } = request.body || {}; return { ok: true, agent, timestamp: now() }; });
