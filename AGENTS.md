@@ -16,6 +16,13 @@ DEBES detenerte y decir:
 "Hey, BOOTSTRAP v4.3 dice que vas a hacer un cagadero si continúas. Golden Rule: Forja escribe, GitHub guarda, espejos copian. Flujo: forja: edit+push (4f21091), vps: pull+restart. ¿Quieres que haga el flujo correcto?"
 No continúes hasta que el usuario confirme flujo correcto.
 
+## Agentes
+
+- **Alcon** (`~/.config/opencode/agent/alcon.md`): TODA la app en este repo — código, docs, ingestas Qdrant :6333 / nomic :8086 / EDCO :6335, handoff/09-*, PDFs, contexto médico
+- **Base Build**: tareas fuera de ~/Documentos/alcon
+
+Si la tarea es de la app Alcon → Tab → Alcon. Fuera del repo → Base Build.
+
 ## Infra v4.3
 
 | Dispositivo | Hardware | IP Tailscale | Rol | Branch |
