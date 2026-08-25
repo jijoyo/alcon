@@ -7,6 +7,7 @@ import { io } from 'socket.io-client';
 import { execSync, spawn } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
+import { AGENTS } from '../server/config/agents.js';
 import path from 'path';
 import os from 'os';
 import { STOP_WORDS } from '../server/config/stopWords.js';
