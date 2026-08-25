@@ -73,7 +73,24 @@ todavía cita archivos que ya no existen — reingestar cuando se toque el RAG).
 - runtime-state.json trackeado rompía pulls → des-trackeado (99b6106)
 - vps-agent sin declarar desaparecía con pm2 save → declarado en ecosystem (1294594)
 
-## 6. Pendientes activos (orden sugerido)
+## 6. Protocolos de comunicación (revividos 2026-08-25)
+
+**Doc fuente**: `obsidian-vault/02-guías/plan-comunicacion-contingencia.md` (29-Jul)
+
+| Canal | Medio | Estado |
+|-------|-------|--------|
+| Socket COMMS (primario) | `[COMMS:destino] msg` en chat → `agent:comms` → re-emit como `agent:direct` | ✅ VIVO — primer COMMS agente-a-agente: kali→debian 25-Ago 04:32 |
+| Syncthing archivos (contingencia) | `obsidian-vault/comms/inbox-*/` + `broadcasts/` | ✅ Recreado (estaba muerto); sync forja↔VPS ~10s |
+| Puerta TUI | `ssh vps "node ~/comms/hablar.cjs <nombre> 'msg'"` | ✅ Para sesiones sin agent.js (ej. cel-TUI) |
+
+**Protocolo 8 claves**: PROCEDE · EN PISTA · FUERA · ESPERO · ALERTA · POSA · PASE · CONTEXT
+**Turf**: debian=fábrica/GPU · vps=server/RAG · kali=git-executor/auditoría · cel=UI móvil · alcon=coordinación
+**Regla cardinal**: VB del humano antes de acciones de riesgo (Golden Rule).
+
+Fix habilitante: commit 154c535 — `AGENTS is not defined` en agent.js rompía TODO
+comms agente-a-agente desde su introducción (el bug que israel no podía cerrar).
+
+## 7. Pendientes activos (orden sugerido)
 
 1. **Persistencia cel**: plan 3 capas de @cel en su docs/PLAN-persistencia-agent-cel.md
    (WakeLock+battery unrestricted / .bashrc relaunch / Termux:Boot). Cel ya arrancado;
