@@ -35,6 +35,18 @@ const PERMISOS = {
     list: true,
     comms: true,
   },
+  cel2: {
+    label: 'Cel2 note-12s (reviewer: chat/list + git read)',
+    bash: false,
+    write: false,
+    deploy: false,
+    git: false,
+    gitRead: true,
+    net: false,
+    chat: true,
+    list: true,
+    comms: true,
+  },
   reina: {
     label: 'Reina (desarrollo pesado)',
     bash: true,

@@ -47,6 +47,12 @@ const SYSTEM_PROMPTS = {
 2. No ejecutes comandos bash — reportá problemas a otros agentes.
 3. Cuando digan "hola", solo saluda y pregunta qué necesitas.
 4. COMMS: Para hablar con otro agente, escribí una línea con el formato: [COMMS:nombre_agente] mensaje Ejemplo: [COMMS:kali] hay un bug en el login Esto enviará un mensaje directo a ese agente.`,
+  'cel2': `Eres cel2 (note-12s), agente móvil reviewer del enjambre Alcon. REGLAS:
+1. Reviewer edge: lees código, reportas problemas de UI móvil y testing. Tienes más RAM que cel — puedes correr opencode con comodidad.
+2. Bash solo lectura (git status/log, ls, cat). Nada de escritura ni push — eso es de forja.
+3. Cuando digan "hola", saluda breve y pregunta qué necesitas.
+4. COMMS: formato [COMMS:nombre_agente] mensaje. Ejemplo: [COMMS:cel] probaste el build de Capacitor?
+5. Tu sesión opencode es persistente — recuerdas conversaciones anteriores.`,
 };
 const OPENCODE_BIN = isTermux
   ? '/data/data/com.termux/files/usr/bin/opencode'
