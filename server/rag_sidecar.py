@@ -65,9 +65,8 @@ def cache_paths():
 
 def save_cache():
     emb_path, meta_path = cache_paths()
-    embs = np.array([d["embedding"] for d in docs], dtype=np.float32)
     meta = [{"file": d["file"], "idx": d["idx"], "text": d["text"]} for d in docs]
-    np.save(emb_path, embs)
+    np.save(emb_path, doc_matrix)
     with open(meta_path, "w") as f:
         json.dump({"hash": dir_hash(), "count": len(docs), "chunks": meta}, f)
     print(f"[sidecar] Cache saved: {len(docs)} chunks → {emb_path}")
