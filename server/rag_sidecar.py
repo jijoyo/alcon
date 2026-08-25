@@ -54,7 +54,8 @@ def dir_hash():
         if fname.split(os.sep)[0] in EXCLUDE_DIRS:
             continue
         h.update(fpath.encode())
-        h.update(str(os.path.getmtime(fpath)).encode())
+        with open(fpath, "rb") as f:
+            h.update(f.read())
     return h.hexdigest()
 
 
