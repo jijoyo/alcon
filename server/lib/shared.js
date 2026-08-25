@@ -23,7 +23,8 @@ export const KEYWORD_MAP = {
   debian: ['forja','debian','linux','reina','distro','apt','systemd','ssh']
 };
 
-export { AGENTS } from '../config/agents.js';
+import { AGENTS } from '../config/agents.js';
+export { AGENTS };
 export const agentRunning = { kali:true, vps:true, cel:false, debian:true, hermes:true };
 export const commsEnabled = { kali:true, vps:true, cel:false, debian:true, hermes:true };
 
