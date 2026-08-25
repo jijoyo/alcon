@@ -56,6 +56,39 @@ const WORKDIR = isTermux
   : (process.env.ALCON_WORKDIR || path.join(os.homedir(), 'Documentos/alcon'));
 const AGENTS_DIR = path.join(WORKDIR, 'agents');
 
+// === Sesión persistente por agente (memoria a largo plazo) ===
+const SESSION_FILE = path.join(AGENTS_DIR, `.session-${AGENT_NAME}.txt`);
+const AGENT_TITLE = `enjambre-${AGENT_NAME}`;
+let SESSION_ID = null;
+try { SESSION_ID = fs.readFileSync(SESSION_FILE, 'utf8').trim() || null; } catch {}
+
+function findSessionIdByTitle() {
+  try {
+    const dbPath = path.join(os.homedir(), '.local/share/opencode/opencode.db');
+    const out = execSync(`sqlite3 "${dbPath}" "SELECT id FROM session WHERE title='${AGENT_TITLE}' ORDER BY rowid DESC LIMIT 1"`, { encoding: 'utf8', timeout: 5000 });
+    return out.trim() || null;
+  } catch { return null; }
+}
+
+function persistSessionId() {
+  if (SESSION_ID) return;
+  const id = findSessionIdByTitle();
+  if (id) {
+    SESSION_ID = id;
+    try { fs.writeFileSync(SESSION_FILE, id); } catch {}
+    log(`[SESION] ${AGENT_NAME} persiste sesión ${id}`);
+  }
+}
+
+function buildOpencodeArgs(prompt) {
+  const args = ['run', '-m', 'opencode/mimo-v2.5-free', '--dir', WORKDIR, '--auto'];
+  if (SESSION_ID) args.push('-s', SESSION_ID);
+  else args.push('--title', AGENT_TITLE);
+  args.push(prompt);
+  return args;
+}
+// === fin sesión persistente ===
+
 const BASH_REGEX = /^(ls|cat|pwd|echo|find|head|tail|grep|ps|df|du|whoami|uname|wc|sort|uniq|date|hostname|id|env|which|file|stat|mkdir|rm|cp|mv|chmod|chown|touch|ln|readlink|basename|dirname|realpath|mktemp|tee|xargs|tr|cut|sed|awk|diff|patch|tar|gzip|gunzip|zip|unzip|curl|wget|ssh|scp|rsync|ping|dig|nslookup|netstat|ss|ip|ifconfig|route|iptables|crontab|systemctl|journalctl|dmesg|lsblk|fdisk|mount|umount|lsof|fuser|kill|killall|nohup|screen|tmux|bg|fg|jobs|wait|sleep|yes|seq|rev|base64|md5sum|sha256sum|cksum|wc|iconv|fmt|fold|paste|join|split|csplit|comm|tee|stdbuf|timeout|nice|ionice|taskset|numactl|chroot|unshare|nsenter|capsh|setcap|getcap|ldd|strace|ltrace|perf|bpftrace|SystemTap|dtrace|flock|sync|fsync|fdatasync|fallocate|fadvise|finit_module|delete_module|kexec|reboot|shutdown|halt|poweroff|init|telinit|runlevel|who|w|last|lastb|ac|lastlog|faillog|journal|logger|syslog|rsyslog|logrotate|cron|at|batch|anacron|anacrontab|plocate|locate|updatedb|mknod|MAKEDEV|fsck|e2fsck|mkfs|mkswap|swapon|swapoff|blkid|findblk|blockdev|hdparm|sdparm|smartctl|badblocks|e2label|tune2fs|debugfs|dumpe2fs|e2image|e2undo|logsave|resize2fs|e4defrag|fallocate|fadvise|finit_module|delete_module|kexec|reboot|shutdown|halt|poweroff|init|telinit|runlevel|who|w|last|lastb|ac|lastlog|faillog|journal|logger|syslog|rsyslog|logrotate|cron|at|batch|anacron|anacrontab|plocate|locate|updatedb|mknod|MAKEDEV|fsck|e2fsck|mkfs|mkswap|swapon|swapoff|blkid|findblk|blockdev|hdparm|sdparm|smartctl|badblocks|e2label|tune2fs|debugfs|dumpe2fs|e2image|e2undo|logsave|resize2fs|e4defrag)\b/i;
 const FAST_REGEX = /^(hola|ping|ruta|pwd)/i;
 
@@ -352,7 +385,7 @@ function connectSocket() {
       const systemSection = systemPrompt ? `[System Instructions]\n${systemPrompt}\n\n` : '';
       const prompt = `${systemSection}${context}Tarea: ${taskText}\nResponde en español, corto.`;
       const output = await new Promise((resolve, reject) => {
-        const child = spawn(OPENCODE_BIN, ['run', '-m', 'opencode/mimo-v2.5-free', '--dir', WORKDIR, prompt], {
+        const child = spawn(OPENCODE_BIN, buildOpencodeArgs(prompt), {
           cwd: WORKDIR,
           stdio: ['ignore', 'pipe', 'inherit']
         });
@@ -370,6 +403,7 @@ function connectSocket() {
         child.on('close', (code) => {
           clearTimeout(timer);
           clearInterval(heartbeat);
+          persistSessionId();
           code === 0 ? resolve(stdout || '(sin output)') : reject(new Error(`exit code ${code}`));
         });
         child.on('error', (err) => { clearTimeout(timer); clearInterval(heartbeat); reject(err); });
