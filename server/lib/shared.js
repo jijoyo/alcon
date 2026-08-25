@@ -25,8 +25,8 @@ export const KEYWORD_MAP = {
 
 import { AGENTS } from '../config/agents.js';
 export { AGENTS };
-export const agentRunning = { kali:true, vps:true, cel:true, debian:true, hermes:true };
-export const commsEnabled = { kali:true, vps:true, cel:true, debian:true, hermes:true };
+export const agentRunning = { kali:true, vps:true, cel:true, debian:true, hermes:true, alcon:true, 'cel-tui':true, cel2:true };
+export const commsEnabled = { kali:true, vps:true, cel:true, debian:true, hermes:true, alcon:true, 'cel-tui':true, cel2:true };
 
 export const presence = new Map();
 export const activeSessions = new Map(); // { userId: taskId }
