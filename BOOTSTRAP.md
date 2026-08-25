@@ -1,6 +1,7 @@
 # BOOTSTRAP — Alcon v4.3-regla-oro
 
-> Hash verdad: 4f21091 - 21-Ago-2025 - Fantasma neutralizado - 507 engrams Qdrant green
+> Verdad: github.com/jijoyo/alcon main HEAD (verificar vía `/health` — hash dinámico, sin pines en docs)
+> Histórico: ghost fix 4f21091 (21-Ago) - Fantasma neutralizado - 507 engrams Qdrant green
 > Si ves este archivo, estás en Alcon v4.3
 
 ## Quién es Juan
@@ -143,7 +144,7 @@ Todos los dispositivos del enjambre (forja, debian, vps, kali, cels) deben respe
 
 ### La Regla
 - **FABRICA = forja (debian 100.121.64.26 ~/Documentos/alcon)** = UNICO lugar donde se edita código.
-- **VERDAD = github.com/jijoyo/alcon main** = El hash es la versión oficial. Actual: `4f21091`. Solo push desde forja.
+- **VERDAD = github.com/jijoyo/alcon main** = El hash de HEAD es la versión oficial (dinámico, se verifica vía `/health`). Solo push desde forja.
 - **ESPEJOS = ubuntu@100.102.63.30 + cels + kalis** = Solo `git pull`, nunca editar.
 
 Flujo correcto SIEMPRE:

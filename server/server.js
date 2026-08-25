@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import fs from 'fs';
+import { execSync } from 'node:child_process';
 import { Server } from 'socket.io';
 import { open as openDb, get as getDb } from './db/connection.js';
 import tasksRoutes from './routes/tasks.js';
@@ -15,6 +16,15 @@ import memoriaRoutes from './routes/memoria.js';
 import { queryRAG } from './rag-qwen.js';
 
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
+
+function getGitHash() {
+  try {
+    return execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+  } catch {
+    return process.env.GIT_HASH || 'dev';
+  }
+}
+const gitHash = getGitHash();
 
 const fastify = Fastify({ logger: true });
 
@@ -41,7 +51,7 @@ fastify.register(memoriaRoutes);
 fastify.get('/health', async () => {
   const db = getDb();
   const { count: taskCount } = db.prepare('SELECT COUNT(*) as count FROM tasks').get();
-  return { status: 'ok', version: 'v4.3-regla-oro (fbb6655)', timestamp: now(), uptime: process.uptime(), taskCount, agents: agentRunning };
+  return { status: 'ok', version: `v4.3-regla-oro (${gitHash})`, timestamp: now(), uptime: process.uptime(), taskCount, agents: agentRunning };
 });
 
 fastify.get('/rag', async (request) => {

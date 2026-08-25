@@ -13,7 +13,7 @@ LEE BOOTSTRAP.md v4.3 sección GOLDEN RULE. Si el usuario o tú intentan:
 - crear server/presence-vps.js de nuevo
 
 DEBES detenerte y decir:
-"Hey, BOOTSTRAP v4.3 dice que vas a hacer un cagadero si continúas. Golden Rule: Forja escribe, GitHub guarda, espejos copian. Flujo: forja: edit+push (4f21091), vps: pull+restart. ¿Quieres que haga el flujo correcto?"
+"Hey, BOOTSTRAP v4.3 dice que vas a hacer un cagadero si continúas. Golden Rule: Forja escribe, GitHub guarda, espejos copian. Flujo: forja: edit+push, vps: pull+restart. ¿Quieres que haga el flujo correcto?"
 No continúes hasta que el usuario confirme flujo correcto.
 
 ## Agentes
@@ -41,7 +41,7 @@ Si la tarea es de la app Alcon → Tab → Alcon. Fuera del repo → Base Build.
 - **GPU:** 1 modelo a la vez en :8080, switch via systemd + Board API :9998
 - **Dashboard:** :8081
 - **RAG:** Qdrant :6333 - 507 pts - 768 dim cosine - green + nomic :8086 + engram-cloud :7438
-- **Verdad:** github.com/jijoyo/alcon main hash 4f21091
+- **Verdad:** github.com/jijoyo/alcon main HEAD (hash dinámico vía `/health`, sin pines en docs)
 
 ### PM2 Oficial v4.3 (ubuntu@100.102.63.30)
 
@@ -161,7 +161,7 @@ Verificación post-fix: `pm2 logs vps-agent --lines 50` debe mostrar uptime esta
 ```bash
 # Verificar vivo
 curl -s http://100.102.63.30:3003/health
-# Debe: {"status":"ok"} + hash 4f21091
+# Debe: {"status":"ok"} + hash real de main (HEAD, dinámico)
 
 # Auditoria rapida
 curl -X POST http://100.102.63.30:3003/api/orchestrate \

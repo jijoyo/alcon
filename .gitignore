@@ -32,3 +32,6 @@ rag_data/
 evidencia/
 .qdrant-initialized
 server/lib/runtime-state.json
+
+# Sesiones de agentes (ruido local)
+docs/sessions/
