@@ -64,6 +64,9 @@ function log(msg) {
   console.log(`[${ts}] [${AGENT_NAME}] ${msg}`);
 }
 
+let currentFloor = null;
+let floorQueue = [];
+
 function sendComms(socket, to, text) {
   socket.emit('agent:comms', {
     from: AGENT_NAME,
@@ -72,6 +75,28 @@ function sendComms(socket, to, text) {
     timestamp: new Date().toISOString()
   });
   log(`[COMMS] Sent to ${to}: ${text.slice(0, 80)}`);
+}
+
+function requestFloor(socket) {
+  socket.emit('floor:request', { name: AGENT_NAME });
+}
+
+function releaseFloor(socket) {
+  socket.emit('floor:release', { name: AGENT_NAME });
+}
+
+function waitForFloor(socket) {
+  return new Promise((resolve) => {
+    if (currentFloor === AGENT_NAME) { resolve(true); return; }
+    requestFloor(socket);
+    const check = setInterval(() => {
+      if (currentFloor === AGENT_NAME) {
+        clearInterval(check);
+        resolve(true);
+      }
+    }, 500);
+    setTimeout(() => { clearInterval(check); resolve(false); }, 30_000);
+  });
 }
 
 function fastReply(text) {
@@ -386,17 +411,23 @@ function connectSocket() {
       saveEngram(msg.task_id, taskText, e.message, 'error');
       updateHandoffRoadmap(msg.task_id, taskText, 'error');
     }
+    // Release floor after responding
+    releaseFloor(socket);
   });
 
-  // Comms directas agent-to-agent
-  socket.on('agent:comms', (msg) => {
+  // Comms directas agent-to-agent (with floor control)
+  socket.on('agent:comms', async (msg) => {
     if (msg.to !== AGENT_NAME) return;
     log(`[COMMS] ${msg.from} → ${msg.to}: ${msg.text.slice(0, 100)}`);
-    // Responder automáticamente usando opencode
     const rawCmd = msg.text.replace(/^@\w+\s*/, '').trim();
     if (STOP_WORDS.test(rawCmd)) {
       socket.emit('chat:message', { from: AGENT_NAME, text: `Entendido, ${msg.from}.` });
       return;
+    }
+    // Request floor before replying
+    const gotFloor = await waitForFloor(socket);
+    if (!gotFloor) {
+      log(`[COMMS] Floor timeout, replying anyway`);
     }
     // Reenviar como agent:direct para procesamiento normal
     socket.emit('agent:direct', {
@@ -427,6 +458,16 @@ function connectSocket() {
 
   socket.on('connect_error', (err) => {
     log(`Socket error: ${err.message}`);
+  });
+
+  socket.on('floor:update', (data) => {
+    currentFloor = data.owner;
+    floorQueue = data.queue || [];
+    if (data.owner === AGENT_NAME) {
+      log(`[FLOOR] You have the floor`);
+    } else if (data.owner) {
+      log(`[FLOOR] ${data.owner} has the floor, queue: [${data.queue.join(', ')}]`);
+    }
   });
 
   return socket;

@@ -171,6 +171,56 @@ export function registerChat(io) {
     socket.on('chat:heartbeat', () => { const p = presence.get(socket.id); if (p) { p.lastSeen = Date.now(); if (p.status !== 'vivo') { p.status = 'vivo'; broadcastPresence(chatNs); } } });
     socket.on('presence:request', () => broadcastPresence(chatNs));
 
+    // Floor system — turn-based talking to avoid collisions
+    const floor = { owner: null, timeout: null, queue: [] };
+    const FLOOR_TIMEOUT_MS = 60_000;
+
+    function emitFloor() {
+      chatNs.emit('floor:update', { owner: floor.owner, queue: floor.queue });
+    }
+
+    function grantFloor(agent) {
+      floor.owner = agent;
+      floor.queue = floor.queue.filter(a => a !== agent);
+      clearTimeout(floor.timeout);
+      floor.timeout = setTimeout(() => {
+        log(`[FLOOR] Timeout for ${floor.owner}, releasing`);
+        floor.owner = null;
+        if (floor.queue.length > 0) grantFloor(floor.queue.shift());
+        emitFloor();
+      }, FLOOR_TIMEOUT_MS);
+      emitFloor();
+    }
+
+    socket.on('floor:request', ({ name }) => {
+      if (!name) return;
+      if (!floor.owner) {
+        grantFloor(name);
+        log(`[FLOOR] Granted to ${name}`);
+      } else if (floor.owner === name) {
+        // Extend timeout
+        clearTimeout(floor.timeout);
+        floor.timeout = setTimeout(() => {
+          floor.owner = null;
+          if (floor.queue.length > 0) grantFloor(floor.queue.shift());
+          emitFloor();
+        }, FLOOR_TIMEOUT_MS);
+      } else {
+        if (!floor.queue.includes(name)) floor.queue.push(name);
+        log(`[FLOOR] ${name} queued (owner: ${floor.owner})`);
+        emitFloor();
+      }
+    });
+
+    socket.on('floor:release', ({ name }) => {
+      if (!name || floor.owner !== name) return;
+      clearTimeout(floor.timeout);
+      floor.owner = null;
+      log(`[FLOOR] Released by ${name}`);
+      if (floor.queue.length > 0) grantFloor(floor.queue.shift());
+      emitFloor();
+    });
+
     socket.on('agent:comms', (msg) => {
       if (!msg || !msg.from || !msg.to || !msg.text) return;
       log(`[COMMS] ${msg.from} → ${msg.to}: ${msg.text.slice(0, 100)}`);
