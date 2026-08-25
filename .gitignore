@@ -42,3 +42,4 @@ server/go/alcon
 server/go/alcon-go
 server/go/orchestrator.go.bak.*
 agents/.session-*.txt
+server/.venv/
