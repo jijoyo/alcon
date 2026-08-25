@@ -35,3 +35,9 @@ server/lib/runtime-state.json
 
 # Sesiones de agentes (ruido local)
 docs/sessions/
+cache/
+chunks.jsonl
+docs/alcon-full-dump.md
+server/go/alcon
+server/go/alcon-go
+server/go/orchestrator.go.bak.*

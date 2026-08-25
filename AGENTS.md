@@ -81,18 +81,17 @@ Si `pm2 ls` muestra !=5 o alguno en /root -> ejecutar antidoto BOOTSTRAP.
 | `gemma` | gemma4-12b-uncensored | llama-3060.service | 6.9GB | 80 |
 | `gemma-26b-a4b` | gemma4-26b-a4b | gemma4-26b-a4b.service | 11.4GB | 55 |
 
-## Los 8 Squads (granja.json)
+## Squads (granja.json)
 
-| Squad | Pattern | Backend | Agents | Ejemplo |
-|-------|---------|---------|--------|---------|
-| `quick-review` | fan-out-fan-in | hybrid | qr-debian | `@quick-review --local revisa server.js` |
-| `code-audit` | fan-out-fan-in | hybrid | debian+kali+vps+cel | `@code-audit revisa server.js` |
-| `research-deep` | debate 3 rondas | hybrid | debian+kali+vps | `@research-deep investiga X` |
-| `architecture` | consensus 3 votos | auto | 3 agents | `@architecture propone microservicios` |
-| `mithos-cap` | proxy-atomico | auto | guion+lore+seo | `@mithos-cap crea CAP` |
-| `deploy` | single | auto | deployer | `@deploy haz deploy` |
-| `memory-consolidation` | single | auto | consolidator | `@memory-consolidation consolida` |
-| `youtube-auto` | fan-out-fan-in | auto | title+thumb+desc | `@youtube-auto genera metadata` |
+**3 activos** (definidos con agentes reales):
+
+| Squad | Pattern | Agents | Ejemplo |
+|-------|---------|--------|---------|
+| `quick-review` | single | qr-debian | `@quick-review --local revisa server.js` |
+| `code-audit` | fan-out-fan-in | debian+kali+vps+cel | `@code-audit revisa server.js` |
+| `research-deep` | debate 3 rondas | debian+kali+vps | `@research-deep investiga X` |
+
+**5 diseñados, no implementados** (roadmap batallón por proyecto — ver README): architecture, mithos-cap, deploy, memory-consolidation, youtube-auto. Solo existen en docs; para activarlos hay que definir sus agentes en granja.json.
 
 ## Orchestrator v4.3
 

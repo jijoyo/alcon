@@ -1,13 +1,13 @@
-# Alcon v4.0-granja-real
+# Alcon v4.3-regla-oro
 
-> Sistema multi-agente con 8 squards de IA que compiten, debaten y colaboran.
-> Todo corre en local. Nada sale a la nube. Es tuyo.
+> Sistema multi-agente con squads de IA que compiten, debaten y colaboran.
+> Local-first híbrido: GPU propia (llama.cpp) + nube opcional (OpenRouter/opencode). Es tuyo.
 
 ## Qué es
 
-Alcon es un sistema de orquestación multi-agente que corre en tu PC. Tiene 8 equipos especializados de IA (squads) que ejecutan tareas de auditoría, research, arquitectura, creación de contenido y más. Cada squad usa modelos de lenguaje locales (Ollama/llama.cpp) que corren en tu GPU.
+Alcon es un sistema de orquestación multi-agente distribuido en 4 equipos vía Tailscale. Tiene 3 squads activos que ejecutan tareas de auditoría y research; la visión a largo plazo es un batallón de squads especializados por proyecto (contenido, médico, etc.). Usa modelos locales en GPU (llama.cpp) con fallback a nube.
 
-No es CrewAI. No es LangChain. No es la nube. Es tu sistema, en tu máquina, con tus modelos.
+No es CrewAI. No es LangChain. Es tu sistema, en tus máquinas, con tus modelos.
 
 ## Arquitectura
 
@@ -48,18 +48,27 @@ No es CrewAI. No es LangChain. No es la nube. Es tu sistema, en tu máquina, con
 debian (RTX 3060) ←──Tailscale──→ vps Oracle (100.102.63.30)
 ```
 
-## Los 8 Squads
+## Squads Activos (server/lib/granja.json)
 
 | Squad | Pattern | Qué hace | Prompt ejemplo |
 |-------|---------|----------|----------------|
 | `quick-review` | single | Revisión rápida con 1 modelo | `@quick-review revisa pwa/src/App.tsx` |
-| `code-audit` | fan-out-fan-in | Auditoría profunda con 3 modelos | `@code-audit audita server/server.js` |
+| `code-audit` | fan-out-fan-in | Auditoría multi-dispositivo (debian+kali+vps+cel) | `@code-audit audita server/server.js` |
 | `research-deep` | debate 3 rondas | Investigación con argumentos | `@research-deep debate SQLite vs JSON` |
-| `architecture` | consensus 3 votos | Diseño de arquitectura | `@architecture propone microservicios` |
-| `mithos-cap` | proxy-atomico | Fábrica de CAPs YouTube | `@mithos-cap crea CAP para este video` |
-| `deploy` | single | Deploy al VPS | `@deploy haz deploy al VPS` |
-| `memory-consolidation` | single | Consolida auditorías | `@memory-consolidation consolida historial` |
-| `youtube-auto` | fan-out-fan-in | Título + miniatura + descripción | `@youtube-auto genera metadata` |
+
+### Roadmap: Batallón por proyecto (diseñado, no implementado)
+
+La visión original: un squad especializado por cada proyecto de israel, que se ayudan entre sí cuando hay traslape.
+
+| Squad | Proyecto objetivo | Estado |
+|-------|-------------------|--------|
+| `architecture` | consensus 3 votos | Diseñado en docs, sin agentes en granja.json |
+| `mithos-cap` | Contenido (Mithos/YouTube) | Diseñado, no implementado |
+| `deploy` | Deploy al VPS | Diseñado, no implementado |
+| `memory-consolidation` | Consolidar auditorías | Diseñado, no implementado |
+| `youtube-auto` | Metadata de video | Diseñado, no implementado |
+
+Para revivir uno: agregar sus agentes a `granja.json` (ver `Cómo agregar squad` abajo).
 
 ## Modelos Locales
 
