@@ -25,6 +25,7 @@ EXCLUDE_DIRS = {"sessions"}
 st_model = None
 rerank_model = None
 docs = []
+doc_matrix = None
 indexing = True
 index_progress = {"loaded": 0, "total": 0, "embedded": 0, "pct": 0, "elapsed": 0}
 
@@ -84,11 +85,10 @@ def load_cache():
     embs = np.load(emb_path)
     if len(embs) != len(meta["chunks"]):
         return False
-    global docs
-    docs = []
-    for i, chunk in enumerate(meta["chunks"]):
-        docs.append({"file": chunk["file"], "idx": chunk["idx"], "text": chunk["text"], "embedding": embs[i].tolist()})
-    print(f"[sidecar] Cache loaded: {len(docs)} chunks from {emb_path}")
+    global docs, doc_matrix
+    docs = meta["chunks"]
+    doc_matrix = np.ascontiguousarray(embs, dtype=np.float32)
+    print(f"[sidecar] Cache loaded: {len(docs)} chunks, matriz {doc_matrix.shape} ({doc_matrix.nbytes/1048576:.0f}MB) desde {emb_path}")
     return True
 
 
@@ -133,10 +133,12 @@ def index_docs():
         texts = [d["text"] for d in raw_chunks]
         t1 = time.time()
         embs = st_model.encode(texts, batch_size=BATCH, show_progress_bar=False, normalize_embeddings=True, convert_to_numpy=True)
-        for i, e in enumerate(embs):
-            raw_chunks[i]["embedding"] = e.tolist()
+        global doc_matrix
+        doc_matrix = np.ascontiguousarray(embs, dtype=np.float32)
+        for d in raw_chunks:
+            d.pop("embedding", None)
         elapsed = time.time() - t1
-        print(f"[sidecar] Embedded {len(texts)} chunks in {elapsed:.1f}s")
+        print(f"[sidecar] Embedded {len(texts)} chunks in {elapsed:.1f}s, matriz {doc_matrix.shape} ({doc_matrix.nbytes/1048576:.0f}MB)")
         docs = raw_chunks
     print(f"[sidecar] Indexing done: {len(docs)} chunks in {time.time()-t0:.1f}s")
     save_cache()
@@ -162,15 +164,12 @@ async def health():
 async def rag(q: str = Query(...), k: int = Query(5)):
     if indexing:
         return JSONResponse({"query": q, "hits": [], "error": "indexing in progress", "progress": index_progress}, status_code=202)
-    if not docs or st_model is None:
+    if not docs or st_model is None or doc_matrix is None:
         return JSONResponse({"query": q, "hits": [], "error": "no docs indexed"}, status_code=200)
-    q_emb = st_model.encode([q], normalize_embeddings=True, convert_to_numpy=True)[0].tolist()
-    scored = []
-    for d in docs:
-        s = cosine_sim(q_emb, d["embedding"])
-        scored.append({"file": d["file"], "text": d["text"], "score": s})
-    scored.sort(key=lambda x: x["score"], reverse=True)
-    top = scored[:RERANK_TOP]
+    q_emb = st_model.encode([q], normalize_embeddings=True, convert_to_numpy=True)[0]
+    scores = doc_matrix @ q_emb
+    top_idx = np.argsort(scores)[::-1][:RERANK_TOP]
+    top = [{"file": docs[i]["file"], "text": docs[i]["text"], "score": float(scores[i])} for i in top_idx]
     used_rerank = False
     if rerank_model is not None and top and top[0]["score"] < 0.75:
         texts = [d["text"] for d in top]
