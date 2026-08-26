@@ -13,6 +13,7 @@
 | **kali** | Laptop Dell G7 | GTX 1050 Ti 4GB | 16GB | 100.103.82.104 | Git executor |
 | **vps** (oracle) | Cloud ARM | — | 21GB | 100.102.63.30 | Server (Fastify + PM2) |
 | **cel** (redmi-note-11) | Phone Android | — | 1GB | 100.122.196.23 | Reviewer/approver |
+| **cel2** (redmi-note-12s) | Phone Android | Mali-G57 | 6-8GB | 100.96.34.100 | Reviewer + LFM2.5 |
 
 ---
 
@@ -103,6 +104,29 @@
 
 ---
 
+## 5. CEL2 (redmi-note-12s) — Phone
+
+| Spec | Valor |
+|------|-------|
+| **Modelo** | Xiaomi Redmi Note 12S |
+| **Chipset** | MediaTek Helio G96 (12nm) |
+| **CPU** | 2x Cortex-A76 @2.05GHz + 6x Cortex-A55 @2.0GHz |
+| **GPU** | Mali-G57 MC2 (sin NPU) |
+| **RAM** | 6-8GB LPDDR4X |
+| **OS** | Android + Termux |
+| **IP Tailscale** | 100.96.34.100 |
+| **SSH** | Puerto 8022 (pendiente activar) |
+| **Rol** | Reviewer + experimento LFM2.5 (Nichonauta) |
+
+### Plan LFM2.5 (Nichonauta)
+- Modelo: `LFM2.5-1.2B-Thinking` (Liquid AI) — 900MB RAM, 32K context
+- Quantización: ToMoE-INT8 (Nichonauta) o Q4_0 (官方)
+- Framework: Ollama en Termux (`pkg install ollama`)
+- Benchmark estimado: ~20-30 tok/s (Cortex-A76, sin NPU)
+- Referencia: [Nichonauta/LFM2.5-1.2B-Thinking-ToMoE-INT8](https://huggingface.co/Nichonauta/LFM2.5-1.2B-Thinking-ToMoE-INT8)
+
+---
+
 ## Topología de Red
 
 ```
@@ -113,6 +137,7 @@ debian/forja (100.121.64.26) ──Tailscale──→ vps/oracle (100.102.63.30)
 kali (100.103.82.104) ───┘
                          │
 cel/redmi-note-11 (100.122.196.23) ──┘
+cel2/redmi-note-12s (100.96.34.100) ──┘
 
 Red Tailscale: jijoyo202@gmail.com
 ```
