@@ -48,6 +48,7 @@ DEVICES=(
   "jijoyo@100.103.82.104:kali"
   "ubuntu@100.102.63.30:vps"
   "u0_a366@100.122.196.23:cel"
+  "u0_a339@100.96.34.100:cel2"
 )
 
 log "=== Recolección granja ==="

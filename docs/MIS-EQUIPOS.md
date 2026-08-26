@@ -115,7 +115,7 @@
 | **RAM** | 6-8GB LPDDR4X |
 | **OS** | Android + Termux |
 | **IP Tailscale** | 100.96.34.100 |
-| **SSH** | Puerto 8022 (pendiente activar) |
+| **SSH** | Puerto 8022, user u0_a339 |
 | **Rol** | Reviewer + experimento LFM2.5 (Nichonauta) |
 
 ### Plan LFM2.5 (Nichonauta)
@@ -132,7 +132,7 @@
 ## Topología de Red
 
 ```
-debian/forja (100.121.64.26) ──Tailscale──→ vps/oracle (100.102.63.30)
+forja (100.121.64.26) ──Tailscale──→ vps/oracle (100.102.63.30)
        │                                            │
        └────────────────────────────────────────────┘
                          │
@@ -195,6 +195,7 @@ Sistema centralizado de búsqueda semántica para sesiones de OpenCode.
 | kali | 77 | 22 | jijoyo |
 | vps | 345 | 22 (tailscale) | ubuntu |
 | cel | 36 | 8022 | u0_a366 |
+| cel2 | 339 | 8022 | u0_a339 |
 | **Total** | **530** | | |
 
 ### Recolecta
