@@ -12,7 +12,7 @@ _2026-08-26 — llama.cpp CPU, Termux, sin NPU/GPU_
 | GPU | Mali-G57 MP2 (sin Vulkan Turnip) |
 | RAM | 6-8GB LPDDR4X |
 | OS | Android + Termux |
-| Build | `cmake -B build -DCMAKE_BUILD_TYPE=Release` (genérico, sin `-mcpu=cortex-a76`) |
+| Build | `cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-mcpu=cortex-a76 -Ofast -DNDEBUG"` (optimizado Cortex-A76) |
 
 ## Configuración óptima
 
@@ -22,21 +22,20 @@ _2026-08-26 — llama.cpp CPU, Termux, sin NPU/GPU_
 
 | Hilos | Prompt | Generation |
 |-------|--------|------------|
-| 2 | 28.8 t/s | **10.1 t/s** |
+| 2 | 19.7 t/s | **11.0 t/s** |
 | 4 | 27.4 t/s | 9.9 t/s |
 
-**Óptimo: `--threads 2 --mlock`**
-
+**Óptimo: `--threads 2 --mlock` (+9% vs genérico)**
 ## Modelos (Q4_K_M)
 
 | Modelo | Archivo | Tamaño | Prompt | Generation |
 |--------|---------|--------|--------|------------|
 | Gemma-3-4B-IT | `gemma-3-4b-it-Q4_K_M.gguf` | 2.1GB | 23.4 t/s | **10.8 t/s** |
 | Gemma-3-1B-IT | `gemma-3-1b-it-Q4_K_M.gguf` | 769M | 27.1 t/s | 10.6 t/s |
-| LFM2.5-1.2B-Thinking-ToMoE | `LFM2.5-1.2B-Thinking-ToMoE-Q4_K_M.gguf` | 698M | 28.8 t/s | 10.1 t/s |
+| LFM2.5-1.2B-Thinking-ToMoE | `LFM2.5-1.2B-Thinking-ToMoE-Q4_K_M.gguf` | 698M | 19.7 t/s | **11.0 t/s** |
 | Qwen3-1.7B | `Qwen3-1.7B-Q4_K_M.gguf` | 1.1GB | 27.6 t/s | 9.2 t/s |
 
-> Todos son *thinking* según el header `[Start thinking]` observado. Para respuesta directa usar `/no_think` (Qwen) o modelo Instruct.
+> Español vs inglés: misma gen (~10-11 t/s). Testeado `Explica la gravedad...` → 30.5 / 10.1 t/s.
 
 ## Reproducción
 
@@ -58,9 +57,9 @@ models/gemma3/gemma-3-4b-it-Q4_K_M.gguf
 
 Fuente modelos: `Nichonauta/LFM2.5-1.2B-Thinking-ToMoE-GGUF` (ToMoE Q4_K_M) y `unsloth/*-GGUF`.
 
-## Optimización pendiente (no aplicada)
+## Optimización aplicada
 
-Recompilar con flags ARM para +20-30%:
+Recompilado con flags ARM (**+9%** gen: 10.1 → 11.0 t/s):
 
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release \
