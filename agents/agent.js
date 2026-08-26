@@ -246,10 +246,17 @@ function connectSocket() {
     if (msg.from === AGENT_NAME) return;
     if (msg.from === 'system') return;
     const mention = `@${AGENT_NAME}`;
-    if (msg.text.includes(mention)) {
+    // Anti-doble: si la mención está al inicio, el server ya la ruteó via agent:direct
+    if (msg.text.trimStart().startsWith(mention)) return;
+    // Anti-eco: ignorar menciones dentro de citas (>) o código (`...` / ```)
+    const limpio = msg.text
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/`[^`]*`/g, '')
+      .split('\n').filter(l => !l.trimStart().startsWith('>')).join('\n');
+    if (limpio.includes(mention)) {
       log(`[CHAT] Mentioned by ${msg.from}: ${msg.text.slice(0, 80)}`);
       // Procesar directamente (no re-emitir agent:direct al server)
-      const rawCmd = msg.text.replace(/^@\w+\s*/, '').trim();
+      const rawCmd = limpio.replace(/^@\w+\s*/, '').trim();
       
       // Fast replies
       if (/^hola/i.test(rawCmd)) {

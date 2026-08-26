@@ -29,6 +29,27 @@ try{
 export function registerChat(io) {
   const chatNs = io.of('/enjambre');
 
+  // Floor system COMPARTIDO entre todas las conexiones (scope namespace, no por-socket)
+  const floor = { owner: null, timeout: null, queue: [] };
+  const FLOOR_TIMEOUT_MS = 60_000;
+
+  function emitFloor() {
+    chatNs.emit('floor:update', { owner: floor.owner, queue: floor.queue });
+  }
+
+  function grantFloor(agent) {
+    floor.owner = agent;
+    floor.queue = floor.queue.filter(a => a !== agent);
+    clearTimeout(floor.timeout);
+    floor.timeout = setTimeout(() => {
+      log(`[FLOOR] Timeout for ${floor.owner}, releasing`);
+      floor.owner = null;
+      if (floor.queue.length > 0) grantFloor(floor.queue.shift());
+      emitFloor();
+    }, FLOOR_TIMEOUT_MS);
+    emitFloor();
+  }
+
   chatNs.on('connection', (socket) => {
     socket.on('chat:join', ({ name }) => {
       for (const [existingId, existingP] of presence) {
@@ -171,27 +192,7 @@ export function registerChat(io) {
     socket.on('chat:heartbeat', () => { const p = presence.get(socket.id); if (p) { p.lastSeen = Date.now(); if (p.status !== 'vivo') { p.status = 'vivo'; broadcastPresence(chatNs); } } });
     socket.on('presence:request', () => broadcastPresence(chatNs));
 
-    // Floor system — turn-based talking to avoid collisions
-    const floor = { owner: null, timeout: null, queue: [] };
-    const FLOOR_TIMEOUT_MS = 60_000;
-
-    function emitFloor() {
-      chatNs.emit('floor:update', { owner: floor.owner, queue: floor.queue });
-    }
-
-    function grantFloor(agent) {
-      floor.owner = agent;
-      floor.queue = floor.queue.filter(a => a !== agent);
-      clearTimeout(floor.timeout);
-      floor.timeout = setTimeout(() => {
-        log(`[FLOOR] Timeout for ${floor.owner}, releasing`);
-        floor.owner = null;
-        if (floor.queue.length > 0) grantFloor(floor.queue.shift());
-        emitFloor();
-      }, FLOOR_TIMEOUT_MS);
-      emitFloor();
-    }
-
+    // Floor system — handlers por-socket que referencian el floor COMPARTIDO del namespace
     socket.on('floor:request', ({ name }) => {
       if (!name) return;
       if (!floor.owner) {
