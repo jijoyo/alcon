@@ -4,7 +4,7 @@
 > BOOTSTRAP.md = constitución · handoff/10 = mapa maestro · ESTE archivo = estado vivo.
 > Si un comando de aquí falla, arréglalo aquí en el mismo commit que lo arregla.
 
-_Última actualización: 2026-08-26 (post gran-noche + fixes floor/anti-eco + RAG telenovela cerrada)_
+_Última actualización: 2026-08-26 (gran-noche + RAG dieta: torch→nomic HTTP, floor tests)_
 
 ## Puertos
 
@@ -26,7 +26,7 @@ _Última actualización: 2026-08-26 (post gran-noche + fixes floor/anti-eco + RA
 | 3005 | rag_sidecar.py (embeddings + búsqueda) | `sudo systemctl restart rag` |
 | 3000 | buzz relay (Nostr, zombie — no invertir) | buzz-prod-relay |
 | 6333 | Qdrant (507 pts sesiones, congelado) | docker/systemd |
-| 8086 | nomic embeddings (llama.cpp ARM) | systemd |
+| 8086 | nomic embeddings (descontinuado, ahora via Ollama :11434) | — |
 | 7438 | engram cloud (memoria entre dispositivos) | docker |
 
 ### PM2 oficial VPS (usuario ubuntu, NUNCA root)
@@ -55,19 +55,21 @@ setsid nohup node ~/alcon/agents/agent.js <nombre> http://100.102.63.30:3003 >> 
 - Memoria persistente: cada agente tiene sesión opencode propia (`agents/.session-<nombre>.txt`, gitignored). Se crea sola al primer run con `--title enjambre-<nombre>`.
 - **AGENT_MODEL** (pendiente): hardcodeado `opencode/mimo-v2.5-free` — hacer env var para diversidad de cerebros.
 
-## RAG (estado post-telenovela — NO repetir la historia: nomic/qwen fueron grails y fiascos)
+## RAG (dieta completada — nomic HTTP, 0 torch)
+
 ```
-Indexar (2 min, en FORJA):                          Servir (VPS, always-on):
-RAG_DOCS_DIR=<docs> RAG_CACHE_DIR=<cache>           sudo systemctl restart rag
-venv sentence-transformers → rag_sidecar.py         → load_cache() instantáneo
-→ cache/embeddings.npy + meta.json                  → /rag?q= (vía alcon-api :3003/rag)
-→ scp al VPS ~/alcon/cache/                         → scripts/rag.sh "pregunta" (CLI)
+RAG_DOCS_DIR=<docs> RAG_CACHE_DIR=<cache> EMBEDDING_URL=http://localhost:11434  sudo systemctl restart rag
+venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (Ollama HTTP, 768d)
+→ cache/embeddings.npy + meta.json     → /rag?q= (vía alcon-api :3003/rag)
+→ scp al VPS ~/alcon/cache/            → scripts/rag.sh "pregunta" (CLI)
 ```
-- **dir_hash es por CONTENIDO** (no mtime) → el cache generado en forja sirve en el VPS (bbe9f29)
-- Embeddings en **matriz numpy** (1MB), NO listas .tolist() (~200x overhead, f7de7a1/4a326fa)
-- `MemoryMax=7G` en rag.service (pico de carga torch; base ~5GB = torch + 2 modelos)
-- **Dieta definitiva pendiente**: eliminar torch (nomic HTTP u ONNX) → ~300MB
+
+**Gotchas:**
+- `MemoryMax=2G` en rag.service (reranker ONNX ~1GB + sidecar ~40MB; ollama aparte)
+- **Dieta completada 2026-08-26**: torch eliminado, nomic via Ollama HTTP, 768d
+- Cache se invalida automáticamente si cambia dimensión (1024→768 detectado)
 - Qdrant :6333 = corpus viejo de sesiones (507 pts congelado) — el sidecar NO lo usa
+- Ollama en VPS: `nomic-embed-text` + `qwen2.5:3b` + `mistral:7b` + `qwen2.5:1.5b`
 - Modelo actual: Qwen/Qwen3-Embedding-0.6B (1024 dims) + reranker Qwen3-Reranker-0.6B-ONNX
 - Cambiar de modelo = re-indexar en forja (5 min total) — ya no es telenovela
 
