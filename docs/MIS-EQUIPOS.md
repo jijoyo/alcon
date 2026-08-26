@@ -119,11 +119,13 @@
 | **Rol** | Reviewer + experimento LFM2.5 (Nichonauta) |
 
 ### Plan LFM2.5 (Nichonauta)
-- Modelo: `LFM2.5-1.2B-Thinking` (Liquid AI) — 900MB RAM, 32K context
-- Quantización: ToMoE-INT8 (Nichonauta) o Q4_0 (官方)
-- Framework: Ollama en Termux (`pkg install ollama`)
+- Modelo: `LFM2.5-1.2B-Thinking-ToMoE-Q4_K_M.gguf` (Nichonauta, ~698MB)
+- Framework: **llama.cpp** (no Ollama — más ligero, control fino de hilos/capas)
+- Hilos: `--threads 2` (solo Cortex-A76 potentes, ignorar A55 débiles)
+- Contexto: `--ctx-size 4096` (ahorrar RAM, 32K es overkill para phone)
 - Benchmark estimado: ~20-30 tok/s (Cortex-A76, sin NPU)
-- Referencia: [Nichonauta/LFM2.5-1.2B-Thinking-ToMoE-INT8](https://huggingface.co/Nichonauta/LFM2.5-1.2B-Thinking-ToMoE-INT8)
+- Script: `scripts/setup-llm-cel2.sh`
+- Referencia: [Nichonauta/LFM2.5-1.2B-Thinking-ToMoE-GGUF](https://huggingface.co/Nichonauta/LFM2.5-1.2B-Thinking-ToMoE-GGUF)
 
 ---
 
