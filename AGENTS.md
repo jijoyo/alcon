@@ -141,6 +141,7 @@ Verificación post-fix: `pm2 logs vps-agent --lines 50` debe mostrar uptime esta
 
 ## Convenciones
 
+- **Cambio de infraestructura = actualizar `docs/INFRA-VIVA.md` en el mismo commit** (puertos, servicios, llaves, lanzamiento, gotchas)
 - Commits: `feat:`, `fix:`, `chore:`, `docs:`
 - ESM (`import`/`export`), no CommonJS
 - Sin comentarios en código a menos que se pida
