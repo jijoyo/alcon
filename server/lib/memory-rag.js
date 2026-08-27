@@ -7,7 +7,7 @@ import crypto from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
-const LLAMA_URL = process.env.LLAMA_EMBED_URL || 'http://localhost:8086';
+const LLAMA_URL = process.env.LLAMA_EMBED_URL || 'http://100.121.64.26:8080';
 const COLLECTION = 'alcon';
 const VECTOR_SIZE = 768;
 

@@ -56,17 +56,17 @@ ecosystem.config.cjs:
 
 **Detalle board:** `boardStart(modelKey)` mapea `model-registry.json` (`registry[modelKey].board_key` ej `qwen`, `hauhaucs-12b`, `gemma`) y hace `POST API_BOARD/start?model=boardKey` (fallback JSON). Luego espera 30s a `LLAMA/health`. `boardStop()` hace `POST /stop`. Esto es legado del board multi-modelo.
 
-**Ferrari v2.2:** router forja :8080 tiene 10 modelos on-demand (`/v1/models`), `selectBackend` 80/20 en Go elige `gemma4-12b` (rápido, prompt<500 sin architecture|research-deep|audit complejo) vs `qwen36-mx 131K` (pesado). `granja.json` Ferrari pone `throttle 0` porque el router ya serializa GPU.
+**Ferrari v4.3:** router forja :8080 tiene 10 modelos on-demand (9 chat + 1 nomic CPU-only) (`/v1/models`), `selectBackend` 80/20 en Go elige `gemma4-12b` (rápido, prompt<500 sin architecture|research-deep|audit complejo) vs `qwen36-mx 131K` (pesado). `granja.json` Ferrari pone `throttle 0` porque el router ya serializa GPU.
 
-## 3) Donde entra Qdrant :6333 y embed :8086
+## 3) Donde entra Qdrant :6333 y embed :8080 (v3.1)
 
 ```
 server/lib/memory-rag.js
   QDRANT_URL=http://localhost:6333  COLLECTION=alcon  VECTOR_SIZE=768 cosine
-  LLAMA_URL (embed) = http://localhost:8086  model=nomic-embed-text
+  LLAMA_URL (embed) = http://100.121.64.26:8080  model=nomic-embed-text (CPU-only, n-gpu-layers=0)
 
   ensureEmbedRunning()  -> systemctl --user is-active llama-embed, si no start; scheduleStop() tras 5min idle
-  embed(text) -> POST http://localhost:8086/v1/embeddings {model:'nomic-embed-text', input:text.slice(0,500)} retry 3x 30s
+  embed(text) -> POST http://100.121.64.26:8080/v1/embeddings {model:'nomic-embed-text', input:text.slice(0,500)} retry 3x 30s
   upsert(id,payload,vector) -> PUT /collections/alcon/points
   search(query,limit,device) -> embed(query) -> POST /collections/alcon/points/search {vector, filter:{device}, with_payload:true}
   countByDevice() -> /collections/alcon/points/count por device
@@ -116,6 +116,6 @@ El sistema que probamos en la fiesta (agentes @debian @kali @vps @cel en el mism
 - **Test automático:** `make test-squad` (4 agents misma task sin pisarse) — `ALL TESTS PASSED`. Es el criterio de Done que faltaba desde la fiesta.
 - **Ferrari verificado:** `./scripts/ferrari.sh` con endpoints reales `/v1/models` (9 modelos), `/health` ok, control `:9998 /status` router active. No placeholder.
 
-**Quedó pendiente (bien no tocado):** `memory-rag.js` sigue en `LLAMA_EMBED_URL http://localhost:8086`. `:8080` no tiene `nomic-embed-text`, por lo que `POST /v1/embeddings` no dio 200 y no se deprecó `llama-embed.service`. Próxima micro-tarea v3.1: montar `nomic-embed-text` como 10mo modelo en router y mover embed a `:8080/v1/embeddings`.
+**v3.1 completada:** `memory-rag.js` ahora `LLAMA_EMBED_URL http://100.121.64.26:8080` (10 modelos: 9 chat + 1 nomic CPU-only). `POST /v1/embeddings` → 200 con `data[0].embedding`. `:8086` deprecado, `llama-embed.service` no existe. `make test-squad` PASS + `curl /v1/models` 10 modelos.
 
 *Documentado tras Deuda v3 ejecutada por @local-router.*
