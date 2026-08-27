@@ -1,0 +1,22 @@
+{
+  "version": "4.3-ferrari",
+  "devices": {
+    "debian": { "name": "debian", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "arquitectura" },
+    "kali": { "name": "kali", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "performance" },
+    "vps": { "name": "vps", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "seguridad" },
+    "cel": { "name": "cel", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "edge" }
+  },
+  "squads": {
+    "quick-review": { "devices": ["debian"] },
+    "code-audit": { "devices": ["debian", "kali", "vps", "cel"] },
+    "research-deep": { "devices": ["debian"] }
+  },
+  "router": {
+    "url": "http://100.121.64.26:8080",
+    "throttle": 0,
+    "temp": 0.3,
+    "n_predict": 512,
+    "endpoints": { "models": "/v1/models", "load": "/models/load", "metrics": "/metrics" },
+    "routing": "prompt<500 sin architecture|research-deep|audit complejo -> gemma4-12b, resto -> qwen36-mx 131K"
+  }
+}

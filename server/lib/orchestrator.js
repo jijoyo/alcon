@@ -2,7 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const GRANJA = JSON.parse(fs.readFileSync(path.join(__dirname, 'granja.json'), 'utf8'));
+let GRANJA;
+try {
+  GRANJA = JSON.parse(fs.readFileSync(path.join(__dirname, '../../granja.json'), 'utf8'));
+} catch {
+  GRANJA = JSON.parse(fs.readFileSync(path.join(__dirname, 'granja.json'), 'utf8'));
+}
 const REGISTRY = JSON.parse(fs.readFileSync(path.join(__dirname, 'model-registry.json'), 'utf8'));
 const API_BOARD = process.env.BOARD_API_URL || 'http://localhost:9998';
 const LLAMA = process.env.LLAMA_URL || 'http://localhost:8080';
@@ -63,7 +68,9 @@ function closeSquadSession(squad){
 }
 
 // board
-async function boardStart(modelKey){
+async function boardStart(modelKey){ // DEPRECATED Ferrari: router on-demand, no pre-warm
+  return; // bypass
+  // LEGACY:
   const entry = REGISTRY.registry[modelKey] || REGISTRY.registry['code-review'];
   const boardKey = entry?.board_key || 'qwen';
   console.log(`[orchestrator] start ${modelKey} -> board:${boardKey}`);
@@ -72,7 +79,9 @@ async function boardStart(modelKey){
   });
   for(let i=0;i<30;i++){ try{ const h=await fetch(`${LLAMA}/health`); if(h.ok) return; }catch{} await sleep(1000); }
 }
-async function boardStop(){ try{ await fetch(`${API_BOARD}/stop`,{method:'POST'});}catch{} }
+async function boardStop(){ return; // bypass
+  // LEGACY: try{ await fetch(`${API_BOARD}/stop`,{method:'POST'});}catch{} 
+}
 
 function injectCode(prompt){
   const codeRoot = path.join(__dirname, '..', '..');
@@ -88,9 +97,9 @@ function injectCode(prompt){
   return code ? `${prompt}\n\n${code}` : prompt;
 }
 
-async function callLlamaWithHistory(history, systemPrompt, url=LLAMA){
+async function callLlamaWithHistory(history, systemPrompt, url=LLAMA, model='local'){
   const messages = [{role:'system', content:systemPrompt}, ...history];
-  const res = await fetch(`${url}/v1/chat/completions`,{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model:'local', messages, stream:false, temperature:0.7, max_tokens:1024})});
+  const res = await fetch(`${url}/v1/chat/completions`,{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model, messages, stream:false, temperature:0.7, max_tokens:1024})});
   const j = await res.json(); return j.choices?.[0]?.message?.content || '';
 }
 async function callLlama(prompt){ return callLlamaWithHistory([{role:'user', content:prompt}], 'Eres asistente Alcon'); }
@@ -121,7 +130,7 @@ async function throttledCall(agent, prompt, history){
       if(agent.model_ref && !agent.model_ref.startsWith('opencode/')) await boardStart(agent.model_ref);
       const hist = history ? [...history] : [{role:'user', content:prompt}];
       hist[hist.length-1].content = injectCode(hist[hist.length-1].content);
-      const res = await callLlamaWithHistory(hist, agent.system_prompt || `Sos ${agent.role} del enjambre Alcon.`, url);
+      const res = await callLlamaWithHistory(hist, agent.system_prompt || `Sos ${agent.role} del enjambre Alcon.`, url, agent.model_ref || 'local');
       return res;
     }catch(e){
       console.log(`[hybrid] ${agent.device}/${agent.model_ref} local fallo: ${e.message}, probando nube...`);
@@ -150,7 +159,7 @@ async function throttledCall(agent, prompt, history){
     const hist = history ? [...history] : [{role:'user', content:prompt}];
     // inject code en ultimo mensaje
     hist[hist.length-1].content = injectCode(hist[hist.length-1].content);
-    const res = await callLlamaWithHistory(hist, systemPrompt, url);
+    const res = await callLlamaWithHistory(hist, systemPrompt, url, agent.model_ref || 'local');
     return res;
   }
   
@@ -284,9 +293,12 @@ export async function handleSquadMessage(squad, prompt, from='user'){
   let synthesis;
   if(hasLocalAgents){
     try{
-      await boardStart('code-review');
-      synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.');
-      await boardStop();
+      // Ferrari: no boardStart/Stop, model directo
+      try {
+        synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.', LLAMA, 'local');
+      } catch(e) {
+        synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.', LLAMA, 'local');
+      }
     }catch{
       try{
         synthesis = await callOpenCode(synthesisPrompt, 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente. Responde en español, corto.');

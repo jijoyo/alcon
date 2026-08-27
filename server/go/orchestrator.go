@@ -216,3 +216,21 @@ func main() {
 	}
 	fmt.Printf("Total %dms\n", total)
 }
+
+func selectBackend(prompt string, granja Granja) string {
+	heavyKeywords := []string{"architecture", "research-deep", "audit", "complex"}
+	if len(prompt) < 500 && !containsKeywords(prompt, heavyKeywords) {
+		return "forja-router" // modelo rápido (gemma4-12b)
+	}
+	return "forja-router" // qwen36-* 131K ctx
+}
+
+func containsKeywords(text string, keywords []string) bool {
+	lower := strings.ToLower(text)
+	for _, k := range keywords {
+		if strings.Contains(lower, k) {
+			return true
+		}
+	}
+	return false
+}

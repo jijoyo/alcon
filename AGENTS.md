@@ -188,3 +188,12 @@ pm2 logs vps-agent --lines 20 --nostream
 - `server/routes/chat.js:37` — squad detection + kicking duplicate log (fix v4.3)
 - `agents/agent.js:411-427` — resilient reconnect fix v4.3
 - `BOOTSTRAP.md` — v4.3-regla-oro - fuente de verdad
+
+
+# --- KIT v2.2 INYECTADO 2026-08-27 ---
+
+# ALCON - v2.2 OPERATIVO
+Hub secretario Ferrari FASE 6 COMPLETADA.
+Router :8080 activo 10 modelos, granja.json 1 backend http://127.0.0.1:8080/v1 throttle 0, orchestrator 80/20, ferrari.sh endpoints reales, cel2 bolsillo.
+No re-montar. Si user pide otro proyecto, inyecta kit minimo anti-amnesia v2.2, no full.
+Health: ./scripts/ferrari.sh

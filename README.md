@@ -192,6 +192,14 @@ OPENROUTER_API_KEY=sk-or-...
 
 3. Modificar `orchestrator.js` para detectar `service: "external"` y llamar a la API en vez de local
 
+## Quickstart Ferrari
+
+```bash
+pm2 start ecosystem.config.cjs
+curl http://localhost:8080/v1/models  # debe dar 9 modelos
+./scripts/ferrari.sh                  # health check Ferrari
+```
+
 ## Desarrollo Local
 
 ```bash
