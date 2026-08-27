@@ -7,7 +7,8 @@ import crypto from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
-const LLAMA_URL = process.env.LLAMA_EMBED_URL || 'http://100.121.64.26:8080';
+const FORJA_HOST = 'http://100.121.64.26:8080';
+const VPS_HOST = 'http://localhost:8086';
 const COLLECTION = 'alcon';
 const VECTOR_SIZE = 768;
 
@@ -83,34 +84,46 @@ export async function ensureCollection() {
 
 export async function embed(text, attempt = 0) {
   const truncated = text.slice(0, 500);
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000);
+  if (attempt >= 3) {
+    console.log('[memory-rag] Embed failed after 3 retries');
+    return null;
+  }
   try {
-    const res = await fetch(`${LLAMA_URL}/v1/embeddings`, {
+    const res = await fetch(`${FORJA_HOST}/v1/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'nomic-embed-text',
-        input: truncated
-      }),
-      signal: controller.signal
+      body: JSON.stringify({ model: 'nomic-embed-text', input: truncated }),
+      signal: AbortSignal.timeout(30000)
     });
-    clearTimeout(timeout);
-    if (!res.ok) throw new Error(`llama ${res.status}`);
+    if (!res.ok) throw new Error('forja ' + res.status);
     const data = await res.json();
     return data.data?.[0]?.embedding;
   } catch (e) {
-    clearTimeout(timeout);
-    if (attempt < 3) {
-      const delay = 2000 * (attempt + 1);
-      console.log(`[memory-rag] Embed retry ${attempt+1}/3 in ${delay}ms (${e.message})`);
-      await new Promise(r => setTimeout(r, delay));
-      return embed(text, attempt + 1);
+    console.warn(`[memory-rag] forja offline (${e.message}), fallback VPS`);
+    try {
+      const res2 = await fetch(`${VPS_HOST}/v1/embeddings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'nomic-embed-text', input: truncated }),
+        signal: AbortSignal.timeout(30000)
+      });
+      if (!res2.ok) throw new Error('vps ' + res2.status);
+      const data2 = await res2.json();
+      return data2.data?.[0]?.embedding;
+    } catch (e2) {
+      if (attempt < 2) {
+        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+        return embed(text, attempt + 1);
+      }
+      console.log(`[memory-rag] Embed failed (${e2.message})`);
+      return null;
     }
-    console.log(`[memory-rag] Embed failed (${e.message})`);
-    return null;
   }
 }
+
+
+
+
 
 export async function upsert(id, payload, vector) {
   if (!vector) {
