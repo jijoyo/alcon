@@ -397,7 +397,7 @@ function connectSocket() {
       const systemPrompt = SYSTEM_PROMPTS[AGENT_NAME] || '';
       const systemSection = systemPrompt ? `[System Instructions]\n${systemPrompt}\n\n` : '';
       const prompt = `${systemSection}${context}Tarea: ${taskText}\nResponde en español, corto.`;
-      const output = await new Promise((resolve, reject) => {
+      let output = await new Promise((resolve, reject) => {
         const child = spawn(OPENCODE_BIN, buildOpencodeArgs(prompt), {
           cwd: WORKDIR,
           stdio: ['ignore', 'pipe', 'inherit']
