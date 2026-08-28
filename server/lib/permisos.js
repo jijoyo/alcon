@@ -25,8 +25,8 @@ const PERMISOS = {
     comms: true,
   },
   cel: {
-    label: 'Cel (solo chat/list)',
-    bash: false,
+    label: 'Cel note-11 (bash read-only)',
+    bash: true,
     write: false,
     deploy: false,
     git: false,
