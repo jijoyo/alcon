@@ -36,8 +36,8 @@ const PERMISOS = {
     comms: true,
   },
   cel2: {
-    label: 'Cel2 note-12s (reviewer: chat/list + git read)',
-    bash: false,
+    label: 'Cel2 note-12s (reviewer: bash read-only + git read)',
+    bash: true,
     write: false,
     deploy: false,
     git: false,
