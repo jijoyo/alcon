@@ -43,16 +43,6 @@ server/go/alcon-go
 server/go/orchestrator.go.bak.*
 agents/.session-*.txt
 server/.venv/
-# Deuda v3 pre-push
-opencode-dbs/
-memory/conversations/
-runtime-state.json
-# Pre-push cleanup
-.opencode/
-.engram/
-models/
-legacy/
-agents/
 server/rag-qwen.js
 scripts/rag.sh
 server/lib/orchestrator.js.bak2

@@ -87,7 +87,7 @@ function persistSessionId() {
 }
 
 function buildOpencodeArgs(prompt) {
-  const args = ['run', '-m', 'opencode/mimo-v2.5-free', '--dir', WORKDIR, '--auto'];
+  const args = ['run', '-m', 'opencode/mimo-v2.5-free', '--dir', WORKDIR, '--dangerously-skip-permissions'];
   if (SESSION_ID) args.push('-s', SESSION_ID);
   else args.push('--title', AGENT_TITLE);
   args.push(prompt);
