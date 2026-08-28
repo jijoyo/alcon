@@ -58,7 +58,7 @@ ecosystem.config.cjs:
 
 **Ferrari v4.3:** router forja :8080 tiene 10 modelos on-demand (9 chat + 1 nomic CPU-only) (`/v1/models`), `selectBackend` 80/20 en Go elige `gemma4-12b` (rápido, prompt<500 sin architecture|research-deep|audit complejo) vs `qwen36-mx 131K` (pesado). `granja.json` Ferrari pone `throttle 0` porque el router ya serializa GPU.
 
-## 3) Donde entra Qdrant :6333 y embed :8080 (v3.1)
+## 3) Donde entra Qdrant :6333 y embed :8080 (v3.1 dual)
 
 ```
 server/lib/memory-rag.js
@@ -66,7 +66,7 @@ server/lib/memory-rag.js
   LLAMA_URL (embed) = http://100.121.64.26:8080  model=nomic-embed-text (CPU-only, n-gpu-layers=0)
 
   ensureEmbedRunning()  -> systemctl --user is-active llama-embed, si no start; scheduleStop() tras 5min idle
-  embed(text) -> POST http://100.121.64.26:8080/v1/embeddings {model:'nomic-embed-text', input:text.slice(0,500)} retry 3x 30s
+  embed(text) -> POST http://100.121.64.26:8080/v1/embeddings (fallback VPS :8086) {model:'nomic-embed-text', input:text.slice(0,500)} retry 3x 30s
   upsert(id,payload,vector) -> PUT /collections/alcon/points
   search(query,limit,device) -> embed(query) -> POST /collections/alcon/points/search {vector, filter:{device}, with_payload:true}
   countByDevice() -> /collections/alcon/points/count por device
@@ -116,6 +116,6 @@ El sistema que probamos en la fiesta (agentes @debian @kali @vps @cel en el mism
 - **Test automático:** `make test-squad` (4 agents misma task sin pisarse) — `ALL TESTS PASSED`. Es el criterio de Done que faltaba desde la fiesta.
 - **Ferrari verificado:** `./scripts/ferrari.sh` con endpoints reales `/v1/models` (9 modelos), `/health` ok, control `:9998 /status` router active. No placeholder.
 
-**v3.1 completada:** `memory-rag.js` ahora `LLAMA_EMBED_URL http://100.121.64.26:8080` (10 modelos: 9 chat + 1 nomic CPU-only). `POST /v1/embeddings` → 200 con `data[0].embedding`. `:8086` deprecado, `llama-embed.service` no existe. `make test-squad` PASS + `curl /v1/models` 10 modelos.
+**v3.1 completada (dual):** `memory-rag.js` ahora `LLAMA_EMBED_URL http://100.121.64.26:8080` (Forja principal) + fallback VPS `:8086` (95M nomic). `embed(text)` intenta Forja :8080, si falla cae a VPS :8086. `POST /v1/embeddings` → 200 con `data[0].embedding`. `:8086` respaldo, `llama-embed.service` no necesario. `make test-squad` PASS + `curl /v1/models` 10 modelos.
 
 *Documentado tras Deuda v3 ejecutada por @local-router.*

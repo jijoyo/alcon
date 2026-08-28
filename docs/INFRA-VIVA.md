@@ -4,14 +4,14 @@
 > BOOTSTRAP.md = constitución · handoff/10 = mapa maestro · ESTE archivo = estado vivo.
 > Si un comando de aquí falla, arréglalo aquí en el mismo commit que lo arregla.
 
-_Última actualización: 2026-08-26 (gran-noche + RAG dieta: torch→nomic HTTP, floor tests)_
+_Última actualización: 2026-08-27 (Ferrari v4.3 — router :8080 10 modelos on-demand, granja.json fuente única, Deuda v3+v3.1 dual nomic)_
 
 ## Puertos
 
 ### forja (debian 100.121.64.26) — FÁBRICA + GPU
 | Puerto | Servicio | Cómo se lanza |
 |--------|----------|---------------|
-| 8080 | llama-server (1 modelo en VRAM) | Board API :9998 lo controla |
+| 8080 | router forja :8080 — 10 modelos on-demand (9 chat + 1 nomic CPU-only) | `systemctl --user status llama-router` — health `./scripts/ferrari.sh` (`curl /v1/models`) |
 | 8082 | llama-server alternativo | `llamacpp-serve` |
 | 9998 | Board Control API | `systemctl --user start board-control-api` |
 | 8081 | Dashboard board | board-v3-http.service |
@@ -55,11 +55,11 @@ setsid nohup node ~/alcon/agents/agent.js <nombre> http://100.102.63.30:3003 >> 
 - Memoria persistente: cada agente tiene sesión opencode propia (`agents/.session-<nombre>.txt`, gitignored). Se crea sola al primer run con `--title enjambre-<nombre>`.
 - **AGENT_MODEL** (pendiente): hardcodeado `opencode/mimo-v2.5-free` — hacer env var para diversidad de cerebros.
 
-## RAG (dieta completada — nomic HTTP, 0 torch)
+## RAG (dieta completada + v3.1 dual nomic)
 
 ```
-RAG_DOCS_DIR=<docs> RAG_CACHE_DIR=<cache> EMBEDDING_URL=http://localhost:11434  sudo systemctl restart rag
-venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (Ollama HTTP, 768d)
+RAG_DOCS_DIR=<docs> RAG_CACHE_DIR=<cache> EMBEDDING_URL=http://100.121.64.26:8080  sudo systemctl restart rag
+venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (router :8080 CPU-only, 768d) + fallback VPS :8086
 → cache/embeddings.npy + meta.json     → /rag?q= (vía alcon-api :3003/rag)
 → scp al VPS ~/alcon/cache/            → scripts/rag.sh "pregunta" (CLI)
 ```
@@ -67,6 +67,7 @@ venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (Ollama HTTP, 768d
 **Gotchas:**
 - `MemoryMax=2G` en rag.service (reranker ONNX ~1GB + sidecar ~40MB; ollama aparte)
 - **Dieta completada 2026-08-26**: torch eliminado, nomic via Ollama HTTP, 768d
+- **v3.1 dual 2026-08-27**: nomic en router :8080 como 10mo modelo `n-gpu-layers=0` (CPU-only, no contención VRAM). Fallback VPS :8086. `memory-rag.js` con `FORJA_HOST`→`VPS_HOST`. Test `POST /v1/embeddings` 200 en ambos.
 - Cache se invalida automáticamente si cambia dimensión (1024→768 detectado)
 - Qdrant :6333 = corpus viejo de sesiones (507 pts congelado) — el sidecar NO lo usa
 - Ollama en VPS: `nomic-embed-text` + `qwen2.5:3b` + `mistral:7b` + `qwen2.5:1.5b`

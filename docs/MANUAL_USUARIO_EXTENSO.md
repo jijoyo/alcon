@@ -1,6 +1,6 @@
-# Manual de Usuario — Alcon v4.0-granja-real
+# Manual de Usuario — Alcon v4.3-ferrari
 
-> Para Juan. En lenguaje natural. Sin humo.
+> Para Juan. En lenguaje natural. Sin humo. Local-first.
 
 ---
 
@@ -18,7 +18,7 @@ Imagina que tienes 8 empleados especializados:
 - Uno que consolida memoria
 - Uno que genera títulos y miniaturas
 
-Todos corren en tu GPU (RTX 3060), todos trabajan para ti, y nada sale de tu PC.
+Todos corren en tu router forja :8080 (RTX 3060, 10 modelos on-demand: 9 chat + 1 nomic, throttle 0 único). Todos trabajan para ti, y casi nada sale de tu PC (solo el fallback a nube si lo pides con --cloud).
 
 ---
 
@@ -56,7 +56,7 @@ Le dices "por qué se duplica el contador" y te da 3 hipótesis con líneas de c
 
 El sistema automáticamente:
 1. Detecta que es un squad
-2. Cambia el modelo en tu GPU
+2. Elige el modelo on-demand en tu router :8080 (sin switch de 30s, throttle 0)
 3. Inyecta el código real
 4. Ejecuta la auditoría
 5. Te da el resultado
@@ -65,12 +65,14 @@ El sistema automáticamente:
 
 ## Sección 4: Los 8 squads explicados
 
-### quick-review (rápido, 1 modelo)
+> 3 reales (quick-review, code-audit, research-deep) + 5 diseñados (roadmap, ver abajo). No los confundas.
+
+### quick-review (rápido, 1 modelo) — REAL
 Revisión rápida. Un solo modelo analiza y da resultado. Útil para dudas simples.
 - **Tiempo:** 30-60 segundos
 - **Ejemplo:** `@quick-review revisa App.tsx`
 
-### code-audit (profundo, 3 modelos)
+### code-audit (profundo, 3 modelos) — REAL
 Auditoría completa. Tres modelos diferentes analizan desde perspectivas distintas:
 - **reviewer** — auditoría técnica general
 - **security** — enfocado en vulnerabilidades
@@ -78,7 +80,7 @@ Auditoría completa. Tres modelos diferentes analizan desde perspectivas distint
 - **Tiempo:** 3-5 minutos
 - **Ejemplo:** `@code-audit audita server.js por CORS`
 
-### research-deep (debate, 3 rondas)
+### research-deep (debate, 3 rondas) — REAL
 Investigación con debate. Tres modelos discuten un tema durante 3 rondas:
 - **researcher** — da la posición inicial
 - **analyst** — contra-argumenta
@@ -86,14 +88,14 @@ Investigación con debate. Tres modelos discuten un tema durante 3 rondas:
 - **Tiempo:** 5-8 minutos
 - **Ejemplo:** `@research-deep debate SQLite vs JSON`
 
-### architecture (consenso, 3 votos)
+### architecture (consenso, 3 votos) — DISEÑADO (roadmap)
 Diseño de arquitectura. Tres arquitectos proponen soluciones y votan:
 - Si hay consenso → se aprueba
 - Si no → se debate más
 - **Tiempo:** 4-6 minutos
 - **Ejemplo:** `@architecture propone microservicios`
 
-### mithos-cap (fábrica de CAPs)
+### mithos-cap (fábrica de CAPs) — DISEÑADO
 Crea contenido para YouTube. Divide un transcript en tareas atómicas:
 - Guion
 - Portada
@@ -103,17 +105,17 @@ Crea contenido para YouTube. Divide un transcript en tareas atómicas:
 - **Tiempo:** 3-5 minutos
 - **Ejemplo:** `@mithos-cap toma este transcript y créame un CAP`
 
-### deploy (simple, 1 modelo)
+### deploy (simple, 1 modelo) — DISEÑADO
 Hace deploy al VPS. Cambia código en el servidor y reinicia servicios.
 - **Tiempo:** 1-2 minutos
 - **Ejemplo:** `@deploy haz deploy de alcon-api`
 
-### memory-consolidation (simple, 1 modelo)
+### memory-consolidation (simple, 1 modelo) — DISEÑADO
 Consolida auditorías y pendientes. Organiza el historial.
 - **Tiempo:** 1-2 minutos
 - **Ejemplo:** `@memory-consolidation consolida las auditorías de hoy`
 
-### youtube-auto (3 modelos paralelos)
+### youtube-auto (3 modelos paralelos) — DISEÑADO
 Genera metadata completa para YouTube:
 - Título optimizado
 - Miniatura descriptiva
@@ -196,23 +198,25 @@ Genera metadata completa para YouTube:
 Puedes cambiar:
 
 ### Modelos
-En `server/lib/model-registry.json`:
+En `granja.json` (fuente única Ferrari):
 ```json
 {
-  "code-review": {
-    "board_key": "qwen",
-    "model": "qwen3.6-35b-A3B-MXFP4",
-    "service": "qwen3-35b.service",
-    "vram": "10.6GB",
-    "toks": 45
+  "router": {
+    "url": "http://100.121.64.26:8080",
+    "throttle": 0,
+    "temp": 0.3,
+    "n_predict": 512
+  },
+  "routing": {
+    "80/20": "prompt<500 sin architecture|research-deep|audit complejo -> gemma4-12b, resto -> qwen36-mx 131K"
   }
 }
 ```
 
-Cambia `board_key` para usar otro modelo. El sistema automáticamente switch el modelo en tu GPU.
+El router elige modelo on-demand (`model` en payload a `/v1/chat/completions`), sin switch de 30s. No hay `board_key`.
 
 ### Squads
-En `server/lib/granja.json` puedes:
+En `granja.json` puedes:
 - Agregar nuevos squads
 - Cambiar el patrón (single, fan-out-fan-in, debate, consensus, proxy-atomico)
 - Cambiar qué modelos usa cada squad
@@ -249,9 +253,9 @@ Con uso, puedes ver qué squads son más efectivos y cuáles necesitan ajustes.
 ## Sección 10: Qué no es y cómo no olvidarlo
 
 ### Qué no es
-- **No es humo** — hay logs de 4m47s de ejecución real
-- **No es la nube** — todo corre en tu PC, nada sale
-- **No es permanente** — si no haces `pm2 save`, se pierde al reiniciar
+- **No es humo** — hay logs de 4m47s de ejecución real + `make test-squad` PASS
+- **No es la nube** — Ferrari es local-first `throttle 0` (router :8080), solo fallback a nube si pides `--cloud`
+- **No es permanente** — si no haces `pm2 save`, se pierde al reiniciar. Verifica con `./scripts/ferrari.sh`
 - **No es CrewAI** — es un sistema custom, no una librería
 
 ### Cómo no olvidarlo
@@ -261,10 +265,17 @@ Con uso, puedes ver qué squads son más efectivos y cuáles necesitan ajustes.
 pm2 save
 ```
 
+**Health check Ferrari:**
+```bash
+./scripts/ferrari.sh              # debe dar 10 modelos + health ok
+curl http://127.0.0.1:8080/v1/models | jq length  # 10
+make test-squad                   # 4 agents sin pisarse → PASS
+```
+
 **Cuando hagas un cambio importante:**
 ```bash
 git add -A && git commit -m "feat: descripción"
-git tag v4.0-granja-real
+git tag v4.3-ferrari
 git push origin main --tags
 ```
 

@@ -36,14 +36,18 @@
 - llama.cpp (CUDA 12.4 + Vulkan)
 - OpenCode v1.17.10
 
-### Modelos GPU (llama-server :8080)
-| Modelo | VRAM | tok/s |
-|--------|------|-------|
-| qwen3.6-35b-A3B-MXFP4 | 10.6GB | 45 |
-| qwen2.5-coder-14b | 8.4GB | 30 |
-| gemma4-12b-hauhaucs | 6.9GB | 129 |
-| gemma4-12b-uncensored | 6.9GB | 80 |
-| gemma4-26b-a4b | 11.4GB | 55 |
+### Modelos GPU (router forja :8080 — 10 modelos on-demand, throttle 0)
+| Modelo | VRAM | tok/s | Nota |
+|--------|------|-------|------|
+| qwen3.6-35b-A3B-MXFP4 | 10.6GB | 45 | pesado |
+| qwen2.5-coder-14b | 8.4GB | 30 | — |
+| gemma4-12b-hauhaucs | 6.9GB | 129 | rápido 80% |
+| gemma4-12b-uncensored | 6.9GB | 80 | — |
+| gemma4-26b-a4b | 11.4GB | 55 | — |
+| nomic-embed-text-v1.5 | 0.09GB | — | CPU-only `n-gpu-layers=0` (v3.1) |
+| + 4 qwen38-* | 5-8GB | 30-55 | IQ2/3, Q2XL, Q3 |
+
+Router: `presets.ini` 10 modelos, `models-max 1`, `sleep-idle 300`, health `./scripts/ferrari.sh`. No board :9998.
 
 ---
 
@@ -153,7 +157,7 @@ Red Tailscale: jijoyo202@gmail.com
 | **Lenguajes** | Go, Node, Python | Node, Python | Node | Node |
 | **Runtime** | Native | nvm | PM2 | Termux |
 | **GPU** | RTX 3060 12GB | GTX 1050 Ti 4GB | — | — |
-| **Modelos LLM** | llama-server + Ollama | llama-server | OpenRouter | OpenRouter |
+| **Modelos LLM** | router :8080 10 modelos (throttle 0) | llama-server :8082 | OpenRouter (fallback) | OpenRouter |
 | **Deploy** | Local + Docker | Local | PM2 + Docker | Git pull |
 | **DB** | SQLite | SQLite | SQLite | SQLite |
 | **Comunicación** | Socket.io | Socket.io | Socket.io | Socket.io |
@@ -178,7 +182,7 @@ Sistema centralizado de búsqueda semántica para sesiones de OpenCode.
 
 ### Stack
 - **Qdrant** `:6333` — Vector DB (systemd user service `qdrant.service`)
-- **llama-server** `:8080` — nomic-embed-text v1.5 Q5_K_M (768 dim)
+- **Router** `:8080` — nomic-embed-text v1.5 Q5_K_M (768 dim) CPU-only + fallback VPS `:8086`
 - **alcon server** `:3003` — Endpoints de ingest y búsqueda
 
 ### Endpoints

@@ -141,7 +141,7 @@ Verificación post-fix: `pm2 logs vps-agent --lines 50` debe mostrar uptime esta
 
 ## Convenciones
 
-- **Cambio de infraestructura = actualizar `docs/INFRA-VIVA.md` en el mismo commit** (puertos, servicios, llaves, lanzamiento, gotchas)
+- **Cambio sustancial o de infra = actualizar docs (`docs/INFRA-VIVA.md`, `docs/ALCON_ARQUITECTURA.md`, `docs/MANUAL_USUARIO_EXTENSO.md`, `docs/MIS-EQUIPOS.md` si aplica) + engram (`mem_save` con gotcha) + obsidian (`~/obsidian-vault/04-aprendizajes/{fecha}-{tema}.md` si es arquitectónico) en el mismo commit** — puertos, servicios, llaves, lanzamiento, gotchas, throttles, modelos
 - Commits: `feat:`, `fix:`, `chore:`, `docs:`
 - ESM (`import`/`export`), no CommonJS
 - Sin comentarios en código a menos que se pida

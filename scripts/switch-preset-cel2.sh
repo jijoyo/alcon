@@ -10,10 +10,10 @@ if [ ! -f "$INI" ]; then
   INI="$HOME/models/presets.ini"
 fi
 
-MODEL=$(grep -A3 "^\[$PRESET\]" "$INI" | grep "^model=" | cut -d= -f2-)
-THREADS=$(grep -A3 "^\[$PRESET\]" "$INI" | grep "^threads=" | cut -d= -f2)
-CTX=$(grep -A3 "^\[$PRESET\]" "$INI" | grep "^ctx=" | cut -d= -f2)
-PORT=$(grep -A3 "^\[$PRESET\]" "$INI" | grep "^port=" | cut -d= -f2)
+MODEL=$(grep -A5 "^\[$PRESET\]" "$INI" | grep "^model=" | cut -d= -f2-)
+THREADS=$(grep -A5 "^\[$PRESET\]" "$INI" | grep "^threads=" | cut -d= -f2)
+CTX=$(grep -A5 "^\[$PRESET\]" "$INI" | grep "^ctx=" | cut -d= -f2)
+PORT=$(grep -A5 "^\[$PRESET\]" "$INI" | grep "^port=" | cut -d= -f2)
 
 if [ -z "$MODEL" ]; then
   echo "Preset no encontrado: $PRESET"
@@ -34,6 +34,7 @@ nohup ~/llama.cpp/build/bin/llama-server \
   -m "$MODEL_EXPANDED" \
   --host 0.0.0.0 --port "$PORT" \
   --threads "$THREADS" --ctx-size "$CTX" \
+  --cache-type-k q4_0 --cache-type-v q4_0 \
   > ~/llama-server.log 2>&1 &
 
 sleep 3
