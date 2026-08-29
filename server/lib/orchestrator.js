@@ -97,7 +97,7 @@ function injectCode(prompt){
   return code ? `${prompt}\n\n${code}` : prompt;
 }
 
-async function callLlamaWithHistory(history, systemPrompt, url=LLAMA, model='local'){
+async function callLlamaWithHistory(history, systemPrompt, url=LLAMA, model='gemma4-12b-unc'){
   const messages = [{role:'system', content:systemPrompt}, ...history];
   const res = await fetch(`${url}/v1/chat/completions`,{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model, messages, stream:false, temperature:0.7, max_tokens:1024})});
   const j = await res.json(); return j.choices?.[0]?.message?.content || '';
@@ -130,7 +130,7 @@ async function throttledCall(agent, prompt, history){
       if(agent.model_ref && !agent.model_ref.startsWith('opencode/')) await boardStart(agent.model_ref);
       const hist = history ? [...history] : [{role:'user', content:prompt}];
       hist[hist.length-1].content = injectCode(hist[hist.length-1].content);
-      const res = await callLlamaWithHistory(hist, agent.system_prompt || `Sos ${agent.role} del enjambre Alcon.`, url, agent.model_ref || 'local');
+      const res = await callLlamaWithHistory(hist, agent.system_prompt || `Sos ${agent.role} del enjambre Alcon.`, url, agent.model_ref || 'gemma4-12b-unc');
       return res;
     }catch(e){
       console.log(`[hybrid] ${agent.device}/${agent.model_ref} local fallo: ${e.message}, probando nube...`);
@@ -159,7 +159,7 @@ async function throttledCall(agent, prompt, history){
     const hist = history ? [...history] : [{role:'user', content:prompt}];
     // inject code en ultimo mensaje
     hist[hist.length-1].content = injectCode(hist[hist.length-1].content);
-    const res = await callLlamaWithHistory(hist, systemPrompt, url, agent.model_ref || 'local');
+    const res = await callLlamaWithHistory(hist, systemPrompt, url, agent.model_ref || 'gemma4-12b-unc');
     return res;
   }
   
@@ -295,9 +295,9 @@ export async function handleSquadMessage(squad, prompt, from='user'){
     try{
       // Ferrari: no boardStart/Stop, model directo
       try {
-        synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.', LLAMA, 'local');
+        synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.', LLAMA, 'gemma4-12b-unc');
       } catch(e) {
-        synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.', LLAMA, 'local');
+        synthesis = await callLlamaWithHistory([...session.history, {role:'user', content:synthesisPrompt}], 'Sos el sintetizador del enjambre Alcon. Combinas multiples perspectivas en una respuesta coherente.', LLAMA, 'gemma4-12b-unc');
       }
     }catch{
       try{
