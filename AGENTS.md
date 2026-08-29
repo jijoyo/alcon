@@ -83,13 +83,14 @@ Si `pm2 ls` muestra !=5 o alguno en /root -> ejecutar antidoto BOOTSTRAP.
 
 ## Squads (granja.json)
 
-**3 activos** (definidos con agentes reales):
+**4 activos** (definidos con agentes reales):
 
 | Squad | Pattern | Agents | Ejemplo |
 |-------|---------|--------|---------|
 | `quick-review` | single | qr-debian | `@quick-review --local revisa server.js` |
 | `code-audit` | fan-out-fan-in | debian+kali+vps+cel | `@code-audit revisa server.js` |
 | `research-deep` | debate 3 rondas | debian+kali+vps | `@research-deep investiga X` |
+| `duelo` | fan-out-fan-in | debian+kali+vps+cel+montar-forja | `@duelo investiguen: "pregunta"` (jueces + evaluado muteado en fase B) |
 
 **5 diseñados, no implementados** (roadmap batallón por proyecto — ver README): architecture, mithos-cap, deploy, memory-consolidation, youtube-auto. Solo existen en docs; para activarlos hay que definir sus agentes en granja.json.
 
@@ -187,6 +188,7 @@ pm2 logs vps-agent --lines 20 --nostream
 - `server/lib/orchestrator.js` — Node v4.1 backup
 - `server/routes/chat.js:37` — squad detection + kicking duplicate log (fix v4.3)
 - `agents/agent.js:411-427` — resilient reconnect fix v4.3
+- `docs/COMMS-GUIDE.md` — protocolo COMMS (2 rutas, formato blindado, floor, fiesta del enjambre)
 - `BOOTSTRAP.md` — v4.3-regla-oro - fuente de verdad
 
 

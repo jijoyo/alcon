@@ -4,12 +4,14 @@
     "debian": { "name": "debian", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "arquitectura" },
     "kali": { "name": "kali", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "performance" },
     "vps": { "name": "vps", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "seguridad" },
-    "cel": { "name": "cel", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "edge" }
+    "cel": { "name": "cel", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "edge" },
+    "montar-forja": { "name": "montar-forja", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "taller-modelos" }
   },
   "squads": {
     "quick-review": { "devices": ["debian"] },
     "code-audit": { "devices": ["debian", "kali", "vps", "cel"] },
-    "research-deep": { "devices": ["debian"] }
+    "research-deep": { "devices": ["debian"] },
+    "duelo": { "devices": ["debian", "kali", "vps", "cel", "montar-forja"], "description": "Modo duelo: contendientes en paralelo, jueces y evaluado muteado (fase B) + sentencia Engram" }
   },
   "router": {
     "url": "http://100.121.64.26:8080",

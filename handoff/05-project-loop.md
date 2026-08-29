@@ -1,6 +1,10 @@
 ---
 name: project-loop
 description: Project Loop — Marco metodológico para iniciar cualquier proyecto o tarea compleja. Basado en OODA (Observe-Orient-Decide-Act) con investigación antes de acción.
+created: 2026-08-29
+last_updated: 2026-08-29
+version: 1.1
+status: activa
 ---
 
 ## Qué hago
