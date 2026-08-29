@@ -33,6 +33,9 @@ export function registerChat(io) {
   const floor = { owner: null, timeout: null, queue: [] };
   const FLOOR_TIMEOUT_MS = 60_000;
 
+  // Duelo: evaluado muteado (Fase B paredón)
+  const dueloMuted = new Set();
+
   function emitFloor() {
     chatNs.emit('floor:update', { owner: floor.owner, queue: floor.queue });
   }
@@ -70,6 +73,10 @@ export function registerChat(io) {
 
     socket.on('chat:message', async ({ from, text }) => {
       if (!from || !text) return;
+      if (dueloMuted.has(from)) {
+        log(`[DUELO-MUTE] bloqueado ${from}: ${text.slice(0,60)}`);
+        return;
+      }
       const db = getDb();
       const chatMsg = { id: crypto.randomUUID(), from, text, timestamp: now() };
       db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(chatMsg.id, from, text, chatMsg.timestamp);
@@ -222,8 +229,29 @@ export function registerChat(io) {
       emitFloor();
     });
 
+    // Duelo Fase B: paredón mute
+    socket.on('duel:mute', ({ agent }) => {
+      if (!agent) return;
+      dueloMuted.add(agent);
+      log(`[DUELO] mute ${agent}`);
+      chatNs.emit('duel:update', { muted: Array.from(dueloMuted) });
+    });
+    socket.on('duel:unmute', ({ agent }) => {
+      if (!agent) return;
+      dueloMuted.delete(agent);
+      log(`[DUELO] unmute ${agent}`);
+      chatNs.emit('duel:update', { muted: Array.from(dueloMuted) });
+    });
+    socket.on('duel:status', () => {
+      socket.emit('duel:update', { muted: Array.from(dueloMuted) });
+    });
+
     socket.on('agent:comms', (msg) => {
       if (!msg || !msg.from || !msg.to || !msg.text) return;
+      if (dueloMuted.has(msg.from)) {
+        log(`[DUELO-MUTE] comms bloqueado ${msg.from} → ${msg.to}`);
+        return;
+      }
       log(`[COMMS] ${msg.from} → ${msg.to}: ${msg.text.slice(0, 100)}`);
       const db = getDb();
       const commsMsg = { id: crypto.randomUUID(), from: msg.from, text: `[comms→${msg.to}] ${msg.text}`, timestamp: now() };
