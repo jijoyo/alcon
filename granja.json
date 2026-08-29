@@ -1,11 +1,11 @@
 {
   "version": "4.3-ferrari",
   "devices": {
-    "debian": { "name": "debian", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "arquitectura" },
+    "debian": { "name": "debian", "backend": "llama", "ip": "127.0.0.1", "throttle": 0, "role": "arquitectura" },
     "kali": { "name": "kali", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "performance" },
     "vps": { "name": "vps", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "seguridad" },
     "cel": { "name": "cel", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "edge" },
-    "montar-forja": { "name": "montar-forja", "backend": "llama", "ip": "100.121.64.26", "throttle": 0, "role": "taller-modelos" }
+    "montar-forja": { "name": "montar-forja", "backend": "llama", "ip": "127.0.0.1", "throttle": 0, "role": "taller-modelos" }
   },
   "squads": {
     "quick-review": { "devices": ["debian"] },
