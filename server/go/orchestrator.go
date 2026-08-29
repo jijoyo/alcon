@@ -52,6 +52,9 @@ func callLlama(d Device, prompt string) (string, error) {
 	}
 	url := fmt.Sprintf("http://%s:%d/completion", d.IP, port)
 	payload := map[string]interface{}{"prompt": prompt, "n_predict": 512}
+	if d.Model != "" {
+		payload["model"] = d.Model
+	}
 	b, _ := json.Marshal(payload)
 	resp, err := http.Post(url, "application/json", bytes.NewReader(b))
 	if err!= nil {
@@ -198,12 +201,17 @@ func main() {
 
 
 	fmt.Printf("=== v4.2 Go simple squad=%s model-per-device ===\n", squadName)
+	selectedModel := selectBackend(prompt, granja)
+	fmt.Printf("[ROUTING] prompt=%d chars -> model=%s\n", len(prompt), selectedModel)
 	var wg sync.WaitGroup
 	ch := make(chan Result, len(squad.Devices))
 	for _, devName := range squad.Devices {
 		d, ok := granja.Devices[devName]
 		if!ok {
 			continue
+		}
+		if d.Backend == "llama" {
+			d.Model = selectedModel
 		}
 		wg.Add(1)
 		go throttledCall(d, prompt, &wg, ch)
@@ -220,9 +228,9 @@ func main() {
 func selectBackend(prompt string, granja Granja) string {
 	heavyKeywords := []string{"architecture", "research-deep", "audit", "complex"}
 	if len(prompt) < 500 && !containsKeywords(prompt, heavyKeywords) {
-		return "forja-router" // modelo rápido (gemma4-12b)
+		return "gemma4-12b-unc" // 80% rápido — gemma4-12b/qwen-coder-14b
 	}
-	return "forja-router" // qwen36-* 131K ctx
+	return "qwen36-mx" // 20% pesado — qwen36-mx 131K ctx
 }
 
 func containsKeywords(text string, keywords []string) bool {
