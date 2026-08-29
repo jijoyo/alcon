@@ -4,14 +4,15 @@
 > BOOTSTRAP.md = constitución · handoff/10 = mapa maestro · ESTE archivo = estado vivo.
 > Si un comando de aquí falla, arréglalo aquí en el mismo commit que lo arregla.
 
-_Última actualización: 2026-08-27 (Ferrari v4.3 — router :8080 10 modelos on-demand, granja.json fuente única, Deuda v3+v3.1 dual nomic)_
+_Última actualización: 2026-08-29 (Ferrari v4.3 — router :8080 18 modelos on-demand 0.0.0.0, granja.json 127.0.0.1+Tailscale, 80/20 gemma4-12b-unc vs qwen36-mx, duelo + paredón, OmniRoute 5/5 via forwarder)_
 
 ## Puertos
 
 ### forja (debian 100.121.64.26) — FÁBRICA + GPU
 | Puerto | Servicio | Cómo se lanza |
 |--------|----------|---------------|
-| 8080 | router forja :8080 — 10 modelos on-demand (9 chat + 1 nomic CPU-only) | `systemctl --user status llama-router` — health `./scripts/ferrari.sh` (`curl /v1/models`) |
+| 8080 | router forja :8080 — 18 modelos on-demand (0.0.0.0, forwarder 100.121.64.26:20128) | `systemctl --user status llama-router` — health `./scripts/ferrari.sh` (`curl /v1/models`) — 80/20 `gemma4-12b-unc` vs `qwen36-mx` |
+| 20128 | OmniRoute gateway free (forwarder 100.121.64.26:20128 → 127.0.0.1:20128) | `systemctl --user status omniroute-forwarder` — `curl -H "Authorization: Bearer $OMNIROUTE_API_KEY" http://100.121.64.26:20128/v1/models` — 5/5 devices |
 | 8082 | llama-server alternativo | `llamacpp-serve` |
 | 9998 | Board Control API | `systemctl --user start board-control-api` |
 | 8081 | Dashboard board | board-v3-http.service |
@@ -82,6 +83,7 @@ venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (router :8080 CPU-
 - **Buzon alcon** (forja): `node scripts/buzon-alcon.cjs` — escucha todo; enviar: `echo "msg" > ~/.alcon-buzon/send.txt`. Log: `~/.alcon-buzon/inbox.log`.
 - **Protocolo 8 claves**: PROCEDE · EN PISTA · FUERA · ESPERO · ALERTA · POSA · PASE · CONTEXT (ver obsidian-vault/comms/LEEME.md)
 - **TODA identidad que hable debe estar en `server/config/agents.js`** — si no, el server la trata como humano y la reenvía a vps.
+- **Duelo**: squad `duelo` (5 devices: debian/kali/vps/cel/montar-forja) + `duel:mute/unmute/status` → bloquea `chat:message` y `agent:comms` del evaluado (paredón Fase B, probado 5/5 en 15s)
 
 ## Env vars por dispositivo
 | Var | VPS | debian/forja | Termux |
