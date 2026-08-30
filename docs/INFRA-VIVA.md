@@ -105,3 +105,5 @@ venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (router :8080 CPU-
 7. Archivos reescritos en runtime NUNCA trackeados (runtime-state.json)
 8. Tailscale re-auth resetea `set --ssh` del server
 9. /tmp/opencode se limpia solo — cosas persistentes van a ~/ o al repo
+10. **Listener muerto silencioso** (buzon): log congelado + send.txt sin consumir = proceso muerto. `pgrep -f` se auto-matchea (trampa #1) → verificar con `ps -eo pid,etime,cmd | grep "[b]uzon-alcon"`. Lección radar 2026-08-30
+11. `HF_HUB_OFFLINE=1` en units de systemd bloquea silenciosamente la resolución de modelos (fastretrieval/qwen3_embed fallan "from any source" aunque la red esté bien) — lección RAG 2026-08-30
