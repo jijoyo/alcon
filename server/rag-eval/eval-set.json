@@ -1,0 +1,113 @@
+[
+ {
+  "q": "plan videos gentleman fazt herdr moshi",
+  "accept": [
+   "videos-a-infra.md"
+  ]
+ },
+ {
+  "q": "como funciona el router 8080 y modelos on-demand",
+  "accept": [
+   "INFRA-VIVA.md",
+   "ALCON_ARQUITECTURA.md",
+   "MANUAL_USUARIO_EXTENSO.md"
+  ]
+ },
+ {
+  "q": "regla de oro forja escribe github guarda espejos copian",
+  "accept": [
+   "AGENTS.md",
+   "INFRA-VIVA.md",
+   "BOOTSTRAP.md"
+  ]
+ },
+ {
+  "q": "protocolo COMMS dos rutas formato blindado",
+  "accept": [
+   "COMMS-GUIDE.md",
+   "INFRA-VIVA.md"
+  ]
+ },
+ {
+  "q": "duelo paredon mute evaluado",
+  "accept": [
+   "INFRA-VIVA.md",
+   "COMMS-GUIDE.md"
+  ]
+ },
+ {
+  "q": "omniroute forwarder 20128 tailscale",
+  "accept": [
+   "INFRA-VIVA.md",
+   "MIS-EQUIPOS.md",
+   "2026-08-29-omnirtoute-80-20-forwarder.md"
+  ]
+ },
+ {
+  "q": "project loop OODA observar orientar decidir actuar",
+  "accept": [
+   "05-project-loop.md"
+  ]
+ },
+ {
+  "q": "ghost fix v4.3 presence vps kick duplicado",
+  "accept": [
+   "AGENTS.md",
+   "COMMS-GUIDE.md",
+   "VALIDACION_V4.md",
+   "VALIDACION_V4.3.md"
+  ]
+ },
+ {
+  "q": "granja json squads devices throttle",
+  "accept": [
+   "INFRA-VIVA.md",
+   "ALCON_ARQUITECTURA.md"
+  ]
+ },
+ {
+  "q": "fiesta del enjambre lecciones aprendidas",
+  "accept": [
+   "videos-a-infra.md",
+   "COMMS-GUIDE.md"
+  ]
+ },
+ {
+  "q": "trampas conocidas gotchas nohup termux",
+  "accept": [
+   "INFRA-VIVA.md"
+  ]
+ },
+ {
+  "q": "como agregar modelo board control api",
+  "accept": [
+   "AGENTS.md",
+   "INFRA-VIVA.md",
+   "ALCON_ARQUITECTURA.md",
+   "MANUAL_USUARIO_EXTENSO.md"
+  ]
+ },
+ {
+  "q": "pm2 oficial vps procesos alcon",
+  "accept": [
+   "AGENTS.md",
+   "INFRA-VIVA.md"
+  ]
+ },
+ {
+  "q": "personas agentes opencode alcon montar local-router",
+  "accept": [
+   "AGENTS.md",
+   "videos-a-infra.md",
+   "VALIDACION_V4.3.md",
+   "README.md"
+  ]
+ },
+ {
+  "q": "rag sidecar embeddings cache qdrant",
+  "accept": [
+   "INFRA-VIVA.md",
+   "ALCON_ARQUITECTURA.md"
+  ]
+ }
+]
