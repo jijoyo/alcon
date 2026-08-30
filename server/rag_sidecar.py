@@ -1,9 +1,9 @@
 """
-RAG Sidecar — FastAPI + nomic-embed-text (Ollama HTTP) + Qwen3-Reranker (ONNX)
+RAG Sidecar — FastAPI + Qwen3-Embedding-0.6B (ONNX local) + Qwen3-Reranker (ONNX)
 
-Dieta: 0 torch, 0 transformers. Solo numpy + HTTP.
-Embeddings via Ollama (nomic-embed-text, 768d).
-Reranker via qwen3_embed ONNX (sin torch).
+Dieta: 0 torch, 0 transformers. Embed + rerank locales via qwen3_embed ONNX.
+Embeddings: Qwen3-Embedding-0.6B ONNX INT8, 1024d (antes nomic 768d via Ollama —
+el veto original era torch 5-6GB; ONNX lo resuelve, ver Engram #288/#300).
 """
 
 import glob
@@ -12,7 +12,6 @@ import os
 import hashlib
 import threading
 import time
-import urllib.request
 
 import numpy as np
 from fastapi import FastAPI, Query
@@ -20,16 +19,17 @@ from fastapi.responses import JSONResponse
 
 DOCS_DIR = os.environ.get("RAG_DOCS_DIR", os.path.expanduser("~/alcon/docs"))
 CACHE_DIR = os.environ.get("RAG_CACHE_DIR", os.path.expanduser("~/alcon/cache"))
-EMBEDDING_URL = os.environ.get("EMBEDDING_URL", "http://localhost:11434")
-EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "nomic-embed-text")
+EMBED_MODEL_NAME = "n24q02m/Qwen3-Embedding-0.6B-ONNX"
+QUERY_INSTRUCTION = "Given a user question about a project knowledge base, retrieve the most relevant documentation passages that answer it"
 RERANK_MODEL_NAME = "n24q02m/Qwen3-Reranker-0.6B-ONNX"
-EXPECTED_DIM = 768  # nomic-embed-text
+EXPECTED_DIM = 1024  # Qwen3-Embedding-0.6B (MRL, antes nomic 768d)
 MAX_CHUNK = 800
 MIN_CHUNK = 50
 RERANK_TOP = 5
 BATCH = 64
 EXCLUDE_DIRS = {"sessions"}
 
+embed_model = None
 rerank_model = None
 docs = []
 doc_matrix = None
@@ -37,28 +37,27 @@ indexing = True
 index_progress = {"loaded": 0, "total": 0, "embedded": 0, "pct": 0, "elapsed": 0}
 
 
-# ─── Embedding via HTTP ───
+# ─── Embedding local (ONNX, sin torch, sin Ollama) ───
+
+def load_embed_model():
+    global embed_model
+    from qwen3_embed import TextEmbedding
+    embed_model = TextEmbedding(model_name=EMBED_MODEL_NAME)
+    print(f"[sidecar] Embedding model loaded: {EMBED_MODEL_NAME} (dim={EXPECTED_DIM})")
+
 
 def embed_one(text: str) -> list[float]:
-    """Embed a single text via Ollama HTTP API."""
-    payload = json.dumps({"model": EMBEDDING_MODEL, "prompt": text}).encode()
-    req = urllib.request.Request(
-        f"{EMBEDDING_URL}/api/embeddings",
-        data=payload,
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        data = json.loads(resp.read())
-    return data["embedding"]
+    """Embed de query con instruction (mejor retrieval, doc oficial qwen3)."""
+    return list(embed_model.query_embed([text], task=QUERY_INSTRUCTION))[0]
 
 
 def embed_batch(texts: list[str]) -> np.ndarray:
-    """Embed a list of texts. Sequential (Ollama API is single-prompt)."""
+    """Embed de documentos (sin instruction) en lotes."""
     embs = []
-    for i, t in enumerate(texts):
-        embs.append(embed_one(t))
-        if (i + 1) % 50 == 0:
-            print(f"[sidecar] Embedded {i+1}/{len(texts)} chunks")
+    for i in range(0, len(texts), BATCH):
+        batch = texts[i:i + BATCH]
+        embs.extend(embed_model.embed(batch))
+        print(f"[sidecar] Embedded {min(i + BATCH, len(texts))}/{len(texts)} chunks")
     return np.array(embs, dtype=np.float32)
 
 
@@ -187,8 +186,8 @@ app = FastAPI(title="rag-sidecar")
 async def health():
     return {
         "status": "ok" if not indexing else "indexing",
-        "model": EMBEDDING_MODEL,
-        "embedding_url": EMBEDDING_URL,
+        "model": EMBED_MODEL_NAME,
+        "embedding": "local-onnx",
         "dim": EXPECTED_DIM,
         "docs_indexed": len(docs),
         "reranker_loaded": rerank_model is not None,
@@ -233,13 +232,7 @@ def rag(q: str = Query(...), k: int = Query(5)):
 
 def startup():
     t0 = time.time()
-    # Test connectivity
-    try:
-        embed_one("connectivity test")
-        print(f"[sidecar] Ollama OK at {EMBEDDING_URL} (model: {EMBEDDING_MODEL})")
-    except Exception as e:
-        print(f"[sidecar] WARNING: Ollama unreachable at {EMBEDDING_URL}: {e}")
-        print("[sidecar] Will retry on first query")
+    load_embed_model()  # sync — indexing y queries dependen de esto
 
     if load_cache():
         global indexing
