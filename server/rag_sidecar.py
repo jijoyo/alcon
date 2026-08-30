@@ -21,7 +21,7 @@ DOCS_DIR = os.environ.get("RAG_DOCS_DIR", os.path.expanduser("~/alcon/docs"))
 CACHE_DIR = os.environ.get("RAG_CACHE_DIR", os.path.expanduser("~/alcon/cache"))
 EMBED_MODEL_NAME = "n24q02m/Qwen3-Embedding-0.6B-ONNX"
 QUERY_INSTRUCTION = "Given a user question about a project knowledge base, retrieve the most relevant documentation passages that answer it"
-RERANK_MODEL_NAME = "n24q02m/Qwen3-Reranker-0.6B-ONNX"
+RERANK_MODEL_NAME = "n24q02m/Qwen3-Reranker-0.6B-ONNX-YesNo"  # fastretrieval perfil 598MB (vs ~12GB estandar = OOM root cause)
 EXPECTED_DIM = 1024  # Qwen3-Embedding-0.6B (MRL, antes nomic 768d)
 MAX_CHUNK = 800
 MIN_CHUNK = 50
@@ -41,7 +41,7 @@ index_progress = {"loaded": 0, "total": 0, "embedded": 0, "pct": 0, "elapsed": 0
 
 def load_embed_model():
     global embed_model
-    from qwen3_embed import TextEmbedding
+    from fastretrieval import TextEmbedding
     embed_model = TextEmbedding(model_name=EMBED_MODEL_NAME)
     print(f"[sidecar] Embedding model loaded: {EMBED_MODEL_NAME} (dim={EXPECTED_DIM})")
 
@@ -131,7 +131,7 @@ def load_cache():
 
 def load_reranker():
     global rerank_model
-    from qwen3_embed import TextCrossEncoder
+    from fastretrieval import TextCrossEncoder
     rerank_model = TextCrossEncoder(model_name=RERANK_MODEL_NAME)
     print("[sidecar] Reranker loaded (ONNX)")
 
