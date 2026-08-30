@@ -66,18 +66,16 @@ venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (router :8080 CPU-
 ```
 
 **Gotchas:**
-- `MemoryMax=3G` en rag.service (subido de 2G: reranker ONNX pico >2G en rerank — causa raíz de los OOM kills, ver journal 2026-08-29)
+- **RAG v4.4-embed 2026-08-30**: embedding **Qwen3-Embedding-0.6B ONNX local 1024d** en-proceso (adiós Ollama HTTP para queries; nomic queda en router :8080 para memory-rag.js). Reranker via **fastretrieval 1.1.0** (sucesor de qwen3-embed) con perfil **YesNo 598MB** — el estándar pide ~12GB y era el root cause de los OOM kills (YesNo es perfil interno v1.4.2+, NO repo de HF: 404/401 engañoso). `MemoryMax=4G` (2.1G en reposo). **`HF_HUB_OFFLINE=1` removido** del unit — bloqueaba la resolución de modelos de fastretrieval
 - **Corpus ampliado 2026-08-29**: 1437 chunks = docs/ + handoff/ + vault (02-guías, 04-aprendizajes via symlink) + repo-root (AGENTS.md, BOOTSTRAP.md, README.md via symlink en docs/repo-root/). Symlinks en VPS `~/alcon/docs/` — el vault llega por Syncthing
-- **Eval harness**: `scripts/rag-eval.sh` + `server/rag-eval/eval-set.json` (15 preguntas, accept-lists). Baseline 4/15 → final **15/15 recall@3**. Correr en cada cambio de modelo/chunking
+- **Eval harness**: `scripts/rag-eval.sh` + `server/rag-eval/eval-set.json` (15 preguntas, accept-lists). Baseline 4/15 → **15/15 recall@3** con ambos embeddings (nomic y qwen3-1024d). Correr en cada cambio de modelo/chunking
 - **Fixes de estabilidad 2026-08-29** (commit 9322ed3): proxy timeout 20s (era 5s → hits vacíos), sidecar `/rag` sync handler (async bloqueaba event loop → fetch failed), rerank en try/except (degrada a coseno, nunca tumba el sidecar)
-- **Reranker**: `n24q02m/Qwen3-Reranker-0.6B-ONNX` estándar — la variante YesNo (10x menos RAM) está documentada pero NO publicada en HF (404); upgrade path = `fastretrieval` (continuación del proyecto)
-- **Dieta completada 2026-08-26**: torch eliminado, nomic via Ollama HTTP, 768d
+- **Dieta completada 2026-08-26**: torch eliminado (5-6GB RAM era el veto original al Qwen3-Embedding; ONNX lo resuelve — Engram #288/#300)
 - **v3.1 dual 2026-08-27**: nomic en router :8080 como 10mo modelo `n-gpu-layers=0` (CPU-only, no contención VRAM). Fallback VPS :8086. `memory-rag.js` con `FORJA_HOST`→`VPS_HOST`. Test `POST /v1/embeddings` 200 en ambos.
-- Cache se invalida automáticamente si cambia dimensión (1024→768 detectado)
+- Cache se invalida automáticamente si cambia dimensión (768→1024 detectado)
 - Qdrant :6333 = corpus viejo de sesiones (507 pts congelado) — el sidecar NO lo usa
-- Ollama en VPS: `nomic-embed-text` + `qwen2.5:3b` + `mistral:7b` + `qwen2.5:1.5b`
-- Modelo actual: Qwen/Qwen3-Embedding-0.6B (1024 dims) + reranker Qwen3-Reranker-0.6B-ONNX
-- Cambiar de modelo = re-indexar en forja (5 min total) — ya no es telenovela
+- MRL: el embedder es Matryoshka 32-1024d — si storage aprieta, truncar a 512d solo re-indexando
+- Cambiar de modelo = re-indexar (3-6 min en VPS) — ya no es telenovela
 
 ## Comms del enjambre
 - **Chat**: Socket.io `/enjambre` en :3003. Mención al INICIO del mensaje → server rutea agent:direct (una vez). Mención a mitad de texto → el listener del agente la procesa. Citas en backticks/> = ignoradas (anti-eco, d27df10).
