@@ -22,7 +22,7 @@ DOCS_DIR = os.environ.get("RAG_DOCS_DIR", os.path.expanduser("~/alcon/docs"))
 CACHE_DIR = os.environ.get("RAG_CACHE_DIR", os.path.expanduser("~/alcon/cache"))
 EMBEDDING_URL = os.environ.get("EMBEDDING_URL", "http://localhost:11434")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "nomic-embed-text")
-RERANK_MODEL_NAME = "n24q02m/Qwen3-Reranker-0.6B-ONNX-YesNo"
+RERANK_MODEL_NAME = "n24q02m/Qwen3-Reranker-0.6B-ONNX"
 EXPECTED_DIM = 768  # nomic-embed-text
 MAX_CHUNK = 800
 MIN_CHUNK = 50
@@ -210,12 +210,15 @@ def rag(q: str = Query(...), k: int = Query(5)):
     top = [{"file": docs[i]["file"], "text": docs[i]["text"], "score": float(scores[i])} for i in top_idx]
     used_rerank = False
     if rerank_model is not None and top and top[0]["score"] < 0.75:
-        texts = [d["text"] for d in top]
-        rscores = list(rerank_model.rerank(q, texts))
-        for d, rs in zip(top, rscores):
-            d["rerank_score"] = rs
-        top.sort(key=lambda x: x.get("rerank_score", 0), reverse=True)
-        used_rerank = True
+        try:
+            texts = [d["text"] for d in top]
+            rscores = list(rerank_model.rerank(q, texts))
+            for d, rs in zip(top, rscores):
+                d["rerank_score"] = rs
+            top.sort(key=lambda x: x.get("rerank_score", 0), reverse=True)
+            used_rerank = True
+        except Exception as e:
+            print(f"[sidecar] rerank fallo (degrada a coseno): {e}")
     hits = []
     for d in top[:k]:
         hits.append({
