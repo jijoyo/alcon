@@ -43,6 +43,6 @@ server/go/alcon-go
 server/go/orchestrator.go.bak.*
 agents/.session-*.txt
 server/.venv/
-server/rag-qwen.js
+# server/rag-qwen.js removido del ignore: es codigo core (fix timeout 2026-08-29)
 scripts/rag.sh
 server/lib/orchestrator.js.bak2
