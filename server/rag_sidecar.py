@@ -198,7 +198,7 @@ async def health():
 
 
 @app.get("/rag")
-async def rag(q: str = Query(...), k: int = Query(5)):
+def rag(q: str = Query(...), k: int = Query(5)):
     if indexing:
         return JSONResponse({"query": q, "hits": [], "error": "indexing in progress", "progress": index_progress}, status_code=202)
     if not docs or doc_matrix is None:
