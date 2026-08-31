@@ -2,10 +2,19 @@
 name: project-loop
 description: Project Loop — Marco metodológico para iniciar cualquier proyecto o tarea compleja. Basado en OODA (Observe-Orient-Decide-Act) con investigación antes de acción.
 created: 2026-08-29
-last_updated: 2026-08-29
-version: 1.1
+last_updated: 2026-08-30
+version: 1.2
 status: activa
+score: 9.5/10
 ---
+
+## Reputación de ejecuciones (huella)
+
+| # | Fecha | Plan | Modo | Resultado | Lección |
+|---|-------|------|------|-----------|---------|
+| 1 | 2026-08-29 | plan-infra-deploy (Ferrari 35min) | completo | 6/6 fases ✅ | Ferrari verde: router 0.0.0.0, 80/20, granja 127.0.0.1 |
+| 2 | 2026-08-29 | mejora-rag (v4.4-embed) | completo | 15/15 eval ✅, 4 bugs muertos | eval harness > intuición; YesNo era perfil interno, no repo |
+| 3 | 2026-08-30 | atomic-ai (pendiente) | light | — | primero experimento A/B, integrar solo si gana |
 
 ## Qué hago
 - Aplico el marco OODA para tareas complejas: Observar → Orientar → Decidir → Actuar
