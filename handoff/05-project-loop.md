@@ -14,7 +14,7 @@ score: 9.5/10
 |---|-------|------|------|-----------|---------|
 | 1 | 2026-08-29 | plan-infra-deploy (Ferrari 35min) | completo | 6/6 fases ✅ | Ferrari verde: router 0.0.0.0, 80/20, granja 127.0.0.1 |
 | 2 | 2026-08-29 | mejora-rag (v4.4-embed) | completo | 15/15 eval ✅, 4 bugs muertos | eval harness > intuición; YesNo era perfil interno, no repo |
-| 3 | 2026-08-30 | atomic-ai (pendiente) | light | — | primero experimento A/B, integrar solo si gana |
+| 3 | 2026-08-30 | atomic-ai (duelo Atomic) | light | ✅ D aplasta con evidencia | cliente agéntico es requisito (tool_calls); Engram #303 |
 
 ## Qué hago
 - Aplico el marco OODA para tareas complejas: Observar → Orientar → Decidir → Actuar
