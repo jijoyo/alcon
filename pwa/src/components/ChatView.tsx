@@ -164,30 +164,35 @@ export function ChatView() {
             {connected ? 'Sin mensajes. Escribe el primero.' : 'Conectando al enjambre...'}
           </div>
         )}
-        {messages.map(msg => (
+        {messages.map(msg => {
+          const toMatch = msg.text.match(/^@(\w[\w-]*)\s/);
+          const to = toMatch ? toMatch[1] : null;
+          const isSelfToSelf = to === msg.from;
+          return (
           <div
             key={msg.id}
             className={`flex gap-2 ${msg.from === MY_NAME ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm ${
+              className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm border-l-4 ${
                 msg.from === MY_NAME
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-white border-blue-400'
                   : msg.from === 'system'
-                    ? 'bg-amber-600/20 border border-amber-400/30 text-amber-200'
-                    : `border ${agentColor(msg.from)}`
+                    ? 'bg-amber-600/20 border-amber-400/30 text-amber-200'
+                    : `${agentColor(msg.from)}`
               }`}
             >
               <div className="flex items-center gap-1.5 mb-0.5">
                 <span className="font-medium text-xs opacity-70">
-                  {msg.from === MY_NAME ? 'Tu' : msg.from}
+                  {msg.from === MY_NAME ? 'Tu' : msg.from}{to ? ` → ${to}${isSelfToSelf ? ' (yo)' : ''}` : ''}
                 </span>
                 <span className="text-[10px] opacity-50">{timeAgo(msg.timestamp)}</span>
+                {to && <span className="text-[10px] opacity-40">{isSelfToSelf ? '🪞' : to === MY_NAME ? '📥' : '→'}</span>}
               </div>
               <div className="whitespace-pre-wrap break-words">{msg.text}</div>
             </div>
           </div>
-        ))}
+        )})}
 
         {/* Typing indicator */}
         {typingPeers.length > 0 && (
