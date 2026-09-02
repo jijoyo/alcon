@@ -15,6 +15,22 @@
 [COMMS:debian] @debian ¿puedo hacer push a main?
 ```
 
+## Las 5 formas institucionalizadas
+
+| # | Forma | Cuándo usarla | Cómo |
+|---|-------|---------------|------|
+| 1 | **Buzón** (`~/.alcon-buzon`) | Nota rápida async entre sesiones distintas | `echo "msg" > ~/.alcon-buzon/send.txt` · `tail -f inbox.log` |
+| 2 | **Agent.js vivo con misma sesión** | Plan longevo donde cada paso depende del anterior | `BUZON_NAME=radar setsid node .../agent.js radar ...` con `ses_...` compartida |
+| 3 | **PWA :3004** | Ver en vivo sin tocar terminal | `http://100.102.63.30:3004` |
+| 4 | **Squad vía orquestador** | Tarea paralela que necesita varias cabezas | `@code-audit` / `@duelo` → `POST :3003/api/orchestrate` |
+| 5 | **Vault + Engram** | Retomar con contexto cero | `retoma <plan>` → lee `vault/02-guías/*.md` + `memory/conversations` + Engram |
+
+> Las 5 quedan institucionalizadas aquí — elige según la situación, no todas a la vez.
+
+## Esencia de la Fiesta (principio institucionalizado)
+
+> **Todos los dispositivos en su sesión real, en vivo y visibles en la PWA** — cada agente con su contexto avanzado (ej: 583 msgs) conectado vía `agent.js` con su `ses_...` real, no usurpador. Es la forma más eficiente para planes longevos: cada uno aporta su historia sin cargar el contexto del otro, convergiendo liviano por el bus. Mismo bus, distinta puerta — la PWA es el espejo vivo.
+
 ## Cuándo usar cuál (COMMS vs orquestación Alcon)
 
 | Necesitas | Usa |
