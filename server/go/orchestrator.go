@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -128,12 +129,16 @@ func callLlama(d Device, prompt string) (string, error) {
 		delete(payload, "model")
 	}
 	b, _ := json.Marshal(payload)
-	resp, err := http.Post(url, "application/json", bytes.NewReader(b))
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Post(url, "application/json", bytes.NewReader(b))
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
+	if strings.HasPrefix(string(body), "<html") {
+		return "", fmt.Errorf("router %s devolvio HTML, no JSON - llama-server caido", url)
+	}
 	if resp.StatusCode != 200 {
 		return string(body), fmt.Errorf("llama %d", resp.StatusCode)
 	}
@@ -293,53 +298,34 @@ func containsKeywords(text string, keywords []string) bool {
 }
 
 func injectCode(prompt, codeRoot string) string {
-	patterns := []string{
-		`(?:revisa|analiza|audita|check|lee)\s+([\w/\.\-]+(?:\.js|\.ts|\.json|\.md))`,
-		`(server/server\.js|server\.js|routes/[\w\-]+\.js|lib/[\w\-]+\.js)`,
-	}
-	code := ""
-	for _, pat := range patterns {
-		// Re-encode the pattern: replace literal chars since Go regex doesn't support lookbehind in same way
-		// We use a simple substring search instead
-		_ = pat
-	}
-	// Simple substring injection: look for known file tokens in prompt
-	tokens := []string{"server.js", "server/server.js", "routes/", "lib/"}
-	for _, t := range tokens {
-		if strings.Contains(prompt, t) {
-			idx := strings.Index(prompt, t)
-			// Find the start of the file path token
-			start := idx
-			for start > 0 && prompt[start-1] != ' ' && prompt[start-1] != '\n' && prompt[start-1] != '\t' {
-				start--
-			}
-			path := prompt[start:idx+len(t)]
-			// Strip trailing punctuation
-			for len(path) > 0 && (path[len(path)-1] == '.' || path[len(path)-1] == ',' || path[len(path)-1] == ';') {
-				path = path[:len(path)-1]
-			}
-			if !strings.HasSuffix(path, ".js") && !strings.HasSuffix(path, ".ts") && !strings.HasSuffix(path, ".json") && !strings.HasSuffix(path, ".md") {
-				continue
-			}
-			full := path
-			if !strings.HasPrefix(full, "/") {
-				full = filepath.Join(codeRoot, path)
-			}
-			data, err := os.ReadFile(full)
-			if err != nil {
-				continue
-			}
-			content := string(data)
-			if len(content) > 12000 {
-				content = content[:12000]
-			}
-			code += fmt.Sprintf("\n=== %s ===\n%s\n=== FIN ===\n", path, content)
+	re := regexp.MustCompile(`(?:revisa|analiza|audita|check|lee)\s+([a-zA-Z0-9_\-/.]+\.(?:go|js|ts|py|json|md))`)
+	matches := re.FindAllStringSubmatch(prompt, -1)
+	seen := make(map[string]bool)
+	var blocks strings.Builder
+	for _, m := range matches {
+		path := m[1]
+		if seen[path] {
+			continue
 		}
+		seen[path] = true
+		full := path
+		if !strings.HasPrefix(full, "/") {
+			full = filepath.Join(codeRoot, path)
+		}
+		data, err := os.ReadFile(full)
+		if err != nil {
+			continue
+		}
+		content := string(data)
+		if len(content) > 12000 {
+			content = content[:12000]
+		}
+		blocks.WriteString(fmt.Sprintf("\n=== %s ===\n%s\n=== FIN ===\n", path, content))
 	}
-	if code != "" {
-		return prompt + "\n\n" + code
+	if blocks.Len() == 0 {
+		return prompt
 	}
-	return prompt
+	return prompt + "\n\n" + blocks.String()
 }
 
 func appendPending(path, content string) {

@@ -93,3 +93,20 @@ func TestInjectCode_MatchServer(t *testing.T) {
 		t.Errorf("expected file header, got %q", got)
 	}
 }
+
+func TestInjectCode_MatchGoWithKeyword(t *testing.T) {
+	tmpDir := t.TempDir()
+	tmpFile := filepath.Join(tmpDir, "main.go")
+	os.WriteFile(tmpFile, []byte("package main\n"), 0644)
+	got := injectCode("revisa main.go", tmpDir)
+	if !strings.Contains(got, "package main") {
+		t.Errorf("expected injected.go content, got %q", got)
+	}
+}
+
+func TestInjectCode_IgnoresMissing(t *testing.T) {
+	got := injectCode("revisa nonexistent.xyz", "/tmp")
+	if got != "revisa nonexistent.xyz" {
+		t.Errorf("expected unchanged prompt for missing file, got %q", got)
+	}
+}
