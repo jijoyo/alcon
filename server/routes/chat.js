@@ -94,6 +94,22 @@ export function registerChat(io) {
 
       const tag = tagMatch[1];
 
+      if (tag === 'triage') {
+        let prompt = text.replace(/^@[\w-]+\s*/, '').trim();
+        if (!prompt) return;
+        try {
+          const res = await fetch('http://127.0.0.1:3006/triage', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ task: prompt }) });
+          const j = await res.json();
+          const reply = `triage: ${j.triage} (via ${j.source})`;
+          const tmsg = { id: crypto.randomUUID(), from: 'tagger', text: reply, timestamp: now() };
+          db.prepare('INSERT INTO chat (id, from_agent, text, timestamp) VALUES (?, ?, ?, ?)').run(tmsg.id, tmsg.from, tmsg.text, tmsg.timestamp);
+          chatNs.emit('chat:message', tmsg);
+        } catch (e) {
+          chatNs.emit('chat:message', { id: crypto.randomUUID(), from: 'tagger', text: `triage error: ${e.message}`, timestamp: now() });
+        }
+        return;
+      }
+
       // === RAMA D HÍBRIDO: SQUAD DETECTION ===
       if (GRANJA_SQUADS.includes(tag)) {
         const squad = tag;
