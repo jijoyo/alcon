@@ -1,1 +1,1 @@
-export const AGENTS = ['kali', 'vps', 'cel', 'debian', 'hermes', 'alcon', 'cel-tui', 'cel2', 'montar-forja', 'radar', 'local-router', 'tagger', 'israel'];
+export const AGENTS = ['kali', 'vps', 'cel', 'debian', 'hermes', 'alcon', 'cel-tui', 'cel2', 'montar-forja', 'radar', 'local-router', 'tagger', 'israel', 'debian-forja'];
