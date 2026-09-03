@@ -510,19 +510,29 @@ func main() {
 	flag.Parse()
 
 	if httpMode || os.Getenv("PORT") != "" || len(os.Args) == 1 {
-		// HTTP server mode
-		if httpPort == "" {
-			httpPort = "3001b"
-		}
-		http.HandleFunc("/api/orchestrate", handleOrchestrate)
-		http.HandleFunc("/health", handleHealth)
-		addr := ":" + httpPort
-		log.Printf("[orchestrator-go] HTTP server listening on %s (granja-ttl=%s)", addr, granjaTTL)
-		if err := http.ListenAndServe(addr, nil); err != nil {
-			log.Fatalf("listen: %v", err)
-		}
-		return
+	// HTTP server mode
+	if httpPort == "" {
+		httpPort = "3011"
 	}
+	// Strip non-digit suffix like "3001b" -> "3001" (Go's net would try to resolve as service name)
+	cleanPort := ""
+	for _, c := range httpPort {
+		if c >= '0' && c <= '9' {
+			cleanPort += string(c)
+		}
+	}
+	if cleanPort == "" {
+		cleanPort = "3011"
+	}
+	http.HandleFunc("/api/orchestrate", handleOrchestrate)
+	http.HandleFunc("/health", handleHealth)
+	addr := ":" + cleanPort
+	log.Printf("[orchestrator-go] HTTP server listening on %s (granja-ttl=%s)", addr, granjaTTL)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		log.Fatalf("listen: %v", err)
+	}
+	return
+}
 
 	// CLI mode (legacy)
 	prompt := promptFlag

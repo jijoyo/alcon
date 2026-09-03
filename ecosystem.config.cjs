@@ -18,7 +18,7 @@ module.exports = {
       script: './orchestrator',
       args: '--http',
       env: {
-        PORT: '3001b',
+        PORT: '3011',
         OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || '',
         ALCON_CODE_ROOT: process.env.ALCON_CODE_ROOT || '/home/ubuntu/alcon',
         ALCON_PENDING_DIR: process.env.ALCON_PENDING_DIR || '/home/ubuntu/alcon/server/go/memory',
