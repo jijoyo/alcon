@@ -13,6 +13,19 @@ module.exports = {
       env: { NODE_ENV: 'production' }
     },
     {
+      name: 'alcon-orchestrator-go',
+      cwd: './server/go',
+      script: './orchestrator',
+      args: '--http',
+      env: {
+        PORT: '3001b',
+        OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || '',
+        ALCON_CODE_ROOT: process.env.ALCON_CODE_ROOT || '/home/ubuntu/alcon',
+        ALCON_PENDING_DIR: process.env.ALCON_PENDING_DIR || '/home/ubuntu/alcon/server/go/memory',
+        ALCON_GRANJA: process.env.ALCON_GRANJA || '/home/ubuntu/alcon/server/go/granja.json'
+      }
+    },
+    {
       name: 'vps-agent',
       script: './agents/agent.js',
       args: 'vps',
