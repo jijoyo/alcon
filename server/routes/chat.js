@@ -54,18 +54,21 @@ export function registerChat(io) {
   }
 
   chatNs.on('connection', (socket) => {
-    socket.on('chat:join', ({ name }) => {
-      for (const [existingId, existingP] of presence) {
-        if (existingP.name === name) {
-          presence.delete(existingId);
-          const oldSocket = chatNs.sockets.get(existingId);
-          if (oldSocket) {
-            console.log(`[presence] kicking duplicate ${name} oldSocket=${oldSocket.id}`);
-            oldSocket.disconnect(true);
+    socket.on('chat:join', ({ name, sessionId }) => {
+      const isAgent = socket.handshake.auth?.isAgent === true;
+      if (isAgent) {
+        for (const [existingId, existingP] of presence) {
+          if (existingP.name === name && existingId !== socket.id) {
+            const oldSocket = chatNs.sockets.get(existingId);
+            if (oldSocket) {
+              console.log(`[presence] kicking duplicate agent ${name} oldSocket=${oldSocket.id}`);
+              oldSocket.disconnect(true);
+            }
+            presence.delete(existingId);
           }
         }
       }
-      presence.set(socket.id, { name:name||'user', status:'vivo', lastSeen:Date.now(), typing:false });
+      presence.set(socket.id, { name: name||'user', sessionId, isAgent, status:'vivo', lastSeen:Date.now(), typing:false });
       const db = getDb();
       socket.emit('chat:history', db.prepare('SELECT * FROM chat ORDER BY timestamp ASC').all());
       broadcastPresence(chatNs);
