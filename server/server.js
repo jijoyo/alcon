@@ -13,7 +13,10 @@ import { discover } from './lib/auto-discovery.js';
 import granjaRoutes from './routes/granja.js';
 import espanolRoutes from './routes/espanol.js';
 import memoriaRoutes from './routes/memoria.js';
+import jobsRoutes from './routes/jobs.js';
 import { queryRAG } from './rag-qwen.js';
+import { startInboxWatcher, scanInbox } from './lib/inbox-processor.js';
+import { reapStaleJobs } from './config/jobs.js';
 
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
@@ -44,9 +47,13 @@ await fastify.register(tasksRoutes);
 
 await discover();
 setInterval(() => discover(), 60000);
+scanInbox();
+startInboxWatcher(30000);
+setInterval(() => { const r = reapStaleJobs(); if (r > 0) fastify.log.info(`[jobs] ${r} stale jobs reaped`); }, 60000);
 fastify.register(granjaRoutes);
 fastify.register(espanolRoutes);
 fastify.register(memoriaRoutes);
+fastify.register(jobsRoutes);
 
 fastify.get('/health', async () => {
   const db = getDb();

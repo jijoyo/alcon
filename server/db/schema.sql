@@ -60,3 +60,16 @@ CREATE TABLE IF NOT EXISTS stage_log (
   by_agent TEXT,
   timestamp TEXT
 );
+
+CREATE TABLE IF NOT EXISTS job_runs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  job_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  agent TEXT NOT NULL,
+  started TEXT NOT NULL DEFAULT (datetime('now')),
+  finished TEXT,
+  status TEXT DEFAULT 'running' CHECK(status IN ('running','done','error')),
+  output TEXT,
+  error TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_job_runs_job_id ON job_runs(job_id);

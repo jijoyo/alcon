@@ -1,6 +1,6 @@
 # PLAN CHORIZO — Infra Alcon v5 (fuente única + PWA espejo + systemd)
 
-> Estado: pendiente aprobación · Skill: project-loop v1.2
+> Estado: **COMPLETADO** (2026-09-03) · Commit: pendiente
 > Origen: auditoría radar+local-router (duelo Atomic) — Kanban viejo vs inbox vs buzon peleados
 
 ## Objetivo
