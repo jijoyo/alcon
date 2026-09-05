@@ -33,6 +33,11 @@ evidencia/
 .qdrant-initialized
 server/lib/runtime-state.json
 
+# Secrets (XDG, nunca commitear)
+.config/alcon/
+obsidian-vault/.secrets/
+.secrets/
+
 # Sesiones de agentes (ruido local)
 docs/sessions/
 cache/
@@ -46,3 +51,5 @@ server/.venv/
 # server/rag-qwen.js removido del ignore: es codigo core (fix timeout 2026-08-29)
 scripts/rag.sh
 server/lib/orchestrator.js.bak2
+INDEX.md
+.index-notes
