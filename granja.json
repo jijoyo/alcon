@@ -11,7 +11,8 @@
     "quick-review": { "devices": ["debian"] },
     "code-audit": { "devices": ["debian", "kali", "vps", "cel"] },
     "research-deep": { "devices": ["debian"] },
-    "duelo": { "devices": ["debian", "kali", "vps", "cel", "montar-forja"], "description": "Modo duelo: contendientes en paralelo, jueces y evaluado muteado (fase B) + sentencia Engram" }
+    "duelo": { "devices": ["debian", "kali", "vps", "cel", "montar-forja"], "description": "Modo duelo: contendientes en paralelo, jueces y evaluado muteado (fase B) + sentencia Engram" },
+    "dose-audit": { "devices": ["debian", "kali", "vps", "cel"], "description": "Batallón dose-dash: audita ~/Documentos/dose-dash-digital con 4 roles, no toca Alcon. Usa @dose-audit revisa X" }
   },
   "router": {
     "url": "http://100.121.64.26:8080",
