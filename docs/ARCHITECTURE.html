@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alcon Brain Map</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 16px; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  .meta { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+  .warn { background: #451a03; border: 1px solid #f59e0b; padding: 8px; border-radius: 8px; margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .col { background: #111c34; border: 1px solid #22304d; border-radius: 10px; padding: 8px; min-height: 120px; }
+  .node { border-radius: 8px; padding: 6px; margin: 6px 0; font-size: 12px; background: #1e293b; }
+  .ok { border-left: 6px solid #22c55e; }
+  .bad { border-left: 6px solid #ef4444; }
+  .na { border-left: 6px solid #64748b; }
+  table { width: 100%; font-size: 12px; border-collapse: collapse; margin-top: 12px; }
+  td, th { border: 1px solid #22304d; padding: 4px 6px; text-align: left; }
+</style>
+</head>
+<body>
+<h1>Alcon Brain Map</h1>
+<div class="meta" id="meta">cargando…</div>
+<div id="warn"></div>
+<div class="grid">
+  <div class="col" id="col-services"><h3>Servicios</h3></div>
+  <div class="col" id="col-squads"><h3>Squads</h3></div>
+  <div class="col" id="col-devices"><h3>Devices</h3></div>
+</div>
+<table><tbody id="health"></tbody></table>
+<!--ALCON-GRAPH:START-->
+<!--ALCON-GRAPH:END-->
+<script>
+const API_CANDIDATES = ['/api/health-map', 'http://100.102.63.30:3003/api/health-map'];
+const HEALTH_KEY = {
+  'svc:forja-router': 'router',
+  'svc:alcon-api': 'api',
+  'svc:alcon-pwa': 'pwa',
+  'svc:go-orchestrator': 'go'
+};
+
+async function loadGraph() {
+  const embedded = document.querySelector('#alcon-graph');
+  if (embedded) return JSON.parse(embedded.textContent);
+  const res = await fetch('./alcon-graph.json');
+  return await res.json();
+}
+
+async function loadHealth() {
+  for (const url of API_CANDIDATES) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) return { data: await res.json(), url };
+    } catch {}
+  }
+  return { data: null, url: null };
+}
+
+function statusClass(key, health) {
+  if (!health || !health[key]) return 'na';
+  const value = health[key].ok;
+  if (value === true) return 'ok';
+  if (value === false) return 'bad';
+  return 'na';
+}
+
+async function render() {
+  const graph = await loadGraph().catch(() => ({ nodes: [], edges: [] }));
+  const { data: health, url } = await loadHealth();
+  document.getElementById('meta').textContent = `nodos=${graph.nodes.length} aristas=${graph.edges.length} health=${url || 'sin conexión'} ts=${health?.timestamp || '-'}`;
+
+  const services = graph.nodes.filter(n => n.id.startsWith('svc:'));
+  const squads = graph.nodes.filter(n => n.id.startsWith('squad:'));
+  const devices = graph.nodes.filter(n => n.id.startsWith('device:'));
+  const shown = [...services, ...squads.slice(0, 5), ...devices].slice(0, 12);
+  document.getElementById('warn').innerHTML = graph.nodes.length > 12
+    ? `<div class="warn">Mostrando 12 de ${graph.nodes.length} nodos por legibilidad.</div>` : '';
+
+  const paint = (list, el) => {
+    document.getElementById(el).innerHTML = `<h3>${document.getElementById(el).querySelector('h3').textContent}</h3>` + list.map(n => {
+      const cls = n.id.startsWith('svc:') ? statusClass(HEALTH_KEY[n.id], health) : 'na';
+      return `<div class="node ${cls}"><b>${n.id}</b><br>${n.file} · ${n.lines} líneas</div>`;
+    }).join('');
+  };
+  paint(services, 'col-services');
+  paint(squads.slice(0, 5), 'col-squads');
+  paint(shown.filter(n => n.id.startsWith('device:')), 'col-devices');
+
+  const rows = [['router', 'forja-router'], ['api', 'alcon-api'], ['pwa', 'alcon-pwa'], ['go', 'go-orchestrator']]
+    .map(([key, label]) => {
+      const h = health?.[key] || {};
+      const ok = h.ok === true ? 'verde' : h.ok === false ? 'rojo' : 'gris';
+      return `<tr><td>${label}</td><td>${ok}</td><td>${h.host || '-'}</td><td>${h.ms ?? '-'}</td></tr>`;
+    }).join('');
+  document.getElementById('health').innerHTML = `<tr><th>pieza</th><th>estado</th><th>host</th><th>ms</th></tr>${rows}`;
+}
+
+render();
+setInterval(render, 30000);
+</script>
+</body>
+</html>

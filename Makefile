@@ -1,4 +1,4 @@
-.PHONY: test-squad test-cold test-empty test-air test-hot test-all ferrari test
+.PHONY: test-squad test-cold test-empty test-air test-hot test-all ferrari test brain-map
 
 test-cold:
 	@echo "=== TEST FRIO: clon limpio ==="
@@ -38,3 +38,7 @@ ferrari:
 	@./scripts/ferrari.sh
 
 test: test-squad
+
+brain-map:
+	@node scripts/alcon-brain-map.js
+	@python3 -c "import json; d=json.load(open('docs/alcon-graph.json')); print(f\"mapa: {len(d['nodes'])} nodos, {len(d['edges'])} aristas\")"
