@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   stage_updated_at TEXT,
   artifacts TEXT DEFAULT '[]',
   blocked_by TEXT DEFAULT '[]',
-  squad TEXT
+  squad TEXT,
+  model TEXT
 );
 
 CREATE TABLE IF NOT EXISTS messages (

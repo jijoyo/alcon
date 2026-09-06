@@ -71,13 +71,14 @@ export default async function tasksRoutes(fastify) {
 
       setImmediate(async () => {
         try {
-          const { handleSquadMessage, squadSessions } = await import('../lib/orchestrator.js');
-          if (squadSessions.has(squad)) squadSessions.get(squad).taskId = id;
+          const { handleSquadMessage, squadSessions, getLastSquadModels } = await import('../lib/orchestrator.js');
+          if(squadSessions.has(squad)) squadSessions.get(squad).taskId = id;
           const response = await handleSquadMessage(squad, prompt, request.body?.from || 'api');
           const doneTs = new Date().toISOString();
-          db.prepare("UPDATE tasks SET status='hecho', result=?, completed_at=datetime('now'), stage='done', stage_updated_at=? WHERE id=?").run(response, doneTs, id);
+          const models = (getLastSquadModels(squad) || []).map((m) => `${m.device}:${m.model}`).join(', ');
+          db.prepare("UPDATE tasks SET status='hecho', result=?, model=?, completed_at=datetime('now'), stage='done', stage_updated_at=? WHERE id=?").run(response, models, doneTs, id);
           if (globalThis._io) {
-            globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'hecho', stage: 'done' });
+            globalThis._io.of('/enjambre').emit('task:updated', { id, status: 'hecho', stage: 'done', model: models });
             globalThis._io.of('/enjambre').emit('chat:message', { id: crypto.randomUUID(), from: squad, text: response.slice(0,2000), timestamp: doneTs });
           }
         } catch (e) {

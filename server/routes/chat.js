@@ -144,11 +144,12 @@ export function registerChat(io) {
         chatNs.emit('task:updated', { id: taskId, status: 'en_proceso', squad });
 
         try{
-          const { handleSquadMessage, squadSessions } = await import('../lib/orchestrator.js');
+          const { handleSquadMessage, squadSessions, getLastSquadModels } = await import('../lib/orchestrator.js');
           if(squadSessions && squadSessions.has(squad)) squadSessions.get(squad).taskId = taskId;
           const response = await handleSquadMessage(squad, prompt, from, { backendOverride, deviceFilter });
           const doneTs = new Date().toISOString();
-          db.prepare("UPDATE tasks SET status='hecho', result=?, completed_at=datetime('now'), stage='done', stage_updated_at=? WHERE id=?").run(response, doneTs, taskId);
+          const models = (getLastSquadModels(squad) || []).map((m) => `${m.device}:${m.model}`).join(', ');
+          db.prepare("UPDATE tasks SET status='hecho', result=?, model=?, completed_at=datetime('now'), stage='done', stage_updated_at=? WHERE id=?").run(response, models, doneTs, taskId);
           
           // MEMORY PERSISTENCE
           try{
@@ -167,12 +168,17 @@ export function registerChat(io) {
 
           chatNs.emit('typing:stop');
           chatNs.emit('chat:message', squadMsg);
-          chatNs.emit('task:updated', { id: taskId, status: 'hecho', stage: 'done' });
+          chatNs.emit('task:updated', { id: taskId, status: 'hecho', stage: 'done', model: models });
 
         } catch(e){
           log(`[SQUAD-CHAT] error ${e.message}`);
           chatNs.emit('typing:stop');
-          db.prepare("UPDATE tasks SET status='error', result=?, error_at=datetime('now') WHERE id=?").run(e.message, taskId);
+          let models = '';
+          try {
+            const { getLastSquadModels } = await import('../lib/orchestrator.js');
+            models = (getLastSquadModels(squad) || []).map((m) => `${m.device}:${m.model}`).join(', ');
+          } catch {}
+          db.prepare("UPDATE tasks SET status='error', result=?, model=?, error_at=datetime('now') WHERE id=?").run(e.message, models, taskId);
           chatNs.emit('chat:message', { id: crypto.randomUUID(), from: squad, text: `Error: ${e.message}`, timestamp: now() });
           chatNs.emit('task:updated', { id: taskId, status: 'error' });
         }

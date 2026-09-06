@@ -24,6 +24,13 @@ export function open() {
     db.exec(schema);
   }
 
+  try {
+    const cols = db.prepare('PRAGMA table_info(tasks)').all();
+    if (Array.isArray(cols) && !cols.some((c) => c && c.name === 'model')) {
+      db.exec('ALTER TABLE tasks ADD COLUMN model TEXT');
+    }
+  } catch {}
+
   return db;
 }
 

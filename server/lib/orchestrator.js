@@ -36,7 +36,12 @@ const CONVERSATIONS_DIR = path.join(__dirname, 'memory', 'conversations');
 if (!fs.existsSync(CONVERSATIONS_DIR)) fs.mkdirSync(CONVERSATIONS_DIR, { recursive: true });
 
 const squadSessions = new Map();
+const lastSquadModels = new Map();
 function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+function getLastSquadModels(squad){
+  return lastSquadModels.get(squad) || [];
+}
 
 function loadConversations() {
   try{
@@ -284,6 +289,8 @@ export async function handleSquadMessage(squad, prompt, from='user'){
     }
   }
 
+  lastSquadModels.set(squad, results.map((r)=> ({ device:r.device, model:r.model, role:r.role, ok:r.ok })));
+
   // === FAN-IN: sintetiza perspectivas ===
   const perspectivesText = results.map(r=> `[${r.device}/${r.model}/${r.role}]: ${r.response}`).join('\n---\n');
   const synthesisPrompt = `Sintetiza estas ${results.length} perspectivas sobre: "${prompt}"\n\n${perspectivesText}\n\nSintesis final en español, corta, accionable. Menciona quien dijo que.`;
@@ -331,4 +338,4 @@ export async function orchestrateTask(task){
   return { final: result, details:[], pendingPath };
 }
 
-export { squadSessions, saveConversation, closeSquadSession, sleep };
+export { squadSessions, saveConversation, closeSquadSession, sleep, getLastSquadModels };
