@@ -12,9 +12,10 @@
   .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
   .col { background: #111c34; border: 1px solid #22304d; border-radius: 10px; padding: 8px; min-height: 120px; }
   .node { border-radius: 8px; padding: 6px; margin: 6px 0; font-size: 12px; background: #1e293b; }
-  .ok { border-left: 6px solid #22c55e; }
-  .bad { border-left: 6px solid #ef4444; }
-  .na { border-left: 6px solid #64748b; }
+.ok { border-left: 6px solid #22c55e; }
+.bad { border-left: 6px solid #ef4444; }
+.na { border-left: 6px solid #64748b; }
+.mid { border-left: 6px solid #f59e0b; }
   table { width: 100%; font-size: 12px; border-collapse: collapse; margin-top: 12px; }
   td, th { border: 1px solid #22304d; padding: 4px 6px; text-align: left; }
 </style>
@@ -23,6 +24,7 @@
 <h1>Alcon Brain Map</h1>
 <div class="meta" id="meta">cargando…</div>
 <div id="warn"></div>
+<div id="radar-card"></div>
 <div class="grid">
   <div class="col" id="col-services"><h3>Servicios</h3></div>
   <div class="col" id="col-squads"><h3>Squads</h3></div>
@@ -57,6 +59,32 @@ async function loadHealth() {
   return { data: null, url: null };
 }
 
+async function loadRadar(base) {
+  const urls = [`${base}/api/radar-status`, 'http://100.102.63.30:3003/api/radar-status'];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) return await res.json();
+    } catch {}
+  }
+  return null;
+}
+
+function radarAge(lastFetch) {
+  if (!lastFetch) return null;
+  return Math.floor((Date.now() - new Date(lastFetch).getTime()) / 60000);
+}
+
+function paintRadar(r) {
+  const age = r ? radarAge(r.last_fetch) : null;
+  const cls = age === null || age > 360 ? 'bad' : age > 60 ? 'mid' : 'ok';
+  const label = age === null
+    ? 'sin cacerías registradas (unknown)'
+    : `última cacería: hace ${age < 60 ? age + 'm' : Math.floor(age / 60) + 'h'} — ${r.count ?? '?'} hallazgos de ${r.source || '?'}`;
+  document.getElementById('radar-card').innerHTML =
+    `<div class="node ${cls}"><b>📡 radar</b> · ${label}</div>`;
+}
+
 function statusClass(key, health) {
   if (!health || !health[key]) return 'na';
   const value = health[key].ok;
@@ -68,6 +96,8 @@ function statusClass(key, health) {
 async function render() {
   const graph = await loadGraph().catch(() => ({ nodes: [], edges: [] }));
   const { data: health, url } = await loadHealth();
+  const base = url && url.startsWith('http') ? new URL(url).origin : location.origin;
+  paintRadar(await loadRadar(base));
   document.getElementById('meta').textContent = `nodos=${graph.nodes.length} aristas=${graph.edges.length} health=${url || 'sin conexión'} ts=${health?.timestamp || '-'}`;
 
   const services = graph.nodes.filter(n => n.id.startsWith('svc:'));

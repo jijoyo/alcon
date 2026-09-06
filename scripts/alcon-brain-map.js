@@ -66,6 +66,26 @@ for (const [squad, cfg] of Object.entries(granja.squads || {})) {
   }
 }
 
+// Nodo radar: refleja el último estado del agente (si existe data/radar.last.json).
+try {
+  const radarPath = path.join(ROOT, 'data', 'radar.last.json');
+  const radarState = JSON.parse(fs.readFileSync(radarPath, 'utf8'));
+  nodes.push({
+    id: 'agent:radar',
+    file: 'server/config/agents.js',
+    role: `agent:last_fetch=${radarState.last_fetch || 'unknown'} count=${radarState.count ?? '?'}`,
+    lines: lineCount(path.join(ROOT, 'server', 'config', 'agents.js')),
+  });
+  edges.push({ from: 'svc:alcon-api', to: 'agent:radar', type: 'listener' });
+} catch {
+  nodes.push({
+    id: 'agent:radar',
+    file: 'server/config/agents.js',
+    role: 'agent:status=unknown',
+    lines: lineCount(path.join(ROOT, 'server', 'config', 'agents.js')),
+  });
+}
+
 const graph = { nodes, edges };
 fs.mkdirSync(path.dirname(GRAPH_PATH), { recursive: true });
 fs.writeFileSync(GRAPH_PATH, JSON.stringify(graph, null, 2) + '\n');

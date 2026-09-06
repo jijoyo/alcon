@@ -10,7 +10,7 @@
       "id": "svc:alcon-api",
       "file": "server/server.js",
       "role": "api",
-      "lines": 138
+      "lines": 140
     },
     {
       "id": "svc:alcon-pwa",
@@ -83,6 +83,12 @@
       "file": "server/lib/granja.json",
       "role": "squad",
       "lines": 26
+    },
+    {
+      "id": "agent:radar",
+      "file": "server/config/agents.js",
+      "role": "agent:last_fetch=unknown count=?",
+      "lines": 2
     }
   ],
   "edges": [
@@ -270,6 +276,11 @@
       "from": "device:cel",
       "to": "svc:forja-router",
       "type": "call"
+    },
+    {
+      "from": "svc:alcon-api",
+      "to": "agent:radar",
+      "type": "listener"
     }
   ]
 }
