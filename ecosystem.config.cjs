@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'alcon-api',
       script: './server/server.js',
-      env: { PORT: 3003, NODE_ENV: 'production', LLAMA_URL: process.env.LLAMA_URL || 'http://localhost:8080', QDRANT_URL: process.env.QDRANT_URL || 'http://localhost:6333' }
+      env: { PORT: 3003, NODE_ENV: 'production', LLAMA_URL: process.env.LLAMA_URL || 'http://100.121.64.26:8080', BOARD_API_URL: process.env.BOARD_API_URL || 'http://100.121.64.26:9998', QDRANT_URL: process.env.QDRANT_URL || 'http://localhost:6333' }
     },
     {
       name: 'alcon-pwa',
