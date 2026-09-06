@@ -96,10 +96,15 @@ if (fs.existsSync(HTML_PATH)) {
   const payload = JSON.stringify(graph);
   const start = '<!--ALCON-GRAPH:START-->';
   const end = '<!--ALCON-GRAPH:END-->';
-  const pattern = new RegExp(`${start}[\s\S]*?${end}`);
-  const replacement = `${start}\n<script type="application/json" id="alcon-graph">${payload}</script>\n${end}`;
-  if (pattern.test(html)) {
-    fs.writeFileSync(HTML_PATH, html.replace(pattern, replacement));
+  const i1 = html.indexOf(start);
+  const i2 = html.indexOf(end);
+  if (i1 !== -1 && i2 > i1) {
+    const out = html.slice(0, i1 + start.length)
+      + '\n<script type="application/json" id="alcon-graph">' + payload + '</script>\n'
+      + html.slice(i2);
+    fs.writeFileSync(HTML_PATH, out);
+  } else {
+    console.log('brain-map: marcadores ALCON-GRAPH no encontrados, sin inyección');
   }
 }
 
