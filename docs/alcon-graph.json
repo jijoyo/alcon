@@ -103,6 +103,18 @@
       "type": "call"
     },
     {
+      "from": "svc:alcon-pwa",
+      "to": "svc:alcon-api",
+      "type": "http",
+      "via": "pwa/src/lib/api.ts: POST /api/task, GET /api/tasks, POST /api/task/:id/claim, POST /api/task/:id/heartbeat"
+    },
+    {
+      "from": "svc:alcon-pwa",
+      "to": "svc:alcon-api",
+      "type": "socket",
+      "via": ":3003"
+    },
+    {
       "from": "svc:alcon-api",
       "to": "squad:quick-review",
       "type": "orchestrate"

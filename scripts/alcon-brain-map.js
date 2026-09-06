@@ -56,6 +56,8 @@ for (const [name] of Object.entries(granja.squads || {})) {
 const edges = [
   { from: 'svc:alcon-api', to: 'svc:forja-router', type: 'call' },
   { from: 'svc:go-orchestrator', to: 'svc:forja-router', type: 'call' },
+  { from: 'svc:alcon-pwa', to: 'svc:alcon-api', type: 'http', via: 'pwa/src/lib/api.ts: POST /api/task, GET /api/tasks, POST /api/task/:id/claim, POST /api/task/:id/heartbeat' },
+  { from: 'svc:alcon-pwa', to: 'svc:alcon-api', type: 'socket', via: ':3003' },
 ];
 
 for (const [squad, cfg] of Object.entries(granja.squads || {})) {
