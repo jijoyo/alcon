@@ -121,6 +121,18 @@ async function callOpenCode(prompt, systemPrompt, model='opencode/mimo-v2.5-free
 }
 
 // === THROTTLED CALL con fallback ===
+function resolveLlamaModel(ref){
+  if(!ref || ref.startsWith('opencode/')) return ref || 'gemma4-12b-unc';
+  const aliases = {
+    'code-review': 'gemma4-12b-unc',
+    'quick-review': 'gemma4-12b-unc',
+    'local': 'gemma4-12b-unc',
+    'qwen': 'qwen36-mx',
+    'qwen36': 'qwen36-mx'
+  };
+  return aliases[ref] || ref;
+}
+
 async function throttledCall(agent, prompt, history){
   // === HYBRID: debian/kali pueden caer a nube si local falla ===
   const tryLocalFirst = agent.hybrid || agent.backend === 'llama';
@@ -130,15 +142,16 @@ async function throttledCall(agent, prompt, history){
   
   if(tryLocalFirst){
     // Intenta local primero
+    const llamaModel = resolveLlamaModel(agent.model_ref);
     try{
       const url = agent.url || LLAMA;
       if(agent.model_ref && !agent.model_ref.startsWith('opencode/')) await boardStart(agent.model_ref);
       const hist = history ? [...history] : [{role:'user', content:prompt}];
       hist[hist.length-1].content = injectCode(hist[hist.length-1].content);
-      const res = await callLlamaWithHistory(hist, agent.system_prompt || `Sos ${agent.role} del enjambre Alcon.`, url, agent.model_ref || 'gemma4-12b-unc');
-      return res;
+      const res = await callLlamaWithHistory(hist, agent.system_prompt || `Sos ${agent.role} del enjambre Alcon.`, url, llamaModel);
+      return { text: res, model: llamaModel };
     }catch(e){
-      console.log(`[hybrid] ${agent.device}/${agent.model_ref} local fallo: ${e.message}, probando nube...`);
+      console.log(`[hybrid] ${agent.device}/${llamaModel} local fallo: ${e.message}, probando nube...`);
       // cae a nube
       await sleep(agent.cloud_throttle_ms || 4000);
       // busca primer modelo cloud en fallback
@@ -146,26 +159,35 @@ async function throttledCall(agent, prompt, history){
       for(const cloudModel of cloudModels){
         try{
           const r = await callOpenCode(prompt, agent.system_prompt || `Sos ${agent.role}`, cloudModel);
-          return r;
+          return { text: r, model: cloudModel };
         }catch(ce){
           if(ce.message.includes('429')){ await sleep(5000); continue; }
           throw ce;
         }
       }
-      throw e; // si no hay cloud fallback, lanza error local
+      const err = new Error(e.message);
+      err.usedModel = llamaModel;
+      throw err; // si no hay cloud fallback, lanza error local
     }
   }
 
   if(backend === 'llama' && !tryLocalFirst){
 
     // local: sin throttle, board switch ya serializa GPU
+    const llamaModel = resolveLlamaModel(agent.model_ref);
     const url = agent.url || LLAMA;
     if(agent.model_ref) await boardStart(agent.model_ref);
     const hist = history ? [...history] : [{role:'user', content:prompt}];
     // inject code en ultimo mensaje
     hist[hist.length-1].content = injectCode(hist[hist.length-1].content);
-    const res = await callLlamaWithHistory(hist, systemPrompt, url, agent.model_ref || 'gemma4-12b-unc');
-    return res;
+    try {
+      const res = await callLlamaWithHistory(hist, systemPrompt, url, llamaModel);
+      return { text: res, model: llamaModel };
+    } catch(e) {
+      const err = new Error(e.message);
+      err.usedModel = llamaModel;
+      throw err;
+    }
   }
   
   if(backend === 'opencode'){
@@ -181,7 +203,7 @@ async function throttledCall(agent, prompt, history){
       try{
         console.log(`[throttle] ${agent.device}/${model} intento ${attempt+1}`);
         const res = await callOpenCode(prompt, systemPrompt, model);
-        return res;
+        return { text: res, model };
       }catch(e){
         const msg = e.message||'';
         if(msg.includes('429') || msg.toLowerCase().includes('rate') || msg.includes('Too Many')){
@@ -189,10 +211,13 @@ async function throttledCall(agent, prompt, history){
           await sleep(5000 * (attempt+1)); // backoff exponencial
           continue;
         }
+        e.usedModel = model;
         throw e;
       }
     }
-    throw new Error('Todos los modelos free rate-limited');
+    const rateErr = new Error('Todos los modelos free rate-limited');
+    rateErr.usedModel = fallback[fallback.length - 1];
+    throw rateErr;
   }
 }
 
@@ -269,8 +294,8 @@ export async function handleSquadMessage(squad, prompt, from='user'){
     const localPromises = localAgents.map(async (agent)=>{
       try{
         const r = await throttledCall(agent, promptForAgents, session.history);
-        return { model:agent.model_ref, device:agent.device, role:agent.role, response:r, ok:true };
-      }catch(e){ return { model:agent.model_ref, device:agent.device, role:agent.role, response:e.message, ok:false }; }
+        return { model:r.model || agent.model_ref, device:agent.device, role:agent.role, response:r.text, ok:true };
+      }catch(e){ return { model:e.usedModel || agent.model_ref, device:agent.device, role:agent.role, response:e.message, ok:false }; }
     });
     const localResults = await Promise.allSettled(localPromises);
     for(const lr of localResults){
@@ -283,9 +308,9 @@ export async function handleSquadMessage(squad, prompt, from='user'){
   for(const agent of cloudAgents){
     try{
       const r = await throttledCall(agent, promptForAgents, session.history);
-      results.push({ model:agent.model_ref, device:agent.device, role:agent.role, response:r, ok:true });
+      results.push({ model:r.model || agent.model_ref, device:agent.device, role:agent.role, response:r.text, ok:true });
     }catch(e){
-      results.push({ model:agent.model_ref, device:agent.device, role:agent.role, response:e.message, ok:false });
+      results.push({ model:e.usedModel || agent.model_ref, device:agent.device, role:agent.role, response:e.message, ok:false });
     }
   }
 
