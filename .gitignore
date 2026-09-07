@@ -55,3 +55,18 @@ scripts/rag.sh
 server/lib/orchestrator.js.bak2
 INDEX.md
 .index-notes
+
+# Limpieza 2026-09-07: generados, pesados y runtime (no commitear)
+# Modelos locales (4.8GB: gemma3, lfm2.5, qwen3)
+models/
+# Dumps repomix (patron explicito: hay XML legitimos de Android trackeados)
+alcon-repomix*.xml
+enjambre-fix.xml
+# Cache y scratch de agentes
+.engram/chunks/
+agents/*.txt
+# Binarios Go compilados (el fuente .go NO se ve afectado)
+server/go/orchestrator
+server/go/orchestrator-arm64
+# Estado runtime del agente Go
+server/go/memory/
