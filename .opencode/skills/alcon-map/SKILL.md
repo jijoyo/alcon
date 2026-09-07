@@ -11,6 +11,10 @@ Antes de modificar Alcon:
 2. Verifica `GET /api/health-map` (router/API/PWA/Go en verde).
 3. Si cambiaste estructura (routes, squads, servicios), corre `make brain-map`.
 4. No toques el contrato `{final,details,pendingPath}` ni la paridad Go/Node.
+5. Doctrina V4.4 (`plantilla-generica-brain-map-v4.4.md`): N/M honesta
+   (el generador manda), cuarentena para `nodos/*/agent.md` no verificados,
+   prohibida la frase "aprobación del dashboard" (solo vale aprobación
+   humana en chat).
 
 ## Receta replicable (cualquier proyecto)
 
