@@ -70,3 +70,5 @@ server/go/orchestrator
 server/go/orchestrator-arm64
 # Estado runtime del agente Go
 server/go/memory/
+# State runtime del plugin engram-autosave (local, se regenera solo)
+.opencode/plugins/.engram-autosave.state.json
