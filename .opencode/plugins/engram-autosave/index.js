@@ -4,6 +4,7 @@
 // Nunca lanza: un plugin roto no debe romper la sesión.
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { join, basename, dirname } from "node:path";
+import { execFileSync } from "node:child_process";
 
 const MIN_INTERVAL_MS = 900000; // 15 min, ajustable aquí
 const MAX_STATUS_LINES = 10;
@@ -18,16 +19,22 @@ async function loadState(stateFile) {
   }
 }
 
-async function saveCheckpoint($, log, project, trigger, stateFile) {
+// Sin $ de Bun: en desktop puede no existir y cada save reventaría en
+// silencio. Solo node:stdlib (child_process funciona en Bun y Node).
+function sh(cmd, args, cwd) {
+  try {
+    return execFileSync(cmd, args, { cwd, timeout: 30000, encoding: "utf8" }).trim();
+  } catch {
+    return "";
+  }
+}
+
+async function saveCheckpoint(log, project, trigger, stateFile, cwd) {
   let branch = "?";
   let status = "(sin cambios)";
-  try {
-    branch = (await $`git branch --show-current`.text()).trim() || "?";
-    const raw = (await $`git status --short`.text()).trim();
-    if (raw) status = raw.split("\n").slice(0, MAX_STATUS_LINES).join("\n");
-  } catch {
-    // fuera de un repo git: se guarda igual con branch "?"
-  }
+  branch = sh("git", ["branch", "--show-current"], cwd) || "?";
+  const raw = sh("git", ["status", "--short"], cwd);
+  if (raw) status = raw.split("\n").slice(0, MAX_STATUS_LINES).join("\n");
   const stamp = new Date().toISOString();
   const title = `Checkpoint auto ${project} ${stamp}`;
   const body = [
@@ -36,14 +43,15 @@ async function saveCheckpoint($, log, project, trigger, stateFile) {
     `Cambios:`,
     status,
   ].join("\n");
-  await $`${ENGRAM_BIN} save ${title} ${body} --type evidence --project ${project}`;
+  sh(ENGRAM_BIN, ["save", title, body, "--type", "evidence", "--project", project], cwd);
   await mkdir(dirname(stateFile), { recursive: true });
   await writeFile(stateFile, JSON.stringify({ lastSave: Date.now() }) + "\n");
   log(`engram-autosave: checkpoint guardado (${trigger})`);
 }
 
-export const EngramAutosave = async ({ client, $, directory }) => {
+export const EngramAutosave = async ({ client, directory }) => {
   const project = basename(directory || "alcon");
+  const cwd = directory || ".";
   // Sin import.meta (Bun-only, revienta en Node y el loader lo descarta en
   // silencio — issue #34742): el state cuelga de directory del ctx.
   const stateFile = join(directory || ".", ".opencode/plugins/.engram-autosave.state.json");
@@ -66,7 +74,7 @@ export const EngramAutosave = async ({ client, $, directory }) => {
     if (Date.now() - (state.lastSave || 0) < MIN_INTERVAL_MS) return; // freno 2: intervalo
     saving = true;
     try {
-      await saveCheckpoint($, log, project, trigger, stateFile);
+      await saveCheckpoint(log, project, trigger, stateFile, cwd);
       state.lastSave = Date.now();
       dirty = false;
     } catch (err) {
