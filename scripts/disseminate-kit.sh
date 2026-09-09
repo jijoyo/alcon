@@ -52,7 +52,19 @@ if grep -q "source-template: $KIT_VERSION desde alcon" "$DEST" 2>/dev/null; then
   echo "Plugin: ya en $KIT_VERSION, skip."
 else
   { echo "// source-template: $KIT_VERSION desde alcon ($(date +%Y-%m-%d)) — canon: alcon/.opencode/plugins/engram-autosave/index.js"; cat "$CANON_PLUGIN"; } > "$DEST.tmp" && mv "$DEST.tmp" "$DEST"
-  [ -f "$PKGDIR/package.json" ] || printf '{\n  "type": "module"\n}\n' > "$PKGDIR/package.json"
+  # Descriptor completo: sin name+main el resolvedor traga el plugin en silencio (#34742).
+  [ -f "$PKGDIR/package.json" ] && grep -q '"main"' "$PKGDIR/package.json" || cat > "$PKGDIR/package.json" <<'EOF'
+{
+  "name": "opencode-engram-autosave",
+  "version": "1.2.0",
+  "description": "Checkpoint factual automatico en Engram (session.idle con freno doble)",
+  "main": "index.js",
+  "type": "module",
+  "keywords": ["opencode-plugin", "memory", "engram"],
+  "author": "jijoyo",
+  "license": "MIT"
+}
+EOF
   echo "Plugin: instalado $KIT_VERSION (package-dir)."
 fi
 
