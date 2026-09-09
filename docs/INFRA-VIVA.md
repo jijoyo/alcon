@@ -127,3 +127,13 @@ TUI, CLI y desktop.
 Guía canónica: `~/obsidian-vault/02-guías/graphify-bisturi.md`.
 `graphify-out/` ignorado excepto `GRAPH_REPORT.md` (evidencia).
 Brújula (servicios) ≠ bisturí (código).
+
+## Kit repartidor + doctor (2026-09-09)
+
+- `scripts/disseminate-kit.sh <repo>` — reparte kit v1 (idempotente,
+  respaldo en /tmp/disseminate-backup/, rehúsa alcon).
+- `scripts/kit-doctor.sh <repo>` — PASS/FAIL (versión, frescura vs HEAD,
+  links, INDEX). Doctor en alcon cazó reporte obsoleto real el día 1.
+- `scripts/kit-proyecto.sh <repo>` — indexador + repartidor + doctor.
+- Skill graph-keeper verifica el kit al iniciar sesión (sin cron).
+- Catálogo: `09-catálogos/catalogo-crons.md` (manual, el generador no lo toca).
