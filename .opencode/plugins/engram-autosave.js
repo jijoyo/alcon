@@ -2,24 +2,23 @@
 // Dispara en session.idle con freno doble (dirty + intervalo 15min) y en
 // session.compacted como red. v1: checkpoint FACTUAL sin LLM.
 // Nunca lanza: un plugin roto no debe romper la sesión.
-import { readFile, writeFile } from "node:fs/promises";
-import { join, basename } from "node:path";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { join, basename, dirname } from "node:path";
 
 const MIN_INTERVAL_MS = 900000; // 15 min, ajustable aquí
 const MAX_STATUS_LINES = 10;
 
-const STATE_FILE = join(import.meta.dir, ".engram-autosave.state.json");
 const ENGRAM_BIN = (process.env.HOME || "/home/israel") + "/.local/bin/engram";
 
-async function loadState() {
+async function loadState(stateFile) {
   try {
-    return JSON.parse(await readFile(STATE_FILE, "utf8"));
+    return JSON.parse(await readFile(stateFile, "utf8"));
   } catch {
     return { lastSave: 0 };
   }
 }
 
-async function saveCheckpoint($, log, project, trigger) {
+async function saveCheckpoint($, log, project, trigger, stateFile) {
   let branch = "?";
   let status = "(sin cambios)";
   try {
@@ -38,13 +37,17 @@ async function saveCheckpoint($, log, project, trigger) {
     status,
   ].join("\n");
   await $`${ENGRAM_BIN} save ${title} ${body} --type evidence --project ${project}`;
-  await writeFile(STATE_FILE, JSON.stringify({ lastSave: Date.now() }) + "\n");
+  await mkdir(dirname(stateFile), { recursive: true });
+  await writeFile(stateFile, JSON.stringify({ lastSave: Date.now() }) + "\n");
   log(`engram-autosave: checkpoint guardado (${trigger})`);
 }
 
 export const EngramAutosave = async ({ client, $, directory }) => {
   const project = basename(directory || "alcon");
-  const state = await loadState();
+  // Sin import.meta (Bun-only, revienta en Node y el loader lo descarta en
+  // silencio — issue #34742): el state cuelga de directory del ctx.
+  const stateFile = join(directory || ".", ".opencode/plugins/.engram-autosave.state.json");
+  const state = await loadState(stateFile);
   let dirty = false;
   let saving = false;
 
@@ -63,7 +66,7 @@ export const EngramAutosave = async ({ client, $, directory }) => {
     if (Date.now() - (state.lastSave || 0) < MIN_INTERVAL_MS) return; // freno 2: intervalo
     saving = true;
     try {
-      await saveCheckpoint($, log, project, trigger);
+      await saveCheckpoint($, log, project, trigger, stateFile);
       state.lastSave = Date.now();
       dirty = false;
     } catch (err) {
