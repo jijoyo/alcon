@@ -4,9 +4,9 @@
 # Idempotente: re-ejecutable sin duplicar. JAMÁS contra alcon (ahí se canoniza).
 set -euo pipefail
 
-KIT_VERSION="v1"
+KIT_VERSION="v1.2"
 CANON_DIR="$(realpath "$(dirname "$0")/..")"
-CANON_PLUGIN="$CANON_DIR/.opencode/plugins/engram-autosave.js"
+CANON_PLUGIN="$CANON_DIR/.opencode/plugins/engram-autosave/index.js"
 REPO="${1:?Uso: $0 <repo> [--graph-dir DIR] [--brain FILE] [--no-graphify]}"
 shift || true
 GRAPH_DIR="docs"
@@ -43,14 +43,17 @@ tar -czf "$BACKUP/pre.tgz" -C "$REPO" .opencode 2>/dev/null || true
 [ -f "$REPO/.gitignore" ] && cp "$REPO/.gitignore" "$BACKUP/gitignore" || true
 echo "Respaldo: $BACKUP"
 
-# Plugin (skip si misma versión)
-mkdir -p "$REPO/.opencode/plugins"
-DEST="$REPO/.opencode/plugins/engram-autosave.js"
+# Plugin como package-dir (igual que lazy-load: solo los dirs cargan siempre).
+# Skip si misma versión.
+PKGDIR="$REPO/.opencode/plugins/engram-autosave"
+DEST="$PKGDIR/index.js"
+mkdir -p "$PKGDIR"
 if grep -q "source-template: $KIT_VERSION desde alcon" "$DEST" 2>/dev/null; then
   echo "Plugin: ya en $KIT_VERSION, skip."
 else
-  { echo "// source-template: $KIT_VERSION desde alcon ($(date +%Y-%m-%d)) — canon: alcon/.opencode/plugins/engram-autosave.js"; cat "$CANON_PLUGIN"; } > "$DEST.tmp" && mv "$DEST.tmp" "$DEST"
-  echo "Plugin: instalado $KIT_VERSION."
+  { echo "// source-template: $KIT_VERSION desde alcon ($(date +%Y-%m-%d)) — canon: alcon/.opencode/plugins/engram-autosave/index.js"; cat "$CANON_PLUGIN"; } > "$DEST.tmp" && mv "$DEST.tmp" "$DEST"
+  [ -f "$PKGDIR/package.json" ] || printf '{\n  "type": "module"\n}\n' > "$PKGDIR/package.json"
+  echo "Plugin: instalado $KIT_VERSION (package-dir)."
 fi
 
 # Gitignore (guardas idempotentes)

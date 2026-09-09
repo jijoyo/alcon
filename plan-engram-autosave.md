@@ -21,7 +21,8 @@
 
 ## 2. Diseño exacto (no improvisar)
 
-Archivo: `.opencode/plugins/engram-autosave.js` (ESM, `export const EngramAutosave`).
+Archivo: `.opencode/plugins/engram-autosave/index.js` (ESM, `export const EngramAutosave`,
+package-dir con `package.json` type:module — igual que lazy-load).
 
 ```js
 // Pseudocódigo vinculante:
@@ -53,7 +54,7 @@ archivo, comentada, para ajustarla sin cazarla).
 
 ## 3. Orden de ejecución (paso a paso)
 
-1. Crear `.opencode/plugins/engram-autosave.js` según §2.
+1. Crear `.opencode/plugins/engram-autosave/index.js` (+package.json) según §2.
 2. Agregar a `.gitignore`: `.opencode/plugins/.engram-autosave.state.json`
    (runtime local, con comentario `# state plugin autosave`).
 3. Pruebas (ver §4) — no seguir sin las 5 verdes.

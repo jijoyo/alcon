@@ -109,9 +109,11 @@ venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (router :8080 CPU-
 11. `HF_HUB_OFFLINE=1` en units de systemd bloquea silenciosamente la resolución de modelos (fastretrieval/qwen3_embed fallan "from any source" aunque la red esté bien) — lección RAG 2026-08-30
 12. `opencode run` cuelga en silencio si :8080 está caído (issue upstream #40330: probe a provider local muerto sin timeout). Diagnosticado 2026-09-07: router muerto + bypass `-m` remoto también cuelga + plugin propio exonerado (cuelga igual sin él). `run` no sirve para pruebas hasta revivir el router.
 
-## Plugin engram-autosave (2026-09-07, v1)
+## Plugin engram-autosave (2026-09-07, v1 → v1.2 package-dir 2026-09-09)
 
-Gatillo automático de memoria: `.opencode/plugins/engram-autosave.js`.
+Gatillo automático de memoria: `.opencode/plugins/engram-autosave/index.js`
+(package-dir como lazy-load: solo los dirs cargan siempre; v1.1 portable
+sin import.meta + mkdir state).
 Dispara en `session.idle` con freno doble (dirty + ≥15min) y en
 `session.compacted` como red. Checkpoint factual sin LLM (rama + git status).
 State runtime: `.opencode/plugins/.engram-autosave.state.json` (gitignorado).

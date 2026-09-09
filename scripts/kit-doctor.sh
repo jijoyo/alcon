@@ -13,7 +13,7 @@ bad() { echo "FAIL: $1"; FAIL=1; }
 IS_GIT=0; git -C "$REPO" rev-parse --git-dir >/dev/null 2>&1 && IS_GIT=1
 HAS_MCP=0; grep -q '"engram"' "$REPO/.opencode/opencode.json" ~/.config/opencode/opencode.json ~/.config/opencode/opencode.jsonc 2>/dev/null && HAS_MCP=1
 
-P="$REPO/.opencode/plugins/engram-autosave.js"
+P="$REPO/.opencode/plugins/engram-autosave/index.js"
 if [ -f "$P" ]; then
   ok "plugin existe ($(grep -o 'source-template: [^ ]*' "$P" | head -1 || echo sin-version))"
 elif [ "$HAS_MCP" = 1 ]; then

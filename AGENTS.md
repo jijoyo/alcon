@@ -195,7 +195,7 @@ pm2 logs vps-agent --lines 20 --nostream
 - `graphify-out/graph.json` — grafo código (657 nodos, bisturí)
 - `graphify-out/graph.html` — visualización interactiva de graph.json (vis-network)
 - `graphify-out/GRAPH_REPORT.md` — reporte técnico de graphify-out
-- `.opencode/plugins/engram-autosave.js` — plugin checkpoint auto en session.idle (freno 15min)
+- `.opencode/plugins/engram-autosave/index.js` — plugin checkpoint auto en session.idle (freno 15min, package-dir)
 - `.opencode/plugins/.engram-autosave.state.json` — state runtime (gitignorado, se regenera solo)
 - `docs/MEMORIA.md` — fuentes de verdad unificadas (Engram=decisiones, vault=canon, .engram/memoria.md=log crudo)
 - `plan-engram-autosave.md` — plan completo del plugin engram-autosave
