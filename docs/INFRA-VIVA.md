@@ -117,3 +117,7 @@ Dispara en `session.idle` con freno doble (dirty + ≥15min) y en
 State runtime: `.opencode/plugins/.engram-autosave.state.json` (gitignorado).
 Harness verde (Engram #333). Carga real en TUI pendiente de validar en
 próxima sesión con ediciones: `engram search "Checkpoint auto alcon"`.
+REGLA 2026-09-09: los plugins cargan AL ARRANCAR. Sesión nacida antes que
+el archivo .js jamás lo ve (caso MPLAN 6-sep vs plugin 8-sep: 102 edits,
+cero saves). Tras diseminar un plugin: REINICIAR la app/sesión. Vale para
+TUI, CLI y desktop.
