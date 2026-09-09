@@ -121,3 +121,9 @@ REGLA 2026-09-09: los plugins cargan AL ARRANCAR. Sesión nacida antes que
 el archivo .js jamás lo ve (caso MPLAN 6-sep vs plugin 8-sep: 102 edits,
 cero saves). Tras diseminar un plugin: REINICIAR la app/sesión. Vale para
 TUI, CLI y desktop.
+
+## Graphify bisturí (2026-09-09)
+
+Guía canónica: `~/obsidian-vault/02-guías/graphify-bisturi.md`.
+`graphify-out/` ignorado excepto `GRAPH_REPORT.md` (evidencia).
+Brújula (servicios) ≠ bisturí (código).

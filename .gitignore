@@ -72,3 +72,7 @@ server/go/orchestrator-arm64
 server/go/memory/
 # State runtime del plugin engram-autosave (local, se regenera solo)
 .opencode/plugins/.engram-autosave.state.json
+# Grafo de código Graphify (regenerable con 1 comando, costo 0): se ignora
+# todo menos el reporte, que se trackea como evidencia (auto-declara su commit)
+graphify-out/*
+!graphify-out/GRAPH_REPORT.md
