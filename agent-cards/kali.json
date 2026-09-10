@@ -1,0 +1,1 @@
+{"device":"kali-laptop","firmado_por":"israel","firma_fecha":"2026-09-10","id":"kali","ip_tailscale":"100.103.82.104","puede":["leer-log","responder-socket","ejecutar-bash"],"rol":"ejecutor-git"}

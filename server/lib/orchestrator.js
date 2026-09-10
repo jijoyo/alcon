@@ -337,9 +337,9 @@ export async function handleSquadMessage(squad, prompt, from='user'){
 
   lastSquadModels.set(squad, results.map((r)=> ({ device:r.device, model:r.model, role:r.role, ok:r.ok })));
 
-  // === FAN-IN: sintetiza perspectivas ===
+  // === FAN-IN: sintetiza perspectivas (con rúbrica anti-sycophancy) ===
   const perspectivesText = results.map(r=> `[${r.device}/${r.model}/${r.role}]: ${r.response}`).join('\n---\n');
-  const synthesisPrompt = `Sintetiza estas ${results.length} perspectivas sobre: "${prompt}"\n\n${perspectivesText}\n\nSintesis final en español, corta, accionable. Menciona quien dijo que.`;
+  const synthesisPrompt = `Sintetiza estas ${results.length} perspectivas sobre: "${prompt}"\n\n${perspectivesText}\n\nRÚBRICA (obligatoria): 1) Pesa cada postura por su EVIDENCIA citada, no por cuántos la repiten (mayoría que copia no vale). 2) Si dos se contradicen, muestra ambas + tu veredicto con porqué. 3) Marca con [sin-evidencia] lo que venga sin sustento. 4) Cierra con nivel de acuerdo: UNÁNIME/MAYORÍA/EMPATE (si EMPATE, dilo explícito). Síntesis final en español, corta, accionable. Menciona quien dijo que.`;
 
   // Si hay agentes locales, intenta síntesis con llama; si no, vai directo a OpenCode
   const hasLocalAgents = localAgents.length > 0;
