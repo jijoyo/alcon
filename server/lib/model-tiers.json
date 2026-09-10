@@ -1,0 +1,24 @@
+{
+  "_nota": "Tiers de modelo por tarea. Reconfig a clicks: cambiar model aquí, sin tocar código. Regla: confidencial => liviano local.",
+  "pesado": {
+    "backend": "opencode",
+    "model": "opencode/muse-spark-1.3-contributor-free",
+    "fallback": ["opencode/big-pickle", "opencode/mimo-v2.5-free"],
+    "cuando": "auditorías profundas, duelos, decisiones importantes",
+    "privacidad": "NO confidencial (entrena con prompts)"
+  },
+  "medio": {
+    "backend": "opencode",
+    "model": "opencode/big-pickle",
+    "fallback": ["opencode/mimo-v2.5-free"],
+    "cuando": "reviews normales, research",
+    "privacidad": "NO confidencial (stealth, entrena con datos). Verificado: 2026-09-10"
+  },
+  "liviano": {
+    "backend": "llama",
+    "model": "gemma4-12b-unc",
+    "fallback": [],
+    "cuando": "default, pings, clasificar, todo lo privado",
+    "privacidad": "100% local"
+  }
+}

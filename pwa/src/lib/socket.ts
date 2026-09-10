@@ -1,21 +1,19 @@
 import { io, Socket } from 'socket.io-client';
 
-const BASE = import.meta.env.VITE_API_URL || '';
+const getApiBase = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (typeof window !== 'undefined') {
+    const { protocol, hostname } = window.location;
+    return `${protocol}//${hostname}:3003`;
+  }
+  return 'http://localhost:3003';
+};
+const BASE = getApiBase();
 const NAMESPACE = '/enjambre';
 
 let socket: Socket | null = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let listeners: Array<{ event: string; fn: (...args: any[]) => void }> = [];
-
-const SESSION_KEY = 'alcon-session';
-function getSessionId(): string {
-  let sid = typeof localStorage !== 'undefined' ? localStorage.getItem(SESSION_KEY) : null;
-  if (!sid) {
-    sid = (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
-    try { localStorage.setItem(SESSION_KEY, sid); } catch {}
-  }
-  return sid;
-}
 
 export type Peer = {
   name: string;
@@ -33,11 +31,10 @@ export type ChatMessage = {
 export function getSocket(): Socket {
   if (!socket) {
     socket = io(`${BASE}${NAMESPACE}`, {
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'],
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: Infinity,
-      auth: { sessionId: getSessionId(), isAgent: false }
+      reconnectionAttempts: Infinity
     });
 
     socket.on('connect', () => {
@@ -57,7 +54,7 @@ export function getSocket(): Socket {
 
 export function joinChat(name: string) {
   const s = getSocket();
-  s.emit('chat:join', { name, sessionId: getSessionId() });
+  s.emit('chat:join', { name });
 }
 
 export function sendChatMessage(from: string, text: string) {
