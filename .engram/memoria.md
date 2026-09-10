@@ -225,3 +225,11 @@ Ambos
 
 - **Agente:** debian
 ---
+
+## 2026-09-03 07:44:47 | kali | ERROR
+
+- **Tarea ID:** 1788420586494142
+- **Resumen:** El health está verde pero la PWA se queda en Conectando... — es el WebSocket que no engancha. hice hard refresh (Ctrl+Sh
+- **Resultado:** timeout
+- **Agente:** kali
+---
