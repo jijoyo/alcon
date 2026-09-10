@@ -15,11 +15,14 @@ function hosts(env) {
       pwa: 'http://localhost:3004',
     };
   }
+  // forja: espera API local (plan inbox-grafo: fuera IPs de muertos hardcodeadas)
+  const api = process.env.ALCON_API_URL || 'http://100.121.64.26:3003';
+  const pwa = process.env.ALCON_PWA_URL || 'http://100.121.64.26:3004';
   return {
     go: process.env.GO_URL || null,
     router: 'http://localhost:8080',
-    api: 'http://100.102.63.30:3003',
-    pwa: 'http://100.102.63.30:3004',
+    api,
+    pwa,
   };
 }
 

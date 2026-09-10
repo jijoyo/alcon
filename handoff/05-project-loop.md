@@ -15,6 +15,10 @@ score: 9.5/10
 | 1 | 2026-08-29 | plan-infra-deploy (Ferrari 35min) | completo | 6/6 fases ✅ | Ferrari verde: router 0.0.0.0, 80/20, granja 127.0.0.1 |
 | 2 | 2026-08-29 | mejora-rag (v4.4-embed) | completo | 15/15 eval ✅, 4 bugs muertos | eval harness > intuición; YesNo era perfil interno, no repo |
 | 3 | 2026-08-30 | atomic-ai (duelo Atomic) | light | ✅ D aplasta con evidencia | cliente agéntico es requisito (tool_calls); Engram #303 |
+| 4 | 2026-09-09 | velador-v1 (trigger+5 rondas+LISTO) | completo | ✅ 5/5 pasos, checkpoints OK | inbox-processor come .md en agent-inbox (misión vive en misiones/); trigger fire:false+backoff verificado; bug last= a stdout corregido en checkpoint |
+| 5 | 2026-09-09 | inbox-grafo (cola visible+mapa) | completo | ✅ 5/5 pasos, checkpoints OK | filtro msg-/task-* verificado con señuelos 65s; grafo 15→16 nodos (HTML auto-lee JSON); health-map sin IP muerta; pkill se auto-mataba (truco comillas partidas) |
+| 6 | 2026-09-10 | rag-backups (reindex+qdrant+backup) | completo | ✅ 4/4 pasos, checkpoints OK | embed va a :8080 por IP Tailscale (bind 0.0.0.0); self-SCP funciona; snapshot API+restore misma minor; backup: ~ sin comillas se expande local |
+| 7 | 2026-09-10 | paridad-vps (cerebro+go+presence+pwa) | completo | ✅ 5/5 pasos, checkpoints OK | gemma4-12b en :8082 + LLAMA_URL (embeddings intactos); Go vive en :3011 no :3001; buzz-farm era humo (slot PM2 sin código); pkill-patrón me mató 2 veces más (matar por PID) |
 
 ## Qué hago
 - Aplico el marco OODA para tareas complejas: Observar → Orientar → Decidir → Actuar

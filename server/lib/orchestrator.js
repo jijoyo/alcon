@@ -9,6 +9,12 @@ try {
   GRANJA = JSON.parse(fs.readFileSync(path.join(__dirname, 'granja.json'), 'utf8'));
 }
 const REGISTRY = JSON.parse(fs.readFileSync(path.join(__dirname, 'model-registry.json'), 'utf8'));
+// Tiers reconfigurables (model-tiers.json): [pesado]/[medio]/[liviano] en el texto.
+// Explícito --local/--cloud gana sobre tier.
+let TIERS = null;
+try {
+  TIERS = JSON.parse(fs.readFileSync(path.join(__dirname, 'model-tiers.json'), 'utf8'));
+} catch { TIERS = null; }
 const API_BOARD = process.env.BOARD_API_URL || 'http://localhost:9998';
 const LLAMA = process.env.LLAMA_URL || 'http://localhost:8080';
 const OPENCODE_BIN = process.env.OPENCODE_BIN || (() => {
@@ -114,7 +120,7 @@ async function callOpenCode(prompt, systemPrompt, model='opencode/mimo-v2.5-free
   return new Promise((resolve, reject)=>{
     const child = spawn(OPENCODE_BIN, ['run', '-m', model, '--dir', WORKDIR, fullPrompt], {cwd:WORKDIR, stdio:['ignore','pipe','inherit']});
     let stdout=''; child.stdout.on('data', d=>{ stdout+=d; });
-    const timer=setTimeout(()=>{ child.kill(); reject(new Error('opencode timeout 120s')); }, 120000);
+    const timer=setTimeout(()=>{ child.kill(); reject(new Error('opencode timeout 600s')); }, 600000);
     child.on('close', code=>{ clearTimeout(timer); code===0 ? resolve(stdout||'(sin output)') : reject(new Error(`exit ${code}: ${stdout.slice(0,200)}`)); });
     child.on('error', err=>{ clearTimeout(timer); reject(err); });
   });
@@ -225,6 +231,7 @@ async function throttledCall(agent, prompt, history){
 function parseOverrides(prompt){
   let backendOverride = null; // null = usa config, 'llama', 'opencode', 'auto'
   let deviceFilter = null;
+  let tierOverride = null; // null = liviano local; 'pesado' | 'medio' | 'liviano'
   let cleanPrompt = prompt;
   
   if(prompt.includes('--local')){
@@ -243,14 +250,22 @@ function parseOverrides(prompt){
     deviceFilter = deviceMatch[1].split(',').map(d=>d.trim());
     cleanPrompt = cleanPrompt.replace(deviceMatch[0],'').trim();
   }
+
+  for(const t of ['pesado','medio','liviano']){
+    if(new RegExp(`\\[${t}\\]`,'i').test(cleanPrompt)){
+      tierOverride = t;
+      cleanPrompt = cleanPrompt.replace(new RegExp(`\\[${t}\\]`,'ig'),'').trim();
+      break;
+    }
+  }
   
-  return { backendOverride, deviceFilter, cleanPrompt };
+  return { backendOverride, deviceFilter, tierOverride, cleanPrompt };
 }
 
 
 export async function handleSquadMessage(squad, prompt, from='user'){
   const squadConfig = GRANJA.squads[squad];
-  const { backendOverride, deviceFilter, cleanPrompt } = parseOverrides(prompt);
+  const { backendOverride, deviceFilter, tierOverride, cleanPrompt } = parseOverrides(prompt);
   const effectivePrompt = cleanPrompt || prompt;
 
   if(!squadConfig) throw new Error(`squad ${squad} no existe`);
@@ -277,6 +292,12 @@ export async function handleSquadMessage(squad, prompt, from='user'){
   // Override backend si --local/--cloud/--auto
   if(backendOverride){
     agents = agents.map(a=> ({...a, backend: backendOverride === 'auto' ? 'auto' : backendOverride }));
+  }
+  // Override por tier [pesado]/[medio]/[liviano] (model-tiers.json). Explícito gana: solo si no hay backendOverride.
+  if(tierOverride && !backendOverride && TIERS && TIERS[tierOverride]){
+    const t = TIERS[tierOverride];
+    agents = agents.map(a=> ({...a, backend: t.backend, model_ref: t.model, fallback_models: [t.model, ...(t.fallback||[])]}));
+    console.log(`[tiers] tier=${tierOverride} -> ${t.model}`);
   }
   
   const effectivePromptForAgents = effectivePrompt;
@@ -316,9 +337,9 @@ export async function handleSquadMessage(squad, prompt, from='user'){
 
   lastSquadModels.set(squad, results.map((r)=> ({ device:r.device, model:r.model, role:r.role, ok:r.ok })));
 
-  // === FAN-IN: sintetiza perspectivas ===
+  // === FAN-IN: sintetiza perspectivas (con rúbrica anti-sycophancy) ===
   const perspectivesText = results.map(r=> `[${r.device}/${r.model}/${r.role}]: ${r.response}`).join('\n---\n');
-  const synthesisPrompt = `Sintetiza estas ${results.length} perspectivas sobre: "${prompt}"\n\n${perspectivesText}\n\nSintesis final en español, corta, accionable. Menciona quien dijo que.`;
+  const synthesisPrompt = `Sintetiza estas ${results.length} perspectivas sobre: "${prompt}"\n\n${perspectivesText}\n\nRÚBRICA (obligatoria): 1) Pesa cada postura por su EVIDENCIA citada, no por cuántos la repiten (mayoría que copia no vale). 2) Si dos se contradicen, muestra ambas + tu veredicto con porqué. 3) Marca con [sin-evidencia] lo que venga sin sustento. 4) Cierra con nivel de acuerdo: UNÁNIME/MAYORÍA/EMPATE (si EMPATE, dilo explícito). Síntesis final en español, corta, accionable. Menciona quien dijo que.`;
 
   // Si hay agentes locales, intenta síntesis con llama; si no, vai directo a OpenCode
   const hasLocalAgents = localAgents.length > 0;

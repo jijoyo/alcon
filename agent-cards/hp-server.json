@@ -1,0 +1,1 @@
+{"device":"hp-laptop-server","firmado_por":"israel","firma_fecha":"2026-09-10","id":"hp-server","ip_tailscale":"100.107.54.12","puede":["leer-log","responder-socket","ejecutar-bash","opencode-run"],"rol":"server-24-7"}

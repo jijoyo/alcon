@@ -1,7 +1,16 @@
 // Buzon de alcon — escucha el enjambre y envía via archivo-cola
 // Uso: node scripts/buzon-alcon.cjs
 // Enviar mensaje:  echo "texto" > ~/.alcon-buzon/send.txt
-const { io } = require('/home/israel/Documentos/alcon/agents/node_modules/socket.io-client');
+// socket.io-client portable: mismo repo (agents/node_modules) o instalado junto al script
+let io;
+for (const p of [
+  require('path').join(__dirname, '..', 'agents', 'node_modules', 'socket.io-client'),
+  require('path').join(__dirname, 'node_modules', 'socket.io-client'),
+  'socket.io-client',
+]) {
+  try { ({ io } = require(p)); break; } catch {}
+}
+if (!io) { console.error('falta socket.io-client: npm install socket.io-client junto al script'); process.exit(1); }
 const fs = require('fs');
 const path = require('path');
 

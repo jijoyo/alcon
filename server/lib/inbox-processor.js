@@ -12,7 +12,11 @@ export function scanInbox() {
   if (!fs.existsSync(INBOX_DIR)) return 0;
   fs.mkdirSync(PROCESSED_DIR, { recursive: true });
 
-  const files = fs.readdirSync(INBOX_DIR).filter(f => f.endsWith('.md') && !f.startsWith('.'));
+  // Convención (plan inbox-grafo): solo msg-* y task-* son tareas. Lo demás
+  // (LEEME, mision-*, estado) se queda quieto. Ver agent-inbox/LEEME.md.
+  const files = fs.readdirSync(INBOX_DIR).filter(f =>
+    f.endsWith('.md') && !f.startsWith('.') &&
+    (f.startsWith('msg-') || f.startsWith('task-')));
   let imported = 0;
 
   for (const file of files) {

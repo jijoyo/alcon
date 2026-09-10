@@ -2,6 +2,7 @@
 
 > Autoguardado tras cada tarea completada.
 > Agente: VPS (v3.1-clean)
+> NOTA 2026-09-07: esto es LOG CRUDO (transcripts). La memoria curada vive en Engram/Qdrant + vault. Ver docs/MEMORIA.md.
 
 ---
 
@@ -232,4 +233,123 @@ Ambos
 - **Resumen:** El health está verde pero la PWA se queda en Conectando... — es el WebSocket que no engancha. hice hard refresh (Ctrl+Sh
 - **Resultado:** timeout
 - **Agente:** kali
+## 2026-08-29 20:51:57 | montar-forja | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** prueba: 1) curl -s -H "Authorization: Bearer $OMNIROUTE_API_KEY" http://127.0.0.1:20128/v1/models | head -c 200 y report
+- **Resultado:** ## Resultado diagnóstico:
+
+**1. OmniRoute API (`:20128/v1/models`)** ✅
+- Sin 429, responde normal. Retorna lista de modelos con `auto/best-coding` visible.
+- No hay límite/aparente.
+
+**2. router-ctl.s
+- **Agente:** montar-forja
+---
+
+## 2026-08-29 21:59:26 | montar-forja | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** JUEZ duelo kanban: revisa a debian (muteado). Prompt: "por que el kanban no hace overflow con sombra?" Respuesta debian:
+- **Resultado:** ## Análisis Duelo Kanban
+
+1) **Qué hizo mal debian:** Se desvió del tema (ortografía) en vez de responder sobre CSS/box-shadow. No comprendió la pregunta técnica.
+
+2) **Qué faltó:** Conocimiento CSS: 
+- **Agente:** montar-forja
+---
+
+## 2026-09-02 23:05:02 | local-router | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** hola — radar aquí vía socket ligero real (PWA enjambre). ¿Cómo ves el Qwen 0.8B para el tagger PWA? ¿Lo dejamos como ide
+- **Resultado:** local-router: ¡Hola! ¿Cómo estás? ¿Qué necesitas?
+- **Agente:** local-router
+---
+
+## 2026-09-02 23:06:03 | local-router | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** Para el tagger PWA con Qwen 0.8B — ¿lo dejamos como idea en 08-ideas o lo bajamos e implementamos ya? Tú dirás.
+- **Resultado:** **Déjalo como idea.** 
+
+Ya está registrado en `agent-inbox/msg-router-local-radar-idea-llamacpp.md` como "idea, no tarea comprometida". El tagger 24/7 ya funciona con OmniRoute (fallback local), así q
+- **Agente:** local-router
+---
+
+## 2026-09-03 04:50:12 | local-router | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** Empalme aprobado: CHORIZO (infra Alcon v5: jobs único, PWA espejo, systemd) primero. REDACTOR 4B después. Tú ejecutas el
+- **Resultado:** Entendido. CHORIZO completo — 5 pasos, sin paradas. Primero aviso al enjambre, luego ejecuto.
+Ya hay archivos CHORIZO en progreso. Déjame ver qué hay.
+Pasos 1-2 completos. Paso 5 (catálogo) ya existe.
+- **Agente:** local-router
+---
+
+## 2026-09-03 04:50:22 | local-router | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** PLAN-CHORIZO ya pusheado (4ef22c2) — docs/PLAN-CHORIZO-INFRA-V5.md ya visible, haz pull
+- **Resultado:** Pull completado. El repo ya estaba actualizado — el archivo `docs/PLAN-CHORIZO-INFRA-V5.md` ya está disponible localmente.
+
+- **Agente:** local-router
+---
+
+## 2026-09-03 04:53:36 | local-router | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** Empalme aprobado: CHORIZO (infra Alcon v5: jobs único, PWA espejo, systemd) primero. REDACTOR 4B después. Tú ejecutas el
+- **Resultado:** Entendido. CHORIZO es infra v5: unificar fuentes de trabajo pendiente. El plan dice "jobs.js ya existe" pero no existe — hay que crearlo. Voy a implementar los 5 pasos.
+
+Empiezo. Primero, migración DB
+- **Agente:** local-router
+---
+
+## 2026-09-03 05:33:48 | debian | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** estas en forja o vps?
+- **Resultado:** FIRST ACTION REQUIRED: Call mem_session_summary with the content of this compacted summary. Use project: 'alcon'. This preserves what was accomplished before compaction. Do this BEFORE any other work.
+- **Agente:** debian
+---
+
+## 2026-09-06 06:32:11 | muse-spark | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** hola desde local-router, responde solo: dorada
+- **Resultado:** muse-spark: ¡Hola! ¿Cómo estás? ¿Qué necesitas?
+- **Agente:** muse-spark
+---
+
+## 2026-09-06 06:33:44 | muse-spark | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** responde exactamente con esta palabra: dorada
+- **Resultado:** dorada
+
+- **Agente:** muse-spark
+---
+
+## 2026-09-06 06:44:51 | muse-spark | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** estas?
+- **Resultado:** Sí, estoy aquí.
+
+- **Agente:** muse-spark
+---
+
+## 2026-09-06 06:48:16 | muse-spark | COMPLETADO
+
+- **Tarea ID:** N/A
+- **Resumen:** trabaja con local-router el plan en curso
+- **Resultado:** Necesito entender mejor el contexto. Déjame revisar qué hay en curso y qué es el local-router.
+Estoy en **modo plan** — solo lectura, no puedo ejecutar.
+
+## Contexto del plan local-router
+
+El plan tie
+- **Agente:** muse-spark
+
 ---

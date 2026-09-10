@@ -1,298 +1,309 @@
 {
-  "nodes": [
-    {
-      "id": "svc:forja-router",
-      "file": "server/lib/granja.json",
-      "role": "infra",
-      "lines": 26
-    },
-    {
-      "id": "svc:alcon-api",
-      "file": "server/server.js",
-      "role": "api",
-      "lines": 140
-    },
-    {
-      "id": "svc:alcon-pwa",
-      "file": "pwa/src/App.tsx",
-      "role": "ui",
-      "lines": 215
-    },
-    {
-      "id": "svc:go-orchestrator",
-      "file": "server/go/orchestrator.go",
-      "role": "orchestrator",
-      "lines": 568
-    },
-    {
-      "id": "device:debian",
-      "file": "server/lib/granja.json",
-      "role": "device:arquitectura",
-      "lines": 26
-    },
-    {
-      "id": "device:kali",
-      "file": "server/lib/granja.json",
-      "role": "device:performance",
-      "lines": 26
-    },
-    {
-      "id": "device:vps",
-      "file": "server/lib/granja.json",
-      "role": "device:seguridad",
-      "lines": 26
-    },
-    {
-      "id": "device:cel",
-      "file": "server/lib/granja.json",
-      "role": "device:edge",
-      "lines": 26
-    },
-    {
-      "id": "device:montar-forja",
-      "file": "server/lib/granja.json",
-      "role": "device:taller-modelos",
-      "lines": 26
-    },
-    {
-      "id": "squad:quick-review",
-      "file": "server/lib/granja.json",
-      "role": "squad",
-      "lines": 26
-    },
-    {
-      "id": "squad:code-audit",
-      "file": "server/lib/granja.json",
-      "role": "squad",
-      "lines": 26
-    },
-    {
-      "id": "squad:research-deep",
-      "file": "server/lib/granja.json",
-      "role": "squad",
-      "lines": 26
-    },
-    {
-      "id": "squad:duelo",
-      "file": "server/lib/granja.json",
-      "role": "squad",
-      "lines": 26
-    },
-    {
-      "id": "squad:dose-audit",
-      "file": "server/lib/granja.json",
-      "role": "squad",
-      "lines": 26
-    },
-    {
-      "id": "agent:radar",
-      "file": "server/config/agents.js",
-      "role": "agent:last_fetch=unknown count=?",
-      "lines": 2
-    }
-  ],
-  "edges": [
-    {
-      "from": "svc:alcon-api",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "svc:go-orchestrator",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "svc:alcon-pwa",
-      "to": "svc:alcon-api",
-      "type": "http",
-      "via": "pwa/src/lib/api.ts: POST /api/task, GET /api/tasks, POST /api/task/:id/claim, POST /api/task/:id/heartbeat"
-    },
-    {
-      "from": "svc:alcon-pwa",
-      "to": "svc:alcon-api",
-      "type": "socket",
-      "via": ":3003"
-    },
-    {
-      "from": "svc:alcon-api",
-      "to": "squad:quick-review",
-      "type": "orchestrate"
-    },
-    {
-      "from": "squad:quick-review",
-      "to": "device:debian",
-      "type": "fanout"
-    },
-    {
-      "from": "device:debian",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "svc:alcon-api",
-      "to": "squad:code-audit",
-      "type": "orchestrate"
-    },
-    {
-      "from": "squad:code-audit",
-      "to": "device:debian",
-      "type": "fanout"
-    },
-    {
-      "from": "device:debian",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:code-audit",
-      "to": "device:kali",
-      "type": "fanout"
-    },
-    {
-      "from": "device:kali",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:code-audit",
-      "to": "device:vps",
-      "type": "fanout"
-    },
-    {
-      "from": "device:vps",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:code-audit",
-      "to": "device:cel",
-      "type": "fanout"
-    },
-    {
-      "from": "device:cel",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "svc:alcon-api",
-      "to": "squad:research-deep",
-      "type": "orchestrate"
-    },
-    {
-      "from": "squad:research-deep",
-      "to": "device:debian",
-      "type": "fanout"
-    },
-    {
-      "from": "device:debian",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "svc:alcon-api",
-      "to": "squad:duelo",
-      "type": "orchestrate"
-    },
-    {
-      "from": "squad:duelo",
-      "to": "device:debian",
-      "type": "fanout"
-    },
-    {
-      "from": "device:debian",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:duelo",
-      "to": "device:kali",
-      "type": "fanout"
-    },
-    {
-      "from": "device:kali",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:duelo",
-      "to": "device:vps",
-      "type": "fanout"
-    },
-    {
-      "from": "device:vps",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:duelo",
-      "to": "device:cel",
-      "type": "fanout"
-    },
-    {
-      "from": "device:cel",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:duelo",
-      "to": "device:montar-forja",
-      "type": "fanout"
-    },
-    {
-      "from": "device:montar-forja",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "svc:alcon-api",
-      "to": "squad:dose-audit",
-      "type": "orchestrate"
-    },
-    {
-      "from": "squad:dose-audit",
-      "to": "device:debian",
-      "type": "fanout"
-    },
-    {
-      "from": "device:debian",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:dose-audit",
-      "to": "device:kali",
-      "type": "fanout"
-    },
-    {
-      "from": "device:kali",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:dose-audit",
-      "to": "device:vps",
-      "type": "fanout"
-    },
-    {
-      "from": "device:vps",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "squad:dose-audit",
-      "to": "device:cel",
-      "type": "fanout"
-    },
-    {
-      "from": "device:cel",
-      "to": "svc:forja-router",
-      "type": "call"
-    },
-    {
-      "from": "svc:alcon-api",
-      "to": "agent:radar",
-      "type": "listener"
-    }
-  ]
+ "nodes": [
+  {
+   "id": "svc:forja-router",
+   "file": "server/lib/granja.json",
+   "role": "infra",
+   "lines": 26
+  },
+  {
+   "id": "svc:alcon-api",
+   "file": "server/server.js",
+   "role": "api",
+   "lines": 140
+  },
+  {
+   "id": "svc:alcon-pwa",
+   "file": "pwa/src/App.tsx",
+   "role": "ui",
+   "lines": 215
+  },
+  {
+   "id": "svc:go-orchestrator",
+   "file": "server/go/orchestrator.go",
+   "role": "orchestrator",
+   "lines": 568
+  },
+  {
+   "id": "device:debian",
+   "file": "server/lib/granja.json",
+   "role": "device:arquitectura",
+   "lines": 26
+  },
+  {
+   "id": "device:kali",
+   "file": "server/lib/granja.json",
+   "role": "device:performance",
+   "lines": 26
+  },
+  {
+   "id": "device:vps",
+   "file": "server/lib/granja.json",
+   "role": "device:seguridad",
+   "lines": 26
+  },
+  {
+   "id": "device:cel",
+   "file": "server/lib/granja.json",
+   "role": "device:edge",
+   "lines": 26
+  },
+  {
+   "id": "device:montar-forja",
+   "file": "server/lib/granja.json",
+   "role": "device:taller-modelos",
+   "lines": 26
+  },
+  {
+   "id": "squad:quick-review",
+   "file": "server/lib/granja.json",
+   "role": "squad",
+   "lines": 26
+  },
+  {
+   "id": "squad:code-audit",
+   "file": "server/lib/granja.json",
+   "role": "squad",
+   "lines": 26
+  },
+  {
+   "id": "squad:research-deep",
+   "file": "server/lib/granja.json",
+   "role": "squad",
+   "lines": 26
+  },
+  {
+   "id": "squad:duelo",
+   "file": "server/lib/granja.json",
+   "role": "squad",
+   "lines": 26
+  },
+  {
+   "id": "squad:dose-audit",
+   "file": "server/lib/granja.json",
+   "role": "squad",
+   "lines": 26
+  },
+  {
+   "id": "agent:radar",
+   "file": "server/config/agents.js",
+   "role": "agent:last_fetch=unknown count=?",
+   "lines": 2
+  },
+  {
+   "id": "svc:inbox-processor",
+   "file": "server/lib/inbox-processor.js",
+   "role": "infra",
+   "lines": 50
+  }
+ ],
+ "edges": [
+  {
+   "from": "svc:alcon-api",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "svc:go-orchestrator",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "svc:alcon-pwa",
+   "to": "svc:alcon-api",
+   "type": "http",
+   "via": "pwa/src/lib/api.ts: POST /api/task, GET /api/tasks, POST /api/task/:id/claim, POST /api/task/:id/heartbeat"
+  },
+  {
+   "from": "svc:alcon-pwa",
+   "to": "svc:alcon-api",
+   "type": "socket",
+   "via": ":3003"
+  },
+  {
+   "from": "svc:alcon-api",
+   "to": "squad:quick-review",
+   "type": "orchestrate"
+  },
+  {
+   "from": "squad:quick-review",
+   "to": "device:debian",
+   "type": "fanout"
+  },
+  {
+   "from": "device:debian",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "svc:alcon-api",
+   "to": "squad:code-audit",
+   "type": "orchestrate"
+  },
+  {
+   "from": "squad:code-audit",
+   "to": "device:debian",
+   "type": "fanout"
+  },
+  {
+   "from": "device:debian",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:code-audit",
+   "to": "device:kali",
+   "type": "fanout"
+  },
+  {
+   "from": "device:kali",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:code-audit",
+   "to": "device:vps",
+   "type": "fanout"
+  },
+  {
+   "from": "device:vps",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:code-audit",
+   "to": "device:cel",
+   "type": "fanout"
+  },
+  {
+   "from": "device:cel",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "svc:alcon-api",
+   "to": "squad:research-deep",
+   "type": "orchestrate"
+  },
+  {
+   "from": "squad:research-deep",
+   "to": "device:debian",
+   "type": "fanout"
+  },
+  {
+   "from": "device:debian",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "svc:alcon-api",
+   "to": "squad:duelo",
+   "type": "orchestrate"
+  },
+  {
+   "from": "squad:duelo",
+   "to": "device:debian",
+   "type": "fanout"
+  },
+  {
+   "from": "device:debian",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:duelo",
+   "to": "device:kali",
+   "type": "fanout"
+  },
+  {
+   "from": "device:kali",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:duelo",
+   "to": "device:vps",
+   "type": "fanout"
+  },
+  {
+   "from": "device:vps",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:duelo",
+   "to": "device:cel",
+   "type": "fanout"
+  },
+  {
+   "from": "device:cel",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:duelo",
+   "to": "device:montar-forja",
+   "type": "fanout"
+  },
+  {
+   "from": "device:montar-forja",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "svc:alcon-api",
+   "to": "squad:dose-audit",
+   "type": "orchestrate"
+  },
+  {
+   "from": "squad:dose-audit",
+   "to": "device:debian",
+   "type": "fanout"
+  },
+  {
+   "from": "device:debian",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:dose-audit",
+   "to": "device:kali",
+   "type": "fanout"
+  },
+  {
+   "from": "device:kali",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:dose-audit",
+   "to": "device:vps",
+   "type": "fanout"
+  },
+  {
+   "from": "device:vps",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "squad:dose-audit",
+   "to": "device:cel",
+   "type": "fanout"
+  },
+  {
+   "from": "device:cel",
+   "to": "svc:forja-router",
+   "type": "call"
+  },
+  {
+   "from": "svc:alcon-api",
+   "to": "agent:radar",
+   "type": "listener"
+  },
+  {
+   "from": "svc:alcon-api",
+   "to": "svc:inbox-processor",
+   "type": "owns"
+  }
+ ]
 }

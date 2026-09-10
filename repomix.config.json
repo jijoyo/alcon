@@ -1,0 +1,41 @@
+{
+  "output": {
+    "filePath": "alcon-repomix.xml",
+    "style": "xml",
+    "compress": true,
+    "removeComments": false,
+    "removeEmptyLines": true,
+    "topFilesLength": 10,
+    "showLineNumbers": true
+  },
+  "include": [
+    "AGENTS.md",
+    "README.md",
+    "BOOTSTRAP.md",
+    "ecosystem.config.cjs",
+    "server/**/*.js",
+    "server/**/*.ts",
+    "server/go/**/*",
+    "agents/**/*.js",
+    "pwa/src/**/*.{ts,tsx,js}",
+    "pwa/vite.config.*",
+    "pwa/package.json",
+    "server/lib/granja.json",
+    "server/lib/model-registry.json"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "customPatterns": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.vite/**",
+      "**/pm2.log",
+      "**/*.log",
+      "**/package-lock.json",
+      "**/bun.lockb",
+      "alcon-repomix.xml",
+      "enjambre-fix.xml"
+    ]
+  },
+  "security": { "enableSecurityCheck": false }
+}

@@ -107,3 +107,36 @@ venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (router :8080 CPU-
 9. /tmp/opencode se limpia solo — cosas persistentes van a ~/ o al repo
 10. **Listener muerto silencioso** (buzon): log congelado + send.txt sin consumir = proceso muerto. `pgrep -f` se auto-matchea (trampa #1) → verificar con `ps -eo pid,etime,cmd | grep "[b]uzon-alcon"`. Lección radar 2026-08-30
 11. `HF_HUB_OFFLINE=1` en units de systemd bloquea silenciosamente la resolución de modelos (fastretrieval/qwen3_embed fallan "from any source" aunque la red esté bien) — lección RAG 2026-08-30
+12. `opencode run` cuelga en silencio si :8080 está caído (issue upstream #40330: probe a provider local muerto sin timeout). Diagnosticado 2026-09-07: router muerto + bypass `-m` remoto también cuelga + plugin propio exonerado (cuelga igual sin él). `run` no sirve para pruebas hasta revivir el router.
+
+## Plugin engram-autosave (2026-09-07, v1 → v1.2 package-dir 2026-09-09)
+
+Gatillo automático de memoria: `.opencode/plugins/engram-autosave/index.js`
+(package-dir como lazy-load: solo los dirs cargan siempre; v1.1 portable
+sin import.meta + mkdir state; v1.2 package.json con name+main — sin
+entrypoint el resolvedor traga el plugin en silencio #34742).
+Dispara en `session.idle` con freno doble (dirty + ≥15min) y en
+`session.compacted` como red. Checkpoint factual sin LLM (rama + git status).
+State runtime: `.opencode/plugins/.engram-autosave.state.json` (gitignorado).
+Harness verde (Engram #333). Carga real en TUI pendiente de validar en
+próxima sesión con ediciones: `engram search "Checkpoint auto alcon"`.
+REGLA 2026-09-09: los plugins cargan AL ARRANCAR. Sesión nacida antes que
+el archivo .js jamás lo ve (caso MPLAN 6-sep vs plugin 8-sep: 102 edits,
+cero saves). Tras diseminar un plugin: REINICIAR la app/sesión. Vale para
+TUI, CLI y desktop.
+
+## Graphify bisturí (2026-09-09)
+
+Guía canónica: `~/obsidian-vault/02-guías/graphify-bisturi.md`.
+`graphify-out/` ignorado excepto `GRAPH_REPORT.md` (evidencia).
+Brújula (servicios) ≠ bisturí (código).
+
+## Kit repartidor + doctor (2026-09-09)
+
+- `scripts/disseminate-kit.sh <repo>` — reparte kit v1 (idempotente,
+  respaldo en /tmp/disseminate-backup/, rehúsa alcon).
+- `scripts/kit-doctor.sh <repo>` — PASS/FAIL (versión, frescura vs HEAD,
+  links, INDEX). Doctor en alcon cazó reporte obsoleto real el día 1.
+- `scripts/kit-proyecto.sh <repo>` — indexador + repartidor + doctor.
+- Skill graph-keeper verifica el kit al iniciar sesión (sin cron).
+- Catálogo: `09-catálogos/catalogo-crons.md` (manual, el generador no lo toca).
