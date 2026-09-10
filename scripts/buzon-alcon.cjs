@@ -10,9 +10,12 @@ const SEND = path.join(process.env.HOME, '.alcon-buzon', 'send.txt');
 // Identidad configurable: BUZON_NAME=radar node buzon-alcon.cjs  → une como 'radar'
 // (default 'alcon' para retrocompat; requiere estar en server/config/agents.js)
 const NAME = process.env.BUZON_NAME || 'alcon';
+// URL configurable: BUZON_URL=http://100.121.64.26:3003 npm... (default VPS, legacy)
+// En vivo forja: BUZON_URL=http://100.121.64.26:3003 BUZON_NAME=kali node scripts/buzon-alcon.cjs
+const SERVER = (process.env.BUZON_URL || 'http://100.102.63.30:3003').replace(/\/$/, '');
 fs.mkdirSync(path.dirname(LOG), { recursive: true });
 
-const socket = io('http://100.102.63.30:3003/enjambre', { reconnection: true, reconnectionDelay: 3000 });
+const socket = io(SERVER + '/enjambre', { reconnection: true, reconnectionDelay: 3000 });
 
 function log(line) {
   const ts = new Date().toISOString().slice(11, 19);
@@ -35,6 +38,8 @@ setInterval(() => {
 socket.on('connect', () => {
   log(`[${NAME}-buzon] conectado ` + socket.id);
   socket.emit('chat:join', { name: NAME });
+  // Heartbeat: sin esto la presencia muere a los 15s y @NAME devuelve "no disponible"
+  setInterval(() => { try { socket.emit('chat:heartbeat'); } catch {} }, 5000);
 });
 
 socket.on('chat:message', (m) => {
