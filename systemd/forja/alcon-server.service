@@ -1,0 +1,13 @@
+[Unit]
+Description=Alcon API :3003 (forja)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+WorkingDirectory=/home/israel/Documentos/alcon/server
+ExecStart=/home/israel/.nvm/versions/node/v22.23.1/bin/node server.js
+Restart=no
+Environment=LLAMA_URL=http://localhost:8082
+Environment=ALCON_ENV=forja
+[Install]
+WantedBy=default.target

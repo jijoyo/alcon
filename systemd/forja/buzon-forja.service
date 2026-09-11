@@ -1,0 +1,13 @@
+[Unit]
+Description=Buzon forja (forja)
+After=network-online.target alcon-server.service
+Wants=network-online.target
+[Service]
+Type=simple
+WorkingDirectory=/home/israel/Documentos/alcon
+ExecStart=/home/israel/.nvm/versions/node/v22.23.1/bin/node scripts/buzon-alcon.cjs
+Restart=no
+Environment=BUZON_URL=http://127.0.0.1:3003
+Environment=BUZON_NAME=forja
+[Install]
+WantedBy=default.target

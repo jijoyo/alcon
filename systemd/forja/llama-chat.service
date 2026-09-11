@@ -1,0 +1,10 @@
+[Unit]
+Description=Chat gemma4-12b :8082 (forja)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+ExecStart=/home/israel/.local/bin/llama-server -m /home/israel/Documentos/montar-modelos/modelos/gemma4-12b/gemma-4-12B-it-qat-UD-Q4_K_XL.gguf --port 8082 --host 0.0.0.0 -c 24576 -ngl 99
+Restart=no
+[Install]
+WantedBy=default.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Embeddings nomic :8086 (forja, fallback RAG)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+ExecStart=/home/israel/.local/bin/llama-server -m /home/israel/Documentos/montar-modelos/modelos/nomic-embed-text-v1.5.Q5_K_M.gguf --embedding --port 8086 --host 0.0.0.0
+Restart=no
+[Install]
+WantedBy=default.target

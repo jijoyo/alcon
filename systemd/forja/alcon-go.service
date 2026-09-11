@@ -1,0 +1,11 @@
+[Unit]
+Description=Alcon Go :3011 (forja)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+WorkingDirectory=/home/israel/Documentos/alcon/server/go
+ExecStart=/home/israel/Documentos/alcon/server/go/orchestrator
+Restart=no
+[Install]
+WantedBy=default.target

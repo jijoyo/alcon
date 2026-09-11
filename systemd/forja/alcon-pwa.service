@@ -1,0 +1,11 @@
+[Unit]
+Description=Alcon PWA :3004 (forja)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+WorkingDirectory=/home/israel/Documentos/alcon/pwa/dist
+ExecStart=/usr/bin/python3 -m http.server 3004
+Restart=no
+[Install]
+WantedBy=default.target
