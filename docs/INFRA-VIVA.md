@@ -18,7 +18,15 @@ _Última actualización: 2026-08-29 (Ferrari v4.3 — router :8080 18 modelos on
 | 8081 | Dashboard board | board-v3-http.service |
 | 3005 (local) | sidecar RAG solo para indexar | ver RAG abajo |
 
-### VPS (oracle ARM 100.102.63.30) — SERVER + ESPEJO always-on
+### hp-server (HP Pavilion 100.107.54.12) — SERVER 24/7 + ESPEJO (reemplazo VPS desde 2026-09-10)
+| Puerto | Servicio | Cómo se lanza |
+|--------|----------|---------------|
+| 3003 | alcon-api (Node: chat/tasks/presencia/orchestrate/RAG) | systemd user: alcon-server.service |
+| 3004 | PWA estática | systemd user: alcon-pwa.service |
+| 6333 | Qdrant (réplica 53 pts) | systemd user: qdrant.service |
+| 443 | Funnel público → :3003 | `tailscale funnel --bg` (URL fija, gratis) |
+
+### VPS (oracle ARM 100.102.63.30) — MUERTO 2026-09-07, referencia histórica
 | Puerto | Servicio | Cómo se lanza |
 |--------|----------|---------------|
 | 3003 | alcon-api (Node: chat/tasks/presencia/orchestrate/RAG) | pm2: alcon-api |

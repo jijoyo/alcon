@@ -28,7 +28,8 @@ Si la tarea es de la app Alcon → Tab → Alcon. Fuera del repo → Base Build.
 | Dispositivo | Hardware | IP Tailscale | Rol | Branch |
 |-------------|----------|--------------|-----|--------|
 | **forja/debian** | RTX 3060 12GB, 32GB RAM | 100.121.64.26 | Brain (GPU) + FABRICA | main |
-| **vps** | Oracle ARM 21GB | 100.102.63.30 | Server + PM2 + ESPEJO | main |
+| **hp-server** | Ryzen 3 2300U, 12GB RAM, HDD 1TB | 100.107.54.12 | Server 24/7 + ESPEJO (reemplazo VPS desde 2026-09-10) | main |
+| **vps** | Oracle ARM 21GB | 100.102.63.30 | MUERTO 2026-09-07 (trial expirado) | main |
 | **kali** | GTX 1050 4GB, 16GB RAM | 100.103.82.104 | Git executor | v4.2-kali |
 | **cel note-11** | Redmi Note 11, 1GB | 100.122.196.23 | Reviewer | cel-experimental |
 | **cel note-12s** |  | 100.96.34.100 | Reviewer |  |
@@ -43,7 +44,7 @@ Si la tarea es de la app Alcon → Tab → Alcon. Fuera del repo → Base Build.
 - **RAG:** Qdrant :6333 - 507 pts - 768 dim cosine - green + nomic :8086 + engram-cloud :7438
 - **Verdad:** github.com/jijoyo/alcon main HEAD (hash dinámico vía `/health`, sin pines en docs)
 
-### PM2 Oficial v4.3 (ubuntu@100.102.63.30)
+### PM2 Oficial v4.3 (ubuntu@100.102.63.30 — MUERTO 2026-09-07, referencia histórica)
 
 ```
 0 alcon-pwa (3004)

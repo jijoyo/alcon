@@ -11,7 +11,8 @@
 |--------|------|-----|-----|--------------|-----|
 | **debian** (forja) | Desktop | RTX 3060 12GB | 32GB | 100.121.64.26 | Brain (desarrollo + GPU) |
 | **kali** | Laptop Dell G7 | GTX 1050 Ti 4GB | 16GB | 100.103.82.104 | Git executor |
-| **vps** (oracle) | Cloud ARM | — | 21GB | 100.102.63.30 | Server (Fastify + PM2) |
+| **vps** (oracle) | Cloud ARM | — | 21GB | 100.102.63.30 | MUERTO 2026-09-07 (trial expirado, offline) |
+| **hp-server** (HP Pavilion 15-cw0007la) | Laptop server | Vega 6 (no se usa) | 12GB | 100.107.54.12 | **Server 24/7 (reemplazo VPS)** — API :3003, PWA :3004, Qdrant :6333, Funnel público. Desde 2026-09-10 |
 | **cel** (redmi-note-11) | Phone Android | — | 1GB | 100.122.196.23 | Reviewer/approver |
 | **cel2** (redmi-note-12s) | Phone Android | Mali-G57 | 6-8GB | 100.96.34.100 | Reviewer + LFM2.5 |
 
@@ -75,7 +76,7 @@ Router: `presets.ini` 10 modelos, `models-max 1`, `sleep-idle 300`, health `./sc
 |------|-------|
 | **Proveedor** | Oracle Cloud (ARM) |
 | **CPU** | 4 ARM cores |
-| **RAM** | 21GB |
+| **RAM** | 24GB |
 | **Disco** | 48GB (13GB libres) |
 | **IP pública** | 159.54.143.227 |
 | **IP Tailscale** | 100.102.63.30 |
@@ -168,11 +169,15 @@ Red Tailscale: jijoyo202@gmail.com
 
 1. **debian es el cerebro** — GPU potente para modelos locales grandes
 2. **kali es el executor** — GPU menor, bueno para modelos pequeños
-3. **vps es el server público** — Always-on, Oracle Cloud free tier
-4. **cel es el reviewer** — Para testing en dispositivo real
-5. **Tailscale** conecta todo sin VPN compleja
-6. **OpenRouter** para modelos cloud (vps + cel)
-7. **llama-server** para modelos locales (debian + kali)
+3. **vps MURIÓ 2026-09-07** (trial Oracle expirado) — lo reemplaza **hp-server**
+4. **hp-server es el server 24/7** — HP Pavilion (Ryzen 3 2300U, 12GB, HDD 1TB SMART PASSED),
+   Debian 13, systemd (NO pm2), tapa/botón ignorados, backups destino. Servicios:
+   API :3003, PWA :3004, Qdrant :6333, Funnel público + Tailscale 100.107.54.12.
+   Comisionado 2026-09-10 (ver `docs/PROCESO-DISEMINAR.md`, plan F6).
+5. **cel es el reviewer** — Para testing en dispositivo real
+6. **Tailscale** conecta todo sin VPN compleja
+7. **OpenRouter** para modelos cloud (vps + cel)
+8. **llama-server** para modelos locales (debian + kali)
 
 ---
 
