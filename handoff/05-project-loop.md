@@ -19,6 +19,8 @@ score: 9.5/10
 | 5 | 2026-09-09 | inbox-grafo (cola visible+mapa) | completo | ✅ 5/5 pasos, checkpoints OK | filtro msg-/task-* verificado con señuelos 65s; grafo 15→16 nodos (HTML auto-lee JSON); health-map sin IP muerta; pkill se auto-mataba (truco comillas partidas) |
 | 6 | 2026-09-10 | rag-backups (reindex+qdrant+backup) | completo | ✅ 4/4 pasos, checkpoints OK | embed va a :8080 por IP Tailscale (bind 0.0.0.0); self-SCP funciona; snapshot API+restore misma minor; backup: ~ sin comillas se expande local |
 | 7 | 2026-09-10 | paridad-vps (cerebro+go+presence+pwa) | completo | ✅ 5/5 pasos, checkpoints OK | gemma4-12b en :8082 + LLAMA_URL (embeddings intactos); Go vive en :3011 no :3001; buzz-farm era humo (slot PM2 sin código); pkill-patrón me mató 2 veces más (matar por PID) |
+| 8 | 2026-09-10 | enterprise E1-E6 (cards+cron+ledger+rubrica) | completo | ✅ 6/6 pasos, checkpoints OK | HP ronda autónoma probada (leyó, decidió, envió quince); crons F4 ambas; réplica Kali diferida (offline); Spark real 21s (4m40 fue frío) |
+| 9 | 2026-09-11 | f4-tick anti-quema (vía rápida) | completo | ✅ compuerta + crons + commit | 141+144 sesiones basura detectadas; sin tocar código existente; Kali/cels la reciben al pull |
 
 ## Qué hago
 - Aplico el marco OODA para tareas complejas: Observar → Orientar → Decidir → Actuar
