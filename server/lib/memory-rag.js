@@ -289,6 +289,8 @@ async function ingestDb(name, dbPath) {
 
       const clean = content.replace(/\n+/g, ' ').slice(0, 500).trim();
       if (clean.length < 10) { skipped++; continue; }
+      // Anti-basura F4: ticks vacíos del despertador no son conocimiento
+      if (clean.length < 200 || /nada-nuevo|sin novedad|no hay nada|en silencio/i.test(clean.slice(0, 200))) { skipped++; continue; }
 
       const vector = await embed(session.title + '\n' + clean);
       if (vector) {
