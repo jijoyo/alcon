@@ -69,6 +69,10 @@ curl -s http://100.102.63.30:3003/health
 - **TUI sin agent.js**: `ssh ubuntu@100.102.63.30 "node ~/comms/hablar.cjs <nombre> 'msg'"`
 - **Buzón forja**: `node scripts/buzon-alcon.cjs` (escucha todo) · enviar: `echo "msg" > ~/.alcon-buzon/send.txt`
 
+## Cable directo y vigía de drop (doctrina V4.4 — 2026-09-13)
+> Para archivos grandes (>10G): cable ethernet forja↔kali 10.10.10.1/.2 (100MB/s). Drop en `/run/media/jijoyo/Externo/debian-drop/`. Vigía parametrizable: `scripts/vigia-drop.sh <dir> [log] [keys] [intervalo]` (alarma por keywords o drop estable).
+> IP efímera (sin gateway, se borra al reboot). Ver `~/Documentos/montar-modelos/doc/CABLE-DIRECTO-KALI.md`.
+
 ## Lecciones de la fiesta (no repetir)
 
 - Push fantasma: nunca confiar en un "pushed" que salió de un espejo — verificar `git log` en GitHub
