@@ -46,11 +46,22 @@ _Última actualización: 2026-08-29 (Ferrari v4.3 — router :8080 18 modelos on
 |----------------|---------|------|
 | forja → VPS | `ssh ubuntu@100.102.63.30` | vía Tailscale SSH (sin llave). **El flag `tailscale set --ssh` se RESETAEA con cada re-auth de tailscale** — si da Permission denied: `sudo tailscale set --ssh` desde otra máquina |
 | forja → kali | `ssh kali` | alias en ~/.ssh/config |
+| forja → kali (cable) | `ssh jijoyo@10.10.10.2` | cable directo 1Gbps, primera vez `-o StrictHostKeyChecking=accept-new` |
 | kali → forja | `ssh israel@100.121.64.26` | |
+| kali → forja (cable) | `ssh israel@10.10.10.1` | cable directo 1Gbps |
 | forja → note-11 (cel) | `ssh -p 8022 100.122.196.23` | llave ed25519 de forja en authorized_keys de Termux |
 | forja → note-12s (cel2) | `ssh -p 8022 100.96.34.100` | idem |
 | cel/cel2 → VPS | `ssh ubuntu@100.102.63.30` | alias `granja` |
 | **Termux sshd** | puerto **8022** (NO 22) | se prende con `sshd` dentro de Termux |
+
+## Cable directo forja↔kali (tubo grueso, 2026-09-13)
+- forja `10.10.10.1/24 dev enp5s0` (fijo cable directo, `pkexec ip addr add...` — sudo pide cuadrito, el agente no tiene tty)
+- kali `10.10.10.2/24` (pone Kali en vivo con `pkexec ip addr add 10.10.10.2/24 dev eth0`)
+- Velocidad: **~100MB/s** (20x Tailscale ~5MB/s por WiFi). 77G = ~13min.
+- Drop: `/run/media/jijoyo/Externo/debian-drop/` (externo Kali 932G, 610G libres, ntfs3 remount rw si sale ro). Coordinar por buzón `[COMMS:kali]`.
+- Comando: `rsync -av --info=progress2 <origen>/ jijoyo@10.10.10.2:/run/media/jijoyo/Externo/debian-drop/<dest>/` (resume solo, parciales se retoman).
+- Tailscale NO estorba al cable (rutas separadas, verificado 2026-09-13: `ip route get` va por enp5s0, ARP FAILED = otro lado sin IP, no conflicto).
+- Referencia para todos: este archivo + P093 en board :9998.
 
 ## Lanzamiento de agentes (en cada dispositivo)
 ```bash
