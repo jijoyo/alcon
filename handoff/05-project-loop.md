@@ -263,6 +263,7 @@ Al trabajar en un proyecto, SIEMPRE:
 1. Ejecutar `~/.local/bin/pending-update` antes de leer pendientes
 2. Mostrar clasificación visual al usuario
 3. Si hay [ROJO], preguntar si es importante
+4. **Guardar ideas/planes también en pendientes de la board** (`POST /api/pendientes/nuevo` o `- [ ]` en el MD) — no solo en vault/Engram. El board es el recordatorio vivo.
 
 **Guía completa:** `~/.opencode/notes/pending-update-system.md`
 
