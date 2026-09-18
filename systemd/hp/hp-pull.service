@@ -3,5 +3,6 @@ Description=HP pull espejo (P-085, corre hp-pull.sh)
 
 [Service]
 Type=oneshot
-ExecStart=%h/Documentos/alcon/systemd/hp/hp-pull.sh
-Environment=HP_REPO=%h/alcon
+# Rutas HP (este timer solo se instala en HP; en forja no se habilita)
+ExecStart=/home/server/alcon/systemd/hp/hp-pull.sh
+Environment=HP_REPO=/home/server/alcon
