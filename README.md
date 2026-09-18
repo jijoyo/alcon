@@ -14,7 +14,7 @@ No es CrewAI. No es LangChain. Es tu sistema, en tus máquinas, con tus modelos.
 ```
                     ┌─────────────────────────────────────┐
                     │         PWA (React + TS)            │
-                    │      http://100.102.63.30:3004      │
+                    │      PWA forja :3004 / HP :3004       │
                     └──────────────┬──────────────────────┘
                                    │
                     ┌──────────────▼──────────────────────┐
@@ -45,7 +45,8 @@ No es CrewAI. No es LangChain. Es tu sistema, en tus máquinas, con tus modelos.
                     │    switch via systemd              │
                     └────────────────────────────────────┘
 
-debian (RTX 3060) ←──Tailscale──→ vps Oracle (100.102.63.30)
+debian/forja (RTX 3060, FABRICA) ←──Tailscale──→ hp-server (100.107.54.12, 24/7 + ESPEJO)
+Flujo: forja edita+push, HP pull+restart. (Histórico: vps Oracle 100.102.63.30, muerto 2026-09-07.)
 ```
 
 ## Squads Activos (server/lib/granja.json)
@@ -219,8 +220,8 @@ cd agents && node agent.js debian http://localhost:3003
 # Automático
 ./deploy.sh
 
-# Manual en VPS
-ssh root@100.102.63.30 "cd /home/ubuntu/alcon && git pull origin main && pm2 restart alcon-api --update-env"
+# Manual en HP (espejo): desde forja push; en HP pull + restart servicios.
+# (Histórico Oracle: ssh ubuntu@100.102.63.30 ... pm2 restart — muerto 2026-09-07.)
 ```
 
 ## PM2

@@ -10,7 +10,8 @@
 - RTX 3060 12GB VRAM
 - 32GB RAM
 - AMD Ryzen 5 5600GT
-- VPS Oracle ARM (21GB)
+- VPS Oracle ARM (21GB) — MUERTO 2026-09-07, solo referencia histórica
+- hp-server (Ryzen 3, 12GB) — Server 24/7 + ESPEJO actual (desde 2026-09-10)
 - **Sesión: X11 (gnome-xorg)** — Wayland causa CPU hog en gnome-shell 48.7 con uptime largo. Fix: `WaylandEnable=false` en `/etc/gdm3/daemon.conf`
 
 ## IPs Tailscale
@@ -18,7 +19,8 @@
 | Equipo | IP | Rol | Estado |
 |--------|-----|-----|--------|
 | forja (debian) | 100.121.64.26 | Brain + GPU + FABRICA | ✅ main |
-| vps | 100.102.63.30 | Server + PM2 + ESPEJO | ✅ 5 PM2 |
+| hp-server | 100.107.54.12 | Server 24/7 + ESPEJO (reemplazo VPS) | ✅ API+PWA vivos |
+| ~~vps~~ | ~~100.102.63.30~~ | MUERTO 2026-09-07, solo historia | ❌ |
 | kali | 100.103.82.104 | Git executor | ✅ v4.2-kali branch |
 | note-11 | 100.122.196.23 | Reviewer | ✅ ICMP bloqueado por Android, vivo |
 | note-12s | 100.96.34.100 | Reviewer | ✅ |
@@ -30,9 +32,9 @@
 |---------------|---------|-------|
 | debian → kali | `ssh kali` | alias en `~/.ssh/config`; llave `israel@debian` autorizada para user `jijoyo` |
 | kali → debian | `ssh israel@100.121.64.26` | Tailscale SSH: puede pedir check de navegador |
-| vps → kali | `ssh jijoyo@100.103.82.104` | llave `root@oracle-arm` autorizada |
-| vps → debian | `ssh israel@100.121.64.26` | Tailscale SSH check navegador ocasional |
-| celulares → vps | `granja` = alias de `ssh ubuntu@100.102.63.30` | Termux; sin engram local, corren CLI del vps |
+| hp-server → kali | `ssh jijoyo@100.103.82.104` | vía Tailscale (ruta ex-Oracle actualizada a HP) |
+| hp-server → debian | `ssh israel@100.121.64.26` | Tailscale SSH check navegador ocasional |
+| celulares → hp-server | alias Tailscale a `100.107.54.12` | Termux; sin engram local, corren CLI del HP |
 
 ## Memoria compartida (engram cloud)
 
@@ -44,9 +46,9 @@
 
 ## Qdrant / RAG
 
-- Collection: `alcon` - 507 puntos - 768 dim cosine - status green - port 6333
-- Docker --restart unless-stopped en vps
-- No borrar colección sin backup. Engrams upsert desde forja.
+- Collection: `alcon` - 53 puntos - 768 dim cosine - status green - port 6333 (forja, medido R0)
+- RAG: qwen3-0.6B-ONNX MRL-768 en `:8087` (qwen-embed-serve). Histórico: nomic :8086 VPS, dual forja→vps (commits cfab7ef/4ac8570/175e21a).
+- No borrar colección sin backup.
 
 ## Paths
 
@@ -72,27 +74,26 @@ Branches: main (verdad), v4.2-kali, cel-experimental, fix/termux, v3.1-clean
 
 | Servicio | Puerto | Dispositivo | Nota |
 |----------|--------|-------------|------|
-| alcon-api | :3003 | vps (100.102.63.30) | Fastify Node (backup) |
-| alcon-go | :3001 | vps | Go 13.2MB Docker, 60MB RAM |
-| alcon-pwa | :3004 | vps | React + TS |
-| Qdrant | :6333 | vps | 507 pts, green |
-| nomic embeddings | :8086 | vps | systemd nomic.service ARM64 |
-| llama-server | :8080 | debian | 1 modelo GPU |
+| alcon-api | :3003 | hp-server (100.107.54.12) | Fastify Node |
+| alcon-go | :3001 | hp-server | Go (verificar en HP) |
+| alcon-pwa | :3004 | hp-server | React + TS |
+| Qdrant | :6333 | forja | 53 pts, green, 768dim (R0 qwen) |
+| qwen embeddings | :8087 | forja | qwen-embed-serve MRL-768 (R0, reemplaza nomic :8086 muerto) |
+| llama-server | :8080 | debian | 1 modelo GPU (bajo orden de Israel, no automático) |
 | board API | :9998 | debian | 13 modelos |
 | dashboard | :8081 | debian | monitor |
 | engram-cloud | :7438 | vps | Postgres docker |
 
-## PM2 Oficial (ubuntu@100.102.63.30)
+## Procesos HP (hp-server 100.107.54.12) — verificar lista exacta en HP
 
 ```
-0 alcon-pwa (3004)
-2 buzz-farm
-3 vps-agent (FIX 4f21091: resilient reconnect + keepalive, estable desde 00:15 21-Ago)
-4 alcon-api (3003 ubuntu, NUNCA root)
-6 alcon-go (3001)
+alcon-pwa (3004)
+alcon-api (3003, NUNCA root)
+alcon-go (3001, si aplica)
 ```
 
-Verificación: `pm2 ls` debe mostrar 5. Si ves duplicado o /root/alcon -> ALERTA.
+Verificación: API+PWA responden en `100.107.54.12`. Si ves `/root/alcon` -> ALERTA.
+(Histórico Oracle: PM2 oficial `ubuntu@100.102.63.30` con 5 procesos incl. vps-agent — muerto 2026-09-07.)
 
 ## Qué es granja.json
 
@@ -145,7 +146,8 @@ Todos los dispositivos del enjambre (forja, debian, vps, kali, cels) deben respe
 ### La Regla
 - **FABRICA = forja (debian 100.121.64.26 ~/Documentos/alcon)** = UNICO lugar donde se edita código.
 - **VERDAD = github.com/jijoyo/alcon main** = El hash de HEAD es la versión oficial (dinámico, se verifica vía `/health`). Solo push desde forja.
-- **ESPEJOS = ubuntu@100.102.63.30 + cels + kalis** = Solo `git pull`, nunca editar.
+- **ESPEJOS = hp-server + cels + kalis** = Solo `git pull`, nunca editar.
+(Histórico: `ubuntu@100.102.63.30` Oracle, muerto 2026-09-07.)
 
 Flujo correcto SIEMPRE:
 ```bash
@@ -154,23 +156,25 @@ cd ~/Documentos/alcon
 # ...edita...
 git add -A && git commit -m "fix: ..." && git push origin main
 
-# En VPS y resto (espejos):
-cd ~/alcon && git status && git pull origin main && pm2 restart all
+# En HP y resto (espejos):
+# (ruta/usuario HP por confirmar) git status && git pull origin main && restart servicios
 ```
 
 ### Antídoto Duplicado (98ecf09)
-- NUNCA `ssh root@100.102.63.30` - Solo `ubuntu@100.102.63.30`
-- NUNCA `pm2` como root - Si ves `/root/alcon`, es un fantasma: `pm2 delete all && rm -rf /root/alcon`
+- NUNCA `ssh root@<cualquier-espejo>` - Solo usuario normal del espejo
+- NUNCA `pm2`/servicios como root - Si ves `/root/alcon`, es un fantasma: `pm2 delete all && rm -rf /root/alcon`
 - NUNCA `scp` de archivo trackeado
-- NUNCA editar directo en VPS con nano sin commit+push inmediato
-- Antes de tocar VPS: `pm2 ls` (si ves duplicados, alerta) y `git -C ~/alcon log --oneline -3`
+- NUNCA editar directo en espejo con nano sin commit+push inmediato
+- Antes de tocar espejo HP: verificar API+PWA vivos y `git log --oneline -3`
+(Histórico Oracle: `root@100.102.63.30` prohibido, solo `ubuntu@100.102.63.30`.)
 
 ### 🚨 Tailscale SSH bypass (Lección 22-Ago-2026)
 **Problema:** `PermitRootLogin no` + `AuthenticationMethods publickey` NO bloquean root si Tailscale SSH está habilitado. Tailscale intercepta la conexión ANTES de openssh, autentica por su propio mecanismo (ACL), y reporta `using "none"`.
 
 **Fix:** `sudo tailscale set --ssh=false` en el VPS. Luego openssh procesa la conexión y aplica `PermitRootLogin no`.
 
-**Verificación:** `ssh root@100.102.63.30` debe fallar con `Permission denied (publickey)`.
+**Verificación:** `ssh root@<espejo>` debe fallar con `Permission denied (publickey)`.
+(Histórico Oracle `100.102.63.30`: `tailscale set --ssh=false` + `PermitRootLogin no`.)
 
 **Regla:** Si en cualquier equipo `ssh root@` funciona a pesar de `PermitRootLogin no`, verificar `tailscale status` y deshabilitar Tailscale SSH.
 
@@ -196,10 +200,10 @@ Este archivo es leído por todos los dispositivos al hacer git pull. Si lo viola
 Si ves este archivo y no sabes qué hacer, ejecuta:
 
 ```bash
-curl -s http://100.102.63.30:3003/health
-# debe responder {"status":"ok"}
+curl -s http://localhost:3003/health
+# debe responder {"status":"ok"} (forja; espejo HP: http://100.107.54.12:3003/health)
 
-curl -X POST http://100.102.63.30:3003/api/orchestrate \
+curl -X POST http://localhost:3003/api/orchestrate \
   -H "Content-Type: application/json" \
   -d '{"text":"@quick-review test rapido","squad":"quick-review"}'
 ```

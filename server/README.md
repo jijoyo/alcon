@@ -116,8 +116,8 @@ Body: { agent: "kali" }
 ```js
 // @fastify/cors — para rutas HTTP
 origin: [
-  'http://100.102.63.30:5176',  // PWA en VPS
-  'http://100.102.63.30:3003',  // API directo
+  'http://100.107.54.12:3004',  // PWA en HP
+  'http://100.107.54.12:3003',  // API HP directo
   'http://localhost:5175',       // dev
   'http://localhost:5176',       // preview
 ]

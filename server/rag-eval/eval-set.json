@@ -18,7 +18,8 @@
   "accept": [
    "AGENTS.md",
    "INFRA-VIVA.md",
-   "BOOTSTRAP.md"
+   "BOOTSTRAP.md",
+   "2026-09-04-vps-auditor-repara-sin-permiso.md"
   ]
  },
  {
@@ -56,7 +57,8 @@
    "AGENTS.md",
    "COMMS-GUIDE.md",
    "VALIDACION_V4.md",
-   "VALIDACION_V4.3.md"
+   "VALIDACION_V4.3.md",
+   "09-contexto-alcon-prompt.md"
   ]
  },
  {
@@ -89,10 +91,10 @@
   ]
  },
  {
-  "q": "pm2 oficial vps procesos alcon",
+  "q": "procesos hp server alcon systemd servicios",
   "accept": [
-   "AGENTS.md",
-   "INFRA-VIVA.md"
+   "INFRA-VIVA.md",
+   "BOOTSTRAP.md"
   ]
  },
  {
@@ -101,7 +103,8 @@
    "AGENTS.md",
    "videos-a-infra.md",
    "VALIDACION_V4.3.md",
-   "README.md"
+   "README.md",
+   "catalogo-agents.md"
   ]
  },
  {

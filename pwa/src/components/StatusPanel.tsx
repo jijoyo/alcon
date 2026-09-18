@@ -10,6 +10,38 @@ interface StatusPanelProps {
 export function StatusPanel({ onRefresh }: StatusPanelProps) {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(false);
+  const [brain, setBrain] = useState<{ brain: string; model: string } | null>(null);
+  const [palette, setPalette] = useState<{ local: string[]; omniroute: string[]; free: string[] }>({ local: [], omniroute: [], free: [] });
+  const [selBrain, setSelBrain] = useState('omniroute');
+  const [selModel, setSelModel] = useState('');
+  const [applying, setApplying] = useState(false);
+  const [applyMsg, setApplyMsg] = useState('');
+
+  const fetchBrain = async () => {
+    try {
+      const b = await taskApi.brainModels();
+      setBrain(b.active);
+      setPalette(b.palette);
+      if (!selModel && b.active?.model) setSelModel(b.active.model);
+    } catch (e) {
+      console.error('Brain fetch failed:', e);
+    }
+  };
+
+  const applyBrain = async () => {
+    if (!selModel) return;
+    setApplying(true);
+    setApplyMsg('');
+    try {
+      const r = await taskApi.brainSet(selBrain, selModel);
+      setBrain({ brain: r.brain, model: r.model });
+      setApplyMsg(`Cerebro: ${r.brain}/${r.model}`);
+    } catch (e) {
+      setApplyMsg('Error: id fuera de paleta o restart fallido');
+    } finally {
+      setApplying(false);
+    }
+  };
 
   const fetchStatus = async () => {
     setLoading(true);
@@ -25,6 +57,7 @@ export function StatusPanel({ onRefresh }: StatusPanelProps) {
 
   useEffect(() => {
     fetchStatus();
+    fetchBrain();
     const interval = setInterval(fetchStatus, 10_000);
     return () => clearInterval(interval);
   }, []);
@@ -48,6 +81,35 @@ export function StatusPanel({ onRefresh }: StatusPanelProps) {
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
         </button>
+      </div>
+
+      {/* Cerebro elegible (opción B) */}
+      <div className="bg-slate-800/50 rounded-lg p-3">
+        <div className="text-xs text-slate-500 mb-1">
+          Cerebro actual: {brain ? <span className="text-emerald-400">{brain.brain}/{brain.model}</span> : '...'}
+        </div>
+        <div className="flex gap-2">
+          <select value={selBrain} onChange={e => setSelBrain(e.target.value)} className="bg-slate-900 text-xs text-slate-200 border border-slate-700 rounded px-2 py-1.5">
+            <option value="omniroute">omniroute</option>
+            <option value="opencode">opencode</option>
+          </select>
+          <select value={selModel} onChange={e => setSelModel(e.target.value)} className="flex-1 bg-slate-900 text-xs text-slate-200 border border-slate-700 rounded px-2 py-1.5">
+            <option value="">elegir modelo...</option>
+            <optgroup label={`Locales :8080 (${palette.local.length})`}>
+              {palette.local.map(m => <option key={'l'+m} value={m}>{m}</option>)}
+            </optgroup>
+            <optgroup label={`Omniroute (${palette.omniroute.length})`}>
+              {palette.omniroute.map(m => <option key={'o'+m} value={m}>{m}</option>)}
+            </optgroup>
+            <optgroup label={`Free opencode (${palette.free.length})`}>
+              {palette.free.map(m => <option key={'f'+m} value={m}>{m}</option>)}
+            </optgroup>
+          </select>
+          <button onClick={applyBrain} disabled={applying || !selModel} className="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white text-xs rounded px-3">
+            {applying ? '...' : 'Aplicar'}
+          </button>
+        </div>
+        {applyMsg && <div className="text-xs mt-1 text-slate-400">{applyMsg}</div>}
       </div>
 
       {/* Summary */}

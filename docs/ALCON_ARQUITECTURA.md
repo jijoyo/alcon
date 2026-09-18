@@ -51,29 +51,30 @@ ecosystem.config.cjs:
   alcon-api env LLAMA_URL=http://localhost:8080 (local) / http://100.121.64.26:8080 (vps-agent)
   vps-agent env BOARD_API_URL=http://100.121.64.26:9998
   alcon-pwa vite preview :3004
-  .env forja: LLAMA_URL=http://localhost:8080, ALCON_API_URL=http://100.102.63.30:3003
+  .env forja: LLAMA_URL=http://localhost:8080, ALCON_API_URL=http://localhost:3003 (HP: http://100.107.54.12:3003)
 ```
 
 **Detalle board:** `boardStart(modelKey)` mapea `model-registry.json` (`registry[modelKey].board_key` ej `qwen`, `hauhaucs-12b`, `gemma`) y hace `POST API_BOARD/start?model=boardKey` (fallback JSON). Luego espera 30s a `LLAMA/health`. `boardStop()` hace `POST /stop`. Esto es legado del board multi-modelo.
 
-**Ferrari v4.3:** router forja :8080 tiene 10 modelos on-demand (9 chat + 1 nomic CPU-only) (`/v1/models`), `selectBackend` 80/20 en Go elige `gemma4-12b` (rápido, prompt<500 sin architecture|research-deep|audit complejo) vs `qwen36-mx 131K` (pesado). `granja.json` Ferrari pone `throttle 0` porque el router ya serializa GPU.
+**Ferrari v4.3:** router forja :8080 on-demand (`/v1/models`), `selectBackend` 80/20 en Go elige `gemma4-12b` vs `qwen36-mx 131K`. `granja.json` Ferrari pone `throttle 0` porque el router ya serializa GPU. (Histórico: 10 modelos incl. nomic CPU-only — nomic salió de presets; ver R0.)
+**R0 (2026-09-17):** embeddings = qwen3-0.6B-ONNX MRL-768 en `:8087` (qwen-embed-serve), colección `alcon` 768dim intacta. Motor forja solo bajo orden de Israel.
 
-## 3) Donde entra Qdrant :6333 y embed :8080 (v3.1 dual)
+## 3) Donde entra Qdrant :6333 y embed :8087 (R0 qwen; histórico v3.1 dual nomic)
 
 ```
 server/lib/memory-rag.js
   QDRANT_URL=http://localhost:6333  COLLECTION=alcon  VECTOR_SIZE=768 cosine
-  LLAMA_URL (embed) = http://100.121.64.26:8080  model=nomic-embed-text (CPU-only, n-gpu-layers=0)
+  QWEN_HOST=http://127.0.0.1:8087 (qwen-embed-serve MRL-768) -> forja :8080 -> vps :8086 (piso)
 
   ensureEmbedRunning()  -> systemctl --user is-active llama-embed, si no start; scheduleStop() tras 5min idle
-  embed(text) -> POST http://100.121.64.26:8080/v1/embeddings (fallback VPS :8086) {model:'nomic-embed-text', input:text.slice(0,500)} retry 3x 30s
+  embed(text) -> POST :8087/v1/embeddings {model:'qwen3-embedding', input:text.slice(0,500)} con guarda-dim 768; fallback dual forja->vps; retry 3x 30s
   upsert(id,payload,vector) -> PUT /collections/alcon/points
   search(query,limit,device) -> embed(query) -> POST /collections/alcon/points/search {vector, filter:{device}, with_payload:true}
   countByDevice() -> /collections/alcon/points/count por device
 
   ingestDb(name, dbPath) -> lee opencode.db (session/part o sessions/messages), junta content 500 chars, embed(title+clean), upsert con payload {device, fecha, texto(8000), session_id, model, tokens, title, directory}
 
-  ingestAll() -> si existen /home/ubuntu/opencode-dbs/*.db (VPS local) los usa; si no, hace SCP via Tailscale desde forja/kali/vps/cel (tailscale nc para oracle)
+  ingestAll() -> DBs locales de opencode; histórico: /home/ubuntu/opencode-dbs/*.db (VPS Oracle, muerto) y SCP via Tailscale (tailscale nc para oracle)
   ensureCollection() crea alcon si no existe
 
 auto-discovery.js
@@ -116,6 +117,6 @@ El sistema que probamos en la fiesta (agentes @debian @kali @vps @cel en el mism
 - **Test automático:** `make test-squad` (4 agents misma task sin pisarse) — `ALL TESTS PASSED`. Es el criterio de Done que faltaba desde la fiesta.
 - **Ferrari verificado:** `./scripts/ferrari.sh` con endpoints reales `/v1/models` (9 modelos), `/health` ok, control `:9998 /status` router active. No placeholder.
 
-**v3.1 completada (dual):** `memory-rag.js` ahora `LLAMA_EMBED_URL http://100.121.64.26:8080` (Forja principal) + fallback VPS `:8086` (95M nomic). `embed(text)` intenta Forja :8080, si falla cae a VPS :8086. `POST /v1/embeddings` → 200 con `data[0].embedding`. `:8086` respaldo, `llama-embed.service` no necesario. `make test-squad` PASS + `curl /v1/models` 10 modelos.
+**v3.1 completada (dual) — HISTÓRICO:** `memory-rag.js` con `LLAMA_EMBED_URL http://100.121.64.26:8080` (Forja principal) + fallback VPS `:8086` (95M nomic). Superado por **R0 (2026-09-17)**: qwen `:8087` primario con guarda-dim, dual como piso. Ver `~/.opencode/plans/alcon-r0-rag-digno.md`.
 
 *Documentado tras Deuda v3 ejecutada por @local-router.*

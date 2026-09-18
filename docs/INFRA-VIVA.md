@@ -38,48 +38,51 @@ _Última actualización: 2026-08-29 (Ferrari v4.3 — router :8080 18 modelos on
 | 8086 | nomic embeddings (descontinuado, ahora via Ollama :11434) | — |
 | 7438 | engram cloud (memoria entre dispositivos) | docker |
 
-### PM2 oficial VPS (usuario ubuntu, NUNCA root)
-`alcon-pwa · buzz-farm · vps-agent · alcon-api · alcon-go` — tras cualquier cambio: `pm2 save`
+### Procesos HP (hp-server 100.107.54.12) — verificar lista exacta en HP
+`alcon-pwa` · `alcon-api` · `alcon-go` — tras cualquier cambio: restart servicios.
+(Histórico Oracle: PM2 oficial `alcon-pwa · buzz-farm · vps-agent · alcon-api · alcon-go`, muerto 2026-09-07.)
 
 ## SSH (matriz real)
 | Desde → Hacia | Comando | Nota |
 |----------------|---------|------|
-| forja → VPS | `ssh ubuntu@100.102.63.30` | vía Tailscale SSH (sin llave). **El flag `tailscale set --ssh` se RESETAEA con cada re-auth de tailscale** — si da Permission denied: `sudo tailscale set --ssh` desde otra máquina |
+| forja → HP | Tailscale a `100.107.54.12` | server 24/7 + ESPEJO (vía git, no ssh de edición) |
 | forja → kali | `ssh kali` | alias en ~/.ssh/config |
 | kali → forja | `ssh israel@100.121.64.26` | |
 | forja → note-11 (cel) | `ssh -p 8022 100.122.196.23` | llave ed25519 de forja en authorized_keys de Termux |
 | forja → note-12s (cel2) | `ssh -p 8022 100.96.34.100` | idem |
-| cel/cel2 → VPS | `ssh ubuntu@100.102.63.30` | alias `granja` |
+| cel/cel2 → HP | Tailscale a `100.107.54.12` | alias por definir |
 | **Termux sshd** | puerto **8022** (NO 22) | se prende con `sshd` dentro de Termux |
 
 ## Lanzamiento de agentes (en cada dispositivo)
 ```bash
 # Termux (cel/cel2) — setsid + wake-lock, NOHUP SOLO NO BASTA (muere al cerrar SSH)
-setsid nohup node ~/alcon/agents/agent.js <nombre> http://100.102.63.30:3003 >> ~/cel2-agent.log 2>&1 &
+setsid nohup node ~/alcon/agents/agent.js <nombre> http://100.107.54.12:3003 >> ~/cel2-agent.log 2>&1 &
 # Scripts persistentes: ~/alcon/start-cel.sh · ~/alcon/start-cel2.sh (guard pgrep con bracket trick [a]gent.js)
 # Auto-relaunch: bloque en ~/.bashrc + ~/.termux/boot/ (requiere app Termux:Boot de F-Droid)
-# forja (debian): setsid node agents/agent.js debian http://100.102.63.30:3003
-# VPS: pm2 start ecosystem.config.cjs --only vps-agent
+# forja (debian): setsid node agents/agent.js debian http://localhost:3003 (era Oracle .30 — muerto)
+# HP: worker contra SU :3003 local (burbuja + opencode detrás, receta Oracle sin GPU)
 ```
 - Memoria persistente: cada agente tiene sesión opencode propia (`agents/.session-<nombre>.txt`, gitignored). Se crea sola al primer run con `--title enjambre-<nombre>`.
-- **AGENT_MODEL** (pendiente): hardcodeado `opencode/mimo-v2.5-free` — hacer env var para diversidad de cerebros.
+- **AGENT_MODEL** (resuelto R0-cerebro 2026-09-17): env var en `alcon-debian-agent.service` (`AGENT_BRAIN=omniroute|opencode`, `AGENT_MODEL=<id>`, ver `omniroute models`). Default: omniroute + `orcarouter/deepseek/deepseek-v4-flash-free` (10s OK). opencode/mimo cuelga aquí.
 
-## RAG (dieta completada + v3.1 dual nomic)
+## RAG (R0 qwen 2026-09-17; histórico dieta + v3.1 dual nomic)
 
 ```
-RAG_DOCS_DIR=<docs> RAG_CACHE_DIR=<cache> EMBEDDING_URL=http://100.121.64.26:8080  sudo systemctl restart rag
-venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (router :8080 CPU-only, 768d) + fallback VPS :8086
-→ cache/embeddings.npy + meta.json     → /rag?q= (vía alcon-api :3003/rag)
-→ scp al VPS ~/alcon/cache/            → scripts/rag.sh "pregunta" (CLI)
+qwen-embed-serve :8087 (forja) — Qwen3-Embedding-0.6B-ONNX MRL-768, OpenAI-compatible
+  /v1/embeddings (memory-rag.js) + /rag?q=&k= (sidecar, used_rerank:false) + /health
+→ Qdrant :6333 colección alcon (53 pts, 768dim cosine) → /rag (alcon-api :3003/rag)
+→ scripts/rag-eval.sh "pregunta" (CLI, contra localhost)
 ```
+Servicio: `qwen-embed-8087.service` (Restart=no, sin autostart hasta gate de persistencia).
+Histórico: nomic :8086 VPS → dual forja :8080 + VPS :8086 (v3.1) → ambos muertos (router 400 + ruta GGUF inexistente) → R0.
 
 **Gotchas:**
 - **RAG v4.4-embed 2026-08-30**: embedding **Qwen3-Embedding-0.6B ONNX local 1024d** en-proceso (adiós Ollama HTTP para queries; nomic queda en router :8080 para memory-rag.js). Reranker via **fastretrieval 1.1.0** (sucesor de qwen3-embed) con perfil **YesNo 598MB** — el estándar pide ~12GB y era el root cause de los OOM kills (YesNo es perfil interno v1.4.2+, NO repo de HF: 404/401 engañoso). `MemoryMax=4G` (2.1G en reposo). **`HF_HUB_OFFLINE=1` removido** del unit — bloqueaba la resolución de modelos de fastretrieval
 - **Corpus ampliado 2026-08-29**: 1437 chunks = docs/ + handoff/ + vault (02-guías, 04-aprendizajes via symlink) + repo-root (AGENTS.md, BOOTSTRAP.md, README.md via symlink en docs/repo-root/). Symlinks en VPS `~/alcon/docs/` — el vault llega por Syncthing
-- **Eval harness**: `scripts/rag-eval.sh` + `server/rag-eval/eval-set.json` (15 preguntas, accept-lists). Baseline 4/15 → **15/15 recall@3** con ambos embeddings (nomic y qwen3-1024d). Correr en cada cambio de modelo/chunking
+- **Eval harness**: `scripts/rag-eval.sh` + `server/rag-eval/eval-set.json` (15 preguntas, accept-lists, contra localhost). Histórico: 4/15 → 15/15 recall@3 (2026-08-30). **Regresión R0 (2026-09-17): recall@3 0/15** — el eval-set espera archivos de docs y la colección guarda sesiones (mismatch de corpus, no del motor). Seguimiento: P-078 re-baseline.
 - **Fixes de estabilidad 2026-08-29** (commit 9322ed3): proxy timeout 20s (era 5s → hits vacíos), sidecar `/rag` sync handler (async bloqueaba event loop → fetch failed), rerank en try/except (degrada a coseno, nunca tumba el sidecar)
 - **Dieta completada 2026-08-26**: torch eliminado (5-6GB RAM era el veto original al Qwen3-Embedding; ONNX lo resuelve — Engram #288/#300)
-- **v3.1 dual 2026-08-27**: nomic en router :8080 como 10mo modelo `n-gpu-layers=0` (CPU-only, no contención VRAM). Fallback VPS :8086. `memory-rag.js` con `FORJA_HOST`→`VPS_HOST`. Test `POST /v1/embeddings` 200 en ambos.
+- **v3.1 dual 2026-08-27 — HISTÓRICO**: nomic en router :8080 como 10mo modelo. Superado por **R0 (2026-09-17)**: qwen `:8087` primario con guarda-dim, dual como piso. Ver `~/.opencode/plans/alcon-r0-rag-digno.md`.
 - Cache se invalida automáticamente si cambia dimensión (768→1024 detectado)
 - Qdrant :6333 = corpus viejo de sesiones (507 pts congelado) — el sidecar NO lo usa
 - MRL: el embedder es Matryoshka 32-1024d — si storage aprieta, truncar a 512d solo re-indexando
@@ -89,7 +92,7 @@ venv fastapi+uvicorn → rag_sidecar.py  → nomic-embed-text (router :8080 CPU-
 - **Chat**: Socket.io `/enjambre` en :3003. Mención al INICIO del mensaje → server rutea agent:direct (una vez). Mención a mitad de texto → el listener del agente la procesa. Citas en backticks/> = ignoradas (anti-eco, d27df10).
 - **Floor**: turno compartido namespace-wide (d27df10) — `floor:request`/`floor:release`, timeout 60s, cola.
 - **[COMMS:destino] msg** en el OUTPUT de un agente → evento agent:comms → re-emit como agent:direct.
-- **Puerta para sesiones TUI** (sin agent.js): `ssh ubuntu@100.102.63.30 "node ~/comms/hablar.cjs <nombre> 'msg'"`
+- **Puerta para sesiones TUI** (sin agent.js): contra el server vivo que corresponda (histórico Oracle: `ssh ubuntu@100.102.63.30 ...`)
 - **Buzon alcon** (forja): `node scripts/buzon-alcon.cjs` — escucha todo; enviar: `echo "msg" > ~/.alcon-buzon/send.txt`. Log: `~/.alcon-buzon/inbox.log`.
 - **Protocolo 8 claves**: PROCEDE · EN PISTA · FUERA · ESPERO · ALERTA · POSA · PASE · CONTEXT (ver obsidian-vault/comms/LEEME.md)
 - **TODA identidad que hable debe estar en `server/config/agents.js`** — si no, el server la trata como humano y la reenvía a vps.

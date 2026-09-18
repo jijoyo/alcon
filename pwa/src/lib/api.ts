@@ -97,5 +97,7 @@ export const taskApi = {
   advance: (id: number, by_agent?: string) => api<Task>('POST', `/api/task/${id}/advance`, { by_agent }),
   regress: (id: number, by_agent?: string) => api<Task>('POST', `/api/task/${id}/regress`, { by_agent }),
   status: () => api<SystemStatus>('GET', '/api/status'),
+  brainModels: () => api<{ active: { brain: string; model: string }; palette: { local: string[]; omniroute: string[]; free: string[] } }>('GET', '/api/agent/models'),
+  brainSet: (brain: string, model: string) => api<{ ok: boolean; brain: string; model: string }>('POST', '/api/agent/model', { brain, model }),
   health: () => api<{ status: string; version: string; timestamp: string }>('GET', '/health')
 };

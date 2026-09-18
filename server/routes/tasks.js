@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 import { pipeline } from 'stream/promises';
 import { get as getDb } from '../db/connection.js';
 import { requireString, maxLength } from '../middleware/validate.js';
@@ -406,6 +407,70 @@ export default async function tasksRoutes(fastify) {
     fastify.log.info(`Agent ${name} STOPPED by user`);
     if (globalThis._io) globalThis._io.of('/enjambre').emit('presence:update', { peers:AGENTS.map(a=>({name:a,running:agentRunning[a],status:agentRunning[a]?'idle':'muerto',typing:false})) });
     return { ok:true, agent:name, status:'stopped' };
+  });
+
+  // === Cerebro elegible (opción B, P-082): paleta + cambio permanente ===
+  const BRAIN_UNIT = 'alcon-debian-agent.service';
+  function readBrain() {
+    try {
+      const t = fs.readFileSync(path.join(process.env.HOME || '/home/israel', '.config/systemd/user', BRAIN_UNIT), 'utf8');
+      const b = (t.match(/^Environment=AGENT_BRAIN=(.+)$/m) || [])[1] || 'omniroute';
+      const m = (t.match(/^Environment=AGENT_MODEL=(.+)$/m) || [])[1] || '';
+      return { brain: b.trim(), model: m.trim() };
+    } catch { return { brain: 'omniroute', model: '' }; }
+  }
+  function brainPalette() {
+    const pal = { local: [], omniroute: [], free: [] };
+    try {
+      const out = execSync('curl -s -m 8 http://127.0.0.1:8080/v1/models', { encoding: 'utf8', timeout: 10000 });
+      pal.local = (JSON.parse(out).data || []).map(m => m.id).filter(Boolean);
+    } catch {}
+    try {
+      // Paleta omniroute = models del provider omniroute en opencode.jsonc
+      // (mis-free, smart...) + ids upstream que el CLI acepta (orcarouter/*).
+      // (El CLI `omniroute models` exige registry del server; el jsonc es la fuente verdad local.)
+      const cfg = fs.readFileSync(path.join(process.env.HOME || '/home/israel', '.config/opencode/opencode.jsonc'), 'utf8');
+      const sec = cfg.match(/"omniroute"\s*:\s*\{[\s\S]*?"models"\s*:\s*\{([\s\S]*?)\n\s{3}\}/);
+      const own = sec ? [...sec[1].matchAll(/"([^"]+)":\s*\{/g)].map(m => m[1]) : [];
+      const ids = [...cfg.matchAll(/"((?:oc|orcarouter|auto)\/[^"]+)":\s*\{/g)].map(m => m[1]);
+      pal.omniroute = [...new Set([...own, ...ids])].slice(0, 80);
+    } catch {}
+    try {
+      const cfg = fs.readFileSync(path.join(process.env.HOME || '/home/israel', '.config/opencode/opencode.jsonc'), 'utf8');
+      const ids = [...cfg.matchAll(/"((?:oc|orcarouter|auto)\/[^"]+)":\s*\{/g)].map(m => m[1]);
+      // Provider freellmapi usa keys simples (auto, fusion) -> calificar con prefijo (formato CLI provider/modelo)
+      const fsec = cfg.match(/"freellmapi"\s*:\s*\{[\s\S]*?"models"\s*:\s*\{([\s\S]*?)\n\s{3}\}/);
+      const fown = fsec ? [...fsec[1].matchAll(/"([^"]+)":\s*\{/g)].map(m => 'freellmapi/' + m[1]) : [];
+      pal.free = [...new Set([...ids, ...fown])].slice(0, 90);
+    } catch {}
+    return pal;
+  }
+
+  fastify.get('/api/agent/models', async () => {
+    return { active: readBrain(), palette: brainPalette() };
+  });
+
+  fastify.post('/api/agent/model', async (request, reply) => {
+    const { brain, model } = request.body || {};
+    if (!['omniroute', 'opencode'].includes(brain)) return reply.code(400).send({ error: 'brain debe ser omniroute|opencode' });
+    if (!model || typeof model !== 'string' || model.length > 120) return reply.code(400).send({ error: 'model inválido' });
+    const pal = brainPalette();
+    // Pareo honesto cerebro↔modelo (cada CLI resuelve su propio namespace):
+    // omniroute CLI <- ids upstream (paleta omniroute); opencode CLI <- ids con prefijo provider (paleta free).
+    const okPair = brain === 'omniroute' ? pal.omniroute.includes(model) : pal.free.includes(model);
+    if (!okPair) return reply.code(400).send({ error: `model fuera de paleta ${brain} (${brain === 'omniroute' ? pal.omniroute.length : pal.free.length} opciones)` });
+    try {
+      const unit = path.join(process.env.HOME || '/home/israel', '.config/systemd/user', BRAIN_UNIT);
+      let t = fs.readFileSync(unit, 'utf8');
+      t = t.replace(/^Environment=AGENT_BRAIN=.*$/m, `Environment=AGENT_BRAIN=${brain}`);
+      t = t.replace(/^Environment=AGENT_MODEL=.*$/m, `Environment=AGENT_MODEL=${model}`);
+      fs.writeFileSync(unit, t);
+      execSync('systemctl --user daemon-reload && systemctl --user restart ' + BRAIN_UNIT, { timeout: 30000 });
+      fastify.log.info(`Brain cambiado a ${brain}/${model} por usuario`);
+      return { ok: true, brain, model, status: 'restarted' };
+    } catch (e) {
+      return reply.code(500).send({ error: String(e.message || e).slice(0, 160) });
+    }
   });
 
   setInterval(() => {

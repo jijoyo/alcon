@@ -168,7 +168,7 @@ export default async function memoriaRoutes(fastify) {
 
     const k = parseInt(limit) || 10;
 
-    // PRIMARY: Qwen3 sidecar :3005
+    // PRIMARY: Qwen3 sidecar :3005 (receta VPS: rag_sidecar.py + fastretrieval)
     try {
       const sidecarUrl = `http://127.0.0.1:3005/rag?q=${encodeURIComponent(q)}&k=${k}`;
       const res = await fetch(sidecarUrl, { signal: AbortSignal.timeout(30000) });
@@ -209,7 +209,7 @@ export default async function memoriaRoutes(fastify) {
   });
 
   fastify.get('/api/memoria/stats', async () => {
-    // PRIMARY: Qwen3 sidecar health
+    // PRIMARY: Qwen3 sidecar health (:3005 receta VPS)
     try {
       const res = await fetch('http://127.0.0.1:3005/health', { signal: AbortSignal.timeout(3000) });
       if (res.ok) {

@@ -25,7 +25,10 @@ export const KEYWORD_MAP = {
 
 import { AGENTS } from '../config/agents.js';
 export { AGENTS };
-export const agentRunning = { kali:true, vps:true, cel:true, debian:true, hermes:true, alcon:true, 'cel-tui':true, cel2:true, 'montar-forja':true, radar:true, 'local-router':true, tagger:true, 'muse-spark':true };
+// Presencia honesta (F1b): nadie corre hasta que hace chat:join.
+// El server marca true al join y false al disconnect; el panel y @all reflejan
+// obreros REALES, no banderas hardcodeadas de la era Oracle.
+export const agentRunning = { kali:false, vps:false, cel:false, debian:false, hermes:false, alcon:false, 'cel-tui':false, cel2:false, 'montar-forja':false, radar:false, 'local-router':false, tagger:false, 'muse-spark':false, 'debian-forja':false, 'forja-taller':false, israel:false };
 export const commsEnabled = { kali:true, vps:true, cel:true, debian:true, hermes:true, alcon:true, 'cel-tui':true, cel2:true, 'montar-forja':true, radar:true, 'local-router':true, tagger:true, 'muse-spark':true };
 
 export const presence = new Map();

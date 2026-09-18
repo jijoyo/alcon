@@ -2,9 +2,9 @@
 
 > Guardado 2026-08-26 — para implementar después.
 
-## Contexto
-- **Embeddings RAG:** sigue `nomic-embed-text` (768d, Ollama :11434) en sidecar :3005
-- **Generación RAG:** hoy proxy a forja GPU (:9998 board). Si forja duerme, VPS queda sin LLM.
+## Contexto (actualizado R0 2026-09-17)
+- **Embeddings RAG:** qwen3-0.6B-ONNX MRL-768 en `:8087` (qwen-embed-serve). Histórico: nomic-embed-text 768d (Ollama :11434, sidecar :3005, dual forja→VPS — muertos).
+- **Generación RAG:** proxy a forja GPU **solo bajo orden de Israel**; HP se vale con CPU/nube (burbuja + opencode, receta Oracle).
 
 ## Modelos testeados en cel2 (Helio G96, --threads 2)
 

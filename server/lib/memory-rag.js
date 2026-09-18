@@ -9,6 +9,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
 const FORJA_HOST = 'http://100.121.64.26:8080';
 const VPS_HOST = 'http://localhost:8086';
+// R0 qwen-primero (B2): Qwen3-Embedding-0.6B-ONNX MRL-768 servido local :8087.
+// Si no da 768 reales, la guarda-dim lo rechaza y cae al dual forja->vps (piso A).
+const QWEN_HOST = process.env.QWEN_EMBED_URL || 'http://127.0.0.1:8087';
 const COLLECTION = 'alcon';
 const VECTOR_SIZE = 768;
 
@@ -87,6 +90,23 @@ export async function embed(text, attempt = 0) {
   if (attempt >= 3) {
     console.log('[memory-rag] Embed failed after 3 retries');
     return null;
+  }
+  try {
+    // R0: qwen local primero (MRL-768 verificado contra colección viva)
+    const resQ = await fetch(`${QWEN_HOST}/v1/embeddings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'qwen3-embedding', input: truncated }),
+      signal: AbortSignal.timeout(30000)
+    });
+    if (resQ.ok) {
+      const dataQ = await resQ.json();
+      const vec = dataQ.data?.[0]?.embedding;
+      if (Array.isArray(vec) && vec.length === VECTOR_SIZE) return vec;
+      console.warn(`[memory-rag] qwen dim ${vec?.length} != ${VECTOR_SIZE}, fallback dual`);
+    } else throw new Error('qwen ' + resQ.status);
+  } catch (e) {
+    console.warn(`[memory-rag] qwen offline (${e.message}), fallback dual`);
   }
   try {
     const res = await fetch(`${FORJA_HOST}/v1/embeddings`, {

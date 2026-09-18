@@ -14,7 +14,7 @@ import { STOP_WORDS } from '../server/config/stopWords.js';
 import { checkPermiso } from '../server/lib/permisos.js';
 
 const AGENT_NAME = process.argv[2] || 'kali';
-const SERVER_URL = process.argv[3] || 'http://100.102.63.30:3003';
+const SERVER_URL = process.argv[3] || 'http://127.0.0.1:3003';
 const isTermux = process.env.PREFIX?.includes('com.termux');
 
 const SYSTEM_PROMPTS = {
@@ -86,12 +86,25 @@ function persistSessionId() {
   }
 }
 
-function buildOpencodeArgs(prompt) {
-  const args = ['run', '-m', 'opencode/mimo-v2.5-free', '--dir', WORKDIR, '--dangerously-skip-permissions'];
+function buildOpencodeArgs(prompt, model) {
+  // Si el cerebro es opencode, AGENT_MODEL manda (elegible); si no, legado mimo.
+  const m = model || (AGENT_BRAIN === 'opencode' ? AGENT_MODEL : 'opencode/mimo-v2.5-free');
+  const args = ['run', '-m', m, '--dir', WORKDIR, '--dangerously-skip-permissions'];
   if (SESSION_ID) args.push('-s', SESSION_ID);
   else args.push('--title', AGENT_TITLE);
   args.push(prompt);
   return args;
+}
+// === Cerebro elegible (ley de Israel: él elige modelos, sin tocar código) ===
+// AGENT_BRAIN=omniroute|opencode · AGENT_MODEL=<id> (ver `omniroute models`)
+// Default: omniroute + free probado (10s OK). opencode/mimo cuelga aquí (60s+ sin respuesta).
+const AGENT_BRAIN = process.env.AGENT_BRAIN || 'omniroute';
+const AGENT_MODEL = process.env.AGENT_MODEL || 'orcarouter/deepseek/deepseek-v4-flash-free';
+const OMNIROUTE_BIN = process.env.OMNIROUTE_BIN || '/home/israel/.nvm/versions/node/v22.23.1/bin/omniroute';
+const BRAIN_TIMEOUT_MS = parseInt(process.env.AGENT_BRAIN_TIMEOUT || '150000', 10);
+function buildBrainCommand(prompt) {
+  if (AGENT_BRAIN === 'omniroute') return { bin: OMNIROUTE_BIN, args: ['chat', '-m', AGENT_MODEL, prompt] };
+  return { bin: OPENCODE_BIN, args: buildOpencodeArgs(prompt) };
 }
 // === fin sesión persistente ===
 
@@ -226,6 +239,7 @@ function fetchTaskMessages(taskId, limit = 5) {
 
 function connectSocket() {
   const socket = io(`${SERVER_URL}/enjambre`, {
+    auth: { isAgent: true },
     transports: ['websocket', 'polling'],
     reconnection: true,
     reconnectionDelay: 2000,
@@ -398,13 +412,15 @@ function connectSocket() {
       const systemSection = systemPrompt ? `[System Instructions]\n${systemPrompt}\n\n` : '';
       const prompt = `${systemSection}${context}Tarea: ${taskText}\nResponde en español, corto.`;
       let output = await new Promise((resolve, reject) => {
-        const child = spawn(OPENCODE_BIN, buildOpencodeArgs(prompt), {
+        const { bin, args } = buildBrainCommand(prompt);
+        log(`[BRAIN] ${AGENT_BRAIN}/${AGENT_MODEL}`);
+        const child = spawn(bin, args, {
           cwd: WORKDIR,
           stdio: ['ignore', 'pipe', 'inherit']
         });
         let stdout = '';
         child.stdout.on('data', (data) => { stdout += data; });
-        const timer = setTimeout(() => { child.kill(); reject(new Error('timeout')); }, 900_000);
+        const timer = setTimeout(() => { child.kill(); reject(new Error('timeout')); }, AGENT_BRAIN === 'omniroute' ? BRAIN_TIMEOUT_MS : 900_000);
         const heartbeat = setInterval(() => {
           try {
             execSync(`curl -s -X POST ${SERVER_URL}/api/task/${msg.task_id}/heartbeat -H "Content-Type: application/json" -d '${JSON.stringify({ owner: AGENT_NAME })}'`, { timeout: 5000 });
@@ -422,7 +438,12 @@ function connectSocket() {
         child.on('error', (err) => { clearTimeout(timer); clearInterval(heartbeat); reject(err); });
       });
       socket.emit('typing:stop');
-      
+      // Limpieza salida omniroute (ruido CLI + línea stats final)
+      if (AGENT_BRAIN === 'omniroute') {
+        output = String(output).split('\n')
+          .filter(l => !/Loaded env|is ignored|^\s*$/.test(l) && !/^\[.*\d+ms.*tok\]$/.test(l.trim()))
+          .join('\n').trim();
+      }
       // Detectar comms en la salida: [COMMS:agente] mensaje
       const commsLines = output.match(/\[COMMS:(\w+)\]\s*(.+)/g);
       if (commsLines) {

@@ -69,6 +69,8 @@ export function registerChat(io) {
         }
       }
       presence.set(socket.id, { name: name||'user', sessionId, isAgent, status:'vivo', lastSeen:Date.now(), typing:false });
+      // F1b: presencia honesta — el flag vive/muere con el socket, no hardcodeado
+      if (isAgent && name && name in agentRunning) agentRunning[name] = true;
       const db = getDb();
       socket.emit('chat:history', db.prepare('SELECT * FROM chat ORDER BY timestamp ASC').all());
       broadcastPresence(chatNs);
@@ -285,7 +287,7 @@ export function registerChat(io) {
       chatNs.emit('agent:comms', { id: crypto.randomUUID(), from: msg.from, to: msg.to, text: msg.text, timestamp: now() });
     });
 
-    socket.on('disconnect', () => { const p = presence.get(socket.id); if (p) { p.status = 'muerto'; p.typing = false; } presence.delete(socket.id); broadcastPresence(chatNs); });
+    socket.on('disconnect', () => { const p = presence.get(socket.id); if (p) { p.status = 'muerto'; p.typing = false; if (p.isAgent && p.name && p.name in agentRunning) agentRunning[p.name] = false; } presence.delete(socket.id); broadcastPresence(chatNs); });
   });
 
   setInterval(() => {

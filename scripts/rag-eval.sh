@@ -9,7 +9,7 @@ k = int(sys.argv[1]); eval_set = json.load(open(sys.argv[2]))
 hits_ok = 0; results = []
 for case in eval_set:
     q = case["q"]; expect = "|".join(a.split("/")[-1] for a in case.get("accept", []))
-    url = f"http://100.102.63.30:3003/rag?q={urllib.parse.quote(q)}"
+    url = f"http://127.0.0.1:3003/rag?q={urllib.parse.quote(q)}"
     time.sleep(0.3)
     try:
         d = json.load(urllib.request.urlopen(url, timeout=30))

@@ -5,7 +5,7 @@ export default function RuntimeBanner() {
   const [rt, setRt] = useState(null);
 
   useEffect(() => {
-    fetch('/api/granja')
+    fetch('http://127.0.0.1:3003/api/granja')
       .then(r => r.json())
       .then(d => setRt(d.runtime))
       .catch(() => {});

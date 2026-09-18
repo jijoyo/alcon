@@ -10,7 +10,8 @@ export function MemoriaBuscador() {
   const [statsLoaded, setStatsLoaded] = useState(false)
 
   useEffect(() => {
-    fetch('/api/memoria/stats')
+    // API absoluta (igual que lib/api.ts): el dist estático :3004 no sirve /api
+    fetch('http://127.0.0.1:3003/api/memoria/stats')
       .then(r => r.json())
       .then(data => {
         setStats(data)
@@ -24,7 +25,7 @@ export function MemoriaBuscador() {
     if(!q.trim()) return
     setLoading(true)
     try {
-      const r = await fetch(`/api/memoria/buscar?q=${encodeURIComponent(q)}&device=${device}&limit=20`)
+      const r = await fetch(`http://127.0.0.1:3003/api/memoria/buscar?q=${encodeURIComponent(q)}&device=${device}&limit=20`)
       const j = await r.json()
       console.log('buscar raw', j)
       const arr = Array.isArray(j) ? j : (j.results || j.data || j.hits || [])
