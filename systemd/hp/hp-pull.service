@@ -1,0 +1,7 @@
+[Unit]
+Description=HP pull espejo (P-085, corre hp-pull.sh)
+
+[Service]
+Type=oneshot
+ExecStart=%h/Documentos/alcon/systemd/hp/hp-pull.sh
+Environment=HP_REPO=%h/alcon

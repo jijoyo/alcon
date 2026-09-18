@@ -1,0 +1,10 @@
+[Unit]
+Description=HP pull espejo cada 15min (P-085)
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+Unit=hp-pull.service
+
+[Install]
+WantedBy=timers.target
