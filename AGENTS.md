@@ -72,6 +72,8 @@ Si `pm2 ls` muestra !=5 o alguno en /root -> ejecutar antidoto BOOTSTRAP.
 | `@code-audit --auto revisa server.js` | Auto: local primero, fallback nube (default) |
 | `@code-audit --device=debian revisa server.js` | Solo debian |
 
+## Board :9998 — pendientes (skill project-loop, `proyecto: alcon`)
+
 ## Board API :9998 — Modelos
 
 | Board Key | Modelo | Servicio systemd | VRAM | tok/s |

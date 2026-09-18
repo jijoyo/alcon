@@ -11,3 +11,4 @@ else
 fi
 echo "[$(date +%F)] $MSG" | tee -a /tmp/verificar-backup.log
 notify-send "📦 Backup Alcon" "$MSG" 2>/dev/null
+"$(dirname "$0")/avisar-moshi.sh" "Backup" "$MSG" >/dev/null 2>&1
