@@ -76,3 +76,8 @@ server/go/memory/
 # todo menos el reporte, que se trackea como evidencia (auto-declara su commit)
 graphify-out/*
 !graphify-out/GRAPH_REPORT.md
+# Runtime sin curar (solo lo .processed curado se commitea)
+server/lib/memory/pending-*.md
+server/lib/memory/conversations/
+# Artefactos shim de bundlers en raiz
+node-fo*.js
