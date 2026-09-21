@@ -21,7 +21,7 @@
 |---|-------|---------------|------|
 | 1 | **Buzón** (`~/.alcon-buzon`) | Nota rápida async entre sesiones distintas | `echo "msg" > ~/.alcon-buzon/send.txt` · `tail -f inbox.log` |
 | 2 | **Agent.js vivo con misma sesión** | Plan longevo donde cada paso depende del anterior | `BUZON_NAME=radar setsid node .../agent.js radar ...` con `ses_...` compartida |
-| 3 | **PWA :3004** | Ver en vivo sin tocar terminal | `http://100.102.63.30:3004` |
+| 3 | **PWA :3004** | Ver en vivo sin tocar terminal | `http://100.107.54.12:3004` (HP; histórico VPS `.30` muerto) |
 | 4 | **Squad vía orquestador** | Tarea paralela que necesita varias cabezas | `@code-audit` / `@duelo` → `POST :3003/api/orchestrate` |
 | 5 | **Vault + Engram** | Retomar con contexto cero | `retoma <plan>` → lee `vault/02-guías/*.md` + `memory/conversations` + Engram |
 
@@ -39,7 +39,7 @@
 | Tarea estructural multi-agente con resultado trazable | **Squad vía orquestador** (`@code-audit ...` → `POST :3003/api/orchestrate`) |
 | Duelo | **Ambos**: orquestador clona tareas (fan-out), jueces debaten por COMMS con floor |
 
-Desde forja: disparar squad = `curl -X POST http://100.102.63.30:3003/api/orchestrate -H "Content-Type: application/json" -d '{"text":"@squad tarea","squad":"squad"}'` · hablar directo = `echo "msg" > ~/.alcon-buzon/send.txt`
+Desde forja: disparar squad = `curl -X POST http://100.107.54.12:3003/api/orchestrate -H "Content-Type: application/json" -d '{"text":"@squad tarea","squad":"squad"}'` · hablar directo = `echo "msg" > ~/.alcon-buzon/send.txt`
 
 ## Reglas duras
 
@@ -52,21 +52,22 @@ Desde forja: disparar squad = `curl -X POST http://100.102.63.30:3003/api/orches
 
 ```bash
 # forja/debian
-setsid node ~/Documentos/alcon/agents/agent.js debian http://100.102.63.30:3003 &
+# forja/debian: agents/agent.js contra HP (server 24/7, histórico VPS `.30` muerto)
+setsid node ~/Documentos/alcon/agents/agent.js debian http://100.107.54.12:3003 &
 # vps
 pm2 start ecosystem.config.cjs --only vps-agent
 # kali
-node ~/alcon/agents/agent.js kali http://100.102.63.30:3003
+node ~/alcon/agents/agent.js kali http://100.107.54.12:3003
 # cel (termux)
-setsid nohup node ~/alcon/agents/agent.js cel http://100.102.63.30:3003 &
+setsid nohup node ~/alcon/agents/agent.js cel http://100.107.54.12:3003 &
 
 # verificar presencia
-curl -s http://100.102.63.30:3003/health
+curl -s http://100.107.54.12:3003/health
 ```
 
 ## Puertas alternativas
 
-- **TUI sin agent.js**: `ssh ubuntu@100.102.63.30 "node ~/comms/hablar.cjs <nombre> 'msg'"`
+- **TUI sin agent.js**: `ssh server@100.107.54.12 "node ~/comms/hablar.cjs <nombre> 'msg'"` (histórico `ubuntu@.30` muerto)
 - **Buzón forja**: `node scripts/buzon-alcon.cjs` (escucha todo) · enviar: `echo "msg" > ~/.alcon-buzon/send.txt`
 
 ## Cable directo y vigía de drop (doctrina V4.4 — 2026-09-13)
