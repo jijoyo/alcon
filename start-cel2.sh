@@ -4,7 +4,7 @@
 termux-wake-lock 2>/dev/null
 unset LD_PRELOAD LD_LIBRARY_PATH
 cd ~/alcon || exit 1
-export AGENT_BRAIN=opencode AGENT_MODEL=opencode/muse-spark-1.3-contributor-free
+export AGENT_BRAIN=opencode AGENT_MODEL=opencode/big-pickle
 if pgrep -f "[a]gent.js cel2" >/dev/null 2>&1; then
   echo "cel2 ya corre"
   exit 0
