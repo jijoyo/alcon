@@ -1,0 +1,6 @@
+[Unit]
+Description=Caza AMD HP 2x/dia (FASE A, solo crea)
+
+[Service]
+Type=oneshot
+ExecStart=/home/server/alcon/systemd/hp/caza-amd-hp.sh
