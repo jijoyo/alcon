@@ -1,8 +1,8 @@
 [Unit]
-Description=Caza AMD HP 12:00 y 18:00 (FASE A)
+Description=Caza AMD HP turno manana 2-10am (FASE A)
 
 [Timer]
-OnCalendar=*-*-* 12,18:00:00
+OnCalendar=*-*-* 02,06,10:00:00
 Persistent=true
 Unit=caza-amd-hp.service
 
