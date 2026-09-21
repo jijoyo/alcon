@@ -28,8 +28,8 @@ export { AGENTS };
 // Presencia honesta (F1b): nadie corre hasta que hace chat:join.
 // El server marca true al join y false al disconnect; el panel y @all reflejan
 // obreros REALES, no banderas hardcodeadas de la era Oracle.
-export const agentRunning = { kali:false, vps:false, cel:false, cel2:false, debian:false, 'debian-forja':false, israel:false, 'forja-taller':false, alcon:false };
-export const commsEnabled = { kali:true, vps:true, cel:true, cel2:true, debian:true, 'debian-forja':true, israel:true, 'forja-taller':true, alcon:true };
+export const agentRunning = { kali:false, vps:false, cel:false, cel2:false, debian:false, israel:false, 'forja-taller':false, alcon:false };
+export const commsEnabled = { kali:true, vps:true, cel:true, cel2:true, debian:true, israel:true, 'forja-taller':true, alcon:true };
 
 export const presence = new Map();
 export const activeSessions = new Map(); // { userId: taskId }
