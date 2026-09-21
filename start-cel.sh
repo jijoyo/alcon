@@ -3,6 +3,7 @@
 # Uso manual: bash ~/alcon/start-cel.sh · Auto: ~/.termux/boot/alcon-boot.sh
 termux-wake-lock 2>/dev/null
 cd ~/alcon || exit 1
+export AGENT_BRAIN=opencode AGENT_MODEL=opencode/muse-spark-1.3-contributor-free
 if pgrep -f "[a]gent.js cel " >/dev/null 2>&1 || pgrep -f "[a]gent.js cel$" >/dev/null 2>&1; then
   echo "cel ya corre"
   exit 0
