@@ -18,7 +18,8 @@ SUB=$(cat ~/.cache/oracle-hunt/subnet); IMG=$(cat ~/.cache/oracle-hunt/imgid)
 OUT=$($OCI compute instance launch --availability-domain "$AD" --compartment-id "$T" \
   --shape "VM.Standard.E2.1.Micro" --subnet-id "$SUB" --image-id "$IMG" \
   --display-name "alcon-rescate" \
-  --ssh-authorized-keys-file ~/.ssh/oracle-hp.pub 2>&1) || true
+  --ssh-authorized-keys-file ~/.ssh/oracle-hp.pub 2>/tmp/oci-err.log) || true
+[ -s /tmp/oci-err.log ] && note "oci-stderr: $(head -c 150 /tmp/oci-err.log)"
 if echo "$OUT" | grep -q "Out of host capacity"; then
   note "nada: sin capacidad (reintento próximo ciclo)"
   exit 0
