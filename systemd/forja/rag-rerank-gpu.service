@@ -1,0 +1,13 @@
+[Unit]
+Description=Reranker BGE-v2-m3 GPU :8088 (bibliotecario persistente)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+WorkingDirectory=/home/israel/Documentos/alcon/server
+ExecStart=/home/israel/Documentos/alcon/.venv/bin/python /home/israel/Documentos/alcon/server/rag-rerank-gpu.py
+Restart=no
+Environment=RERANK_MODEL=BAAI/bge-reranker-v2-m3
+Environment=RERANK_PORT=8088
+[Install]
+WantedBy=default.target
