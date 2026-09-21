@@ -1,0 +1,5 @@
+[Unit]
+Description=Apagado limpio si el HP queda en pila (gracia 5min)
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/apagon-guard.sh

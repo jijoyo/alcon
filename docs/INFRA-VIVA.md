@@ -40,6 +40,7 @@ _Última actualización: 2026-08-29 (Ferrari v4.3 — router :8080 18 modelos on
 
 ### Procesos HP (hp-server 100.107.54.12) — verificar lista exacta en HP
 `alcon-pwa` · `alcon-api` · `alcon-go` — tras cualquier cambio: restart servicios.
+Apagón-guard: `apagon-guard.service` + udev `99-apagon-guard.rules` — si queda en pila >5min, `poweroff` limpio (unidades espejo en `systemd/hp/`).
 (Histórico Oracle: PM2 oficial `alcon-pwa · buzz-farm · vps-agent · alcon-api · alcon-go`, muerto 2026-09-07.)
 
 ## SSH (matriz real)
