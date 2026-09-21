@@ -1,0 +1,14 @@
+[Unit]
+Description=Embeddings Qwen GPU :8087 (RAG primario, MRL-768)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+WorkingDirectory=/home/israel/Documentos/alcon/server
+ExecStart=/home/israel/Documentos/alcon/.venv/bin/python /home/israel/Documentos/alcon/server/rag-embed-gpu.py
+Restart=no
+Environment=EMBED_MODEL=Qwen/Qwen3-Embedding-0.6B
+Environment=EMBED_DIM=768
+Environment=EMBED_PORT=8087
+[Install]
+WantedBy=default.target
