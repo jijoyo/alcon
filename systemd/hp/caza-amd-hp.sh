@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # caza-amd-hp.sh — loop acotado caza E2.1.Micro Querétaro DESDE HP (24/7).
 # Solo CREA (gate FASE A vigente); nunca borra nada. Requiere ~/.oci/ funcional.
-# IDs en ~/.cache/oracle-hunt/ (volid, volad, subnet, imgid). Log: ~/oracle-hunt.log
+# IDs en ~/.cache/oracle-hunt/ (volad, subnet, imgid). Log: ~/oracle-hunt.log
+# (volid solo para attach supervisado posterior; la caza no lo necesita)
 set -u
 export OCI_CLI_AUTH=api_key
 OCI=~/oci-venv/bin/oci
@@ -9,9 +10,6 @@ T=$(grep -E "^tenancy=" ~/.oci/config | cut -d= -f2)
 LOG=~/oracle-hunt.log
 ts() { date '+%F %T'; }
 note() { echo "$(ts) $*" | tee -a "$LOG"; }
-for f in volid volad subnet imgid; do
-  [ -s ~/.cache/oracle-hunt/$f ] || { note "HOLD: falta ~/.cache/oracle-hunt/$f"; exit 0; }
-done
 for f in volad subnet imgid; do
   [ -s ~/.cache/oracle-hunt/$f ] || { note "HOLD: falta ~/.cache/oracle-hunt/$f"; exit 0; }
 done
