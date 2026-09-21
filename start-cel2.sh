@@ -2,6 +2,7 @@
 # start-cel2.sh — agente cel2 vivo contra HP (espejo, solo pull).
 # Uso manual: bash ~/alcon/start-cel2.sh · Auto: ~/.termux/boot/alcon-cel2-boot.sh
 termux-wake-lock 2>/dev/null
+unset LD_PRELOAD LD_LIBRARY_PATH
 cd ~/alcon || exit 1
 export AGENT_BRAIN=opencode AGENT_MODEL=opencode/muse-spark-1.3-contributor-free
 if pgrep -f "[a]gent.js cel2" >/dev/null 2>&1; then
