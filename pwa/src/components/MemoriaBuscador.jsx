@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
 
+// Misma lógica que lib/api.ts: mismo host, puerto 3003 (no 127.0.0.1: en PWA remota eso es el cliente, no el server)
+const API = (() => {
+  if (typeof window === 'undefined') return 'http://localhost:3003'
+  return window.location.origin.replace(':3004', ':3003').replace(':5173', ':3003').replace(':5175', ':3003')
+})()
+
 export function MemoriaBuscador() {
   const [q, setQ] = useState('')
   const [device, setDevice] = useState('')
@@ -10,8 +16,8 @@ export function MemoriaBuscador() {
   const [statsLoaded, setStatsLoaded] = useState(false)
 
   useEffect(() => {
-    // API absoluta (igual que lib/api.ts): el dist estático :3004 no sirve /api
-    fetch('http://127.0.0.1:3003/api/memoria/stats')
+    // API mismo-host (ver arriba): el dist estático :3004 no sirve /api
+    fetch(`${API}/api/memoria/stats`)
       .then(r => r.json())
       .then(data => {
         setStats(data)
@@ -25,7 +31,7 @@ export function MemoriaBuscador() {
     if(!q.trim()) return
     setLoading(true)
     try {
-      const r = await fetch(`http://127.0.0.1:3003/api/memoria/buscar?q=${encodeURIComponent(q)}&device=${device}&limit=20`)
+      const r = await fetch(`${API}/api/memoria/buscar?q=${encodeURIComponent(q)}&device=${device}&limit=20`)
       const j = await r.json()
       console.log('buscar raw', j)
       const arr = Array.isArray(j) ? j : (j.results || j.data || j.hits || [])
