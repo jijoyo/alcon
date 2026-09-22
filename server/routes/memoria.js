@@ -249,19 +249,39 @@ export default async function memoriaRoutes(fastify) {
   fastify.get('/api/rag/responder', async (request, reply) => {
     const q = request.query?.q || '';
     if (!q.trim()) return reply.code(400).send({ error: 'q parameter required' });
-    const biblio = process.env.RAG_BIBLIO ||
-      (fs.existsSync('/home/server/rag-biblio.py') ? '/home/server/rag-biblio.py'
-        : '/home/israel/Documentos/forja-factory/taller/rag-biblio.py');
+    const LLM = process.env.FORJA_LLM_URL || 'http://100.121.64.26:8090/v1/chat/completions';
     try {
-      const out = await new Promise((resolve, reject) => {
-        execFile('python3', [biblio, q, '--answer', '--k', '6'], { timeout: 300000 },
-          (err, stdout, stderr) => err ? reject(err) : resolve(stdout));
+      // retrieval JS nativo (mismo que buscar): top6 híbrido alcon+hemeroteca
+      const [a, h] = await Promise.all([
+        search(q, 6, null, 'alcon').catch(() => []),
+        search(q, 6, null, 'hemeroteca').catch(() => []),
+      ]);
+      const seen = new Set(), top = [];
+      for (const r of [...a, ...h].sort((x, y) => (y.score || 0) - (x.score || 0))) {
+        const key = (r.payload?.file || r.payload?.title || r.id || '').slice(-80);
+        if (!key || seen.has(key)) continue;
+        seen.add(key); top.push(r);
+        if (top.length >= 6) break;
+      }
+      if (!top.length || Math.max(...top.map(r => r.score || 0)) < 0.30)
+        return { query: q, respuesta: 'No sé con lo indexado (ninguna fuente pasa el umbral). Prueba otra pregunta.', fuentes: [] };
+      const ctx = top.map((r, i) => {
+        const p = r.payload || {};
+        const t = (p.title || p.file || r.id || '').split('/').pop();
+        const txt = (p.texto || r.texto || '').slice(0, 600);
+        return `[${i + 1}] ${t}\n${txt}`;
+      }).join('\n\n');
+      const r = await fetch(LLM, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [
+          { role: 'system', content: 'Responde SOLO con las fuentes dadas, cita como [1][2]. Si no alcanza, dilo. Si hay acepciones distintas, menciona cada una con su fuente.' },
+          { role: 'user', content: `Pregunta: ${q}\n\nFuentes:\n${ctx}` }],
+          max_tokens: 400, temperature: 0.2 }),
+        signal: AbortSignal.timeout(60000),
       });
-      const lines = out.split('\n');
-      const idx = lines.findIndex(l => l.includes('---RESPUESTA---'));
-      const respuesta = idx >= 0 ? lines.slice(idx + 1).join('\n').trim()
-        : 'Sin respuesta del bibliotecario.';
-      const fuentes = lines.filter(l => /^\d+\.\d+ \| /.test(l)).slice(0, 6);
+      const j = await r.json();
+      const respuesta = j.choices?.[0]?.message?.content?.trim() || 'Sin respuesta del sintetizador.';
+      const fuentes = top.map(r2 => `${(r2.score || 0).toFixed(3)} | ${((r2.payload?.title || r2.payload?.file || '')).split('/').pop()}`.slice(0, 100));
       return { query: q, respuesta, fuentes };
     } catch (e) {
       return { query: q, respuesta: 'No sé con lo indexado (bibliotecario no disponible).', fuentes: [] };
