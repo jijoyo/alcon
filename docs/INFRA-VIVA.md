@@ -66,7 +66,14 @@ setsid nohup node ~/alcon/agents/agent.js <nombre> http://100.107.54.12:3003 >> 
 - Memoria persistente: cada agente tiene sesión opencode propia (`agents/.session-<nombre>.txt`, gitignored). Se crea sola al primer run con `--title enjambre-<nombre>`.
 - **AGENT_MODEL** (resuelto R0-cerebro 2026-09-17): env var en `alcon-debian-agent.service` (`AGENT_BRAIN=omniroute|opencode`, `AGENT_MODEL=<id>`, ver `omniroute models`). Default: omniroute + `orcarouter/deepseek/deepseek-v4-flash-free` (10s OK). opencode/mimo cuelga aquí.
 
-## RAG (R0 qwen 2026-09-17; histórico dieta + v3.1 dual nomic)
+## RAG (híbrido 2026-09-21; antes R0 qwen 2026-09-17)
+
+Doctrina: **HP sirve 24/7, forja construye por ratos.** Un Qdrant, dos colecciones:
+`alcon` (53 pts sesiones/docs) + `hemeroteca` (6496 pts transcripciones).
+Embeddings Qwen3 MRL-768 en `:8087` (ONNX CPU en HP; GPU en forja para bulk).
+Bibliotecario (`taller/rag-biblio.py`): multi-query + denso + keyword + RRF +
+rerank + dedup + síntesis con citas + abstención honesta. Servidores GPU en
+`montar-modelos/rag-servers/` (Alcon solo cliente+units).
 
 ```
 qwen-embed-serve :8087 (forja) — Qwen3-Embedding-0.6B-ONNX MRL-768, OpenAI-compatible
