@@ -31,7 +31,7 @@
 | Squad liviano/privado | `gemma4-12b-rapido/largo` | Router `:8080` forja | ✅ vivo |
 | Squad pesado largo | `Qwen3.6-35B-*-largo`, `qwen4exp-177b-*` | Router `:8080` | ✅ vivo |
 | Scorer Jev | `forjito-mini` (gemma-3-1b/Qwen3-1.7B) | `:8091` forja CPU | ✅ vivo |
-| Embeddings RAG | `nomic-embed` / qwen `:8087` | forja | ❌ muerto (revivir) |
+| Embeddings RAG | Qwen3 MRL-768 (`montar-modelos/rag-servers/rag-embed-gpu.py` GPU ó `qwen-embed-serve` ONNX CPU, excluyentes) | `:8087` forja/HP | ✅ vivo |
 | Gate en cels | LFM-ToMoE/Qwen-1.7B/gemma-1b (staged cel2) o Needle-29MB (P-148) | cel2 | 🅿️ evaluar |
 | Voz TTS | Piper `voz2.onnx` + Moshi | forja | ✅ vivo |
 
