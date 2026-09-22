@@ -1,0 +1,22 @@
+[Unit]
+Description=Alcon server :3003 (espejo hp-server)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/server/alcon/server
+ExecStart=/usr/bin/node server.js
+Restart=no
+Environment=ALCON_ENV=forja
+Environment=ALCON_API_URL=http://100.107.54.12:3003
+Environment=ALCON_PWA_URL=http://100.107.54.12:3004
+
+Environment=PATHMAP=/home/israel/Documentos/youtube-knowledge/knowledge=>/home/server/knowledge
+Environment=RERANK_BACKEND=cpu
+Environment=OPENCODE_BIN=/home/server/.opencode/bin/opencode
+Environment=FORJA_LLM_URL=http://100.121.64.26:8090/v1/chat/completions
+Environment=RAG_NO_REWRITE=1
+
+[Install]
+WantedBy=default.target
