@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { execFile } from 'child_process';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import { ensureCollection, embed, upsert, search, countByDevice } from '../lib/memory-rag.js';
@@ -227,5 +228,43 @@ export default async function memoriaRoutes(fastify) {
     // FALLBACK: Qdrant
     const stats = await countByDevice();
     return { ...stats, source: 'qdrant-fallback' };
+  });
+
+  fastify.get('/api/estado-rag', async () => {    const out = { qdrant: {}, embeds: false, colecciones: {} };
+    for (const col of ['alcon', 'hemeroteca']) {
+      try {
+        const r = await fetch(`${process.env.QDRANT_URL || 'http://localhost:6333'}/collections/${col}`, { signal: AbortSignal.timeout(5000) });
+        const d = await r.json();
+        out.colecciones[col] = { status: d.result?.status, points: d.result?.points_count || 0 };
+      } catch { out.colecciones[col] = { status: 'off', points: 0 }; }
+    }
+    try {
+      const r = await fetch(`${process.env.QWEN_EMBED_URL || 'http://127.0.0.1:8087'}/health`, { signal: AbortSignal.timeout(5000) });
+      out.embeds = r.ok;
+    } catch { out.embeds = false; }
+    out.qdrant = { ok: Object.values(out.colecciones).some(c => c.status === 'green') };
+    return out;
+  });
+
+  fastify.get('/api/rag/responder', async (request, reply) => {
+    const q = request.query?.q || '';
+    if (!q.trim()) return reply.code(400).send({ error: 'q parameter required' });
+    const biblio = process.env.RAG_BIBLIO ||
+      (fs.existsSync('/home/server/rag-biblio.py') ? '/home/server/rag-biblio.py'
+        : '/home/israel/Documentos/forja-factory/taller/rag-biblio.py');
+    try {
+      const out = await new Promise((resolve, reject) => {
+        execFile('python3', [biblio, q, '--answer', '--k', '6'], { timeout: 300000 },
+          (err, stdout, stderr) => err ? reject(err) : resolve(stdout));
+      });
+      const lines = out.split('\n');
+      const idx = lines.findIndex(l => l.includes('---RESPUESTA---'));
+      const respuesta = idx >= 0 ? lines.slice(idx + 1).join('\n').trim()
+        : 'Sin respuesta del bibliotecario.';
+      const fuentes = lines.filter(l => /^\d+\.\d+ \| /.test(l)).slice(0, 6);
+      return { query: q, respuesta, fuentes };
+    } catch (e) {
+      return { query: q, respuesta: 'No sé con lo indexado (bibliotecario no disponible).', fuentes: [] };
+    }
   });
 }

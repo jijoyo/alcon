@@ -11,6 +11,8 @@ export function MemoriaBuscador() {
   const [device, setDevice] = useState('')
   const [coleccion, setColeccion] = useState('alcon')
   const [res, setRes] = useState([])
+  const [respuesta, setRespuesta] = useState('')
+  const [respondiendo, setRespondiendo] = useState(false)
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(null)
   const [stats, setStats] = useState({})
@@ -31,6 +33,7 @@ export function MemoriaBuscador() {
   const buscar = async () => {
     if(!q.trim()) return
     setLoading(true)
+    setRespuesta('')
     try {
       const r = await fetch(`${API}/api/memoria/buscar?q=${encodeURIComponent(q)}&device=${device}&limit=20&coleccion=${coleccion}`)
       const j = await r.json()
@@ -62,7 +65,11 @@ export function MemoriaBuscador() {
           ))}
         </select>
         <button onClick={buscar} disabled={loading} className="px-6 bg-white text-black rounded font-medium">{loading?'...':'buscar'}</button>
+        <button onClick={responder} disabled={respondiendo} className="px-6 bg-amber-400 text-black rounded font-medium">{respondiendo?'...':'responder'}</button>
       </div>
+      {respuesta && (
+        <div className="p-3 mb-4 border border-amber-400/40 rounded bg-zinc-900 whitespace-pre-wrap text-sm">{respuesta}</div>
+      )}
       <div className="space-y-2">
         {res
           .filter(r => r && (r.payload || r.device || r.texto))
@@ -77,7 +84,20 @@ export function MemoriaBuscador() {
             const summary = texto.slice(0, 400);
             const model = p.model || r.model || '';
             const score = r.score?.toFixed(3) || '0';
-            return (
+  const responder = async () => {
+    if(!q.trim()) return
+    setRespondiendo(true)
+    setRespuesta('')
+    try {
+      const r = await fetch(`${API}/api/rag/responder?q=${encodeURIComponent(q)}`)
+      const j = await r.json()
+      const fuentes = (j.fuentes || []).map(f => `\n- ${f}`).join('')
+      setRespuesta((j.respuesta || 'Sin respuesta.') + fuentes)
+    } catch { setRespuesta('No sé con lo indexado (bibliotecario no disponible).') }
+    finally { setRespondiendo(false) }
+  }
+
+  return (
               <div key={r.id} className="p-3 border border-zinc-800 rounded bg-zinc-900/50">
                 <div className="text-xs text-zinc-500">{device} • {time ? new Date(time).toLocaleString() : 'sin fecha'} • {title}</div>
                 <div className="font-mono text-xs text-yellow-400 mt-1">{directory}</div>
