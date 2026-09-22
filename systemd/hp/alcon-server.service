@@ -15,7 +15,7 @@ Environment=ALCON_PWA_URL=http://100.107.54.12:3004
 Environment=PATHMAP=/home/israel/Documentos/youtube-knowledge/knowledge=>/home/server/knowledge
 Environment=RERANK_BACKEND=cpu
 Environment=OPENCODE_BIN=/home/server/.opencode/bin/opencode
-Environment=FORJA_LLM_URL=http://100.121.64.26:8090/v1/chat/completions
+Environment=FORJA_LLM_URL=http://127.0.0.1:8091/v1/chat/completions
 Environment=RAG_NO_REWRITE=1
 
 [Install]

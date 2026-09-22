@@ -8,7 +8,7 @@ WorkingDirectory=/home/server/alcon/server/go
 Environment=ALCON_GRANJA=/home/server/alcon/granja.json
 Environment=ALCON_CODE_ROOT=/home/server/alcon
 Environment=ALCON_PENDING_DIR=/home/server/alcon/server/go/memory
-Environment=FORJA_LLM_URL=http://100.121.64.26:8090/v1/chat/completions
+Environment=FORJA_LLM_URL=http://127.0.0.1:8091/v1/chat/completions
 Environment=RAG_NO_REWRITE=1
 ExecStart=/home/server/.local/bin/orchestrator
 Restart=no
