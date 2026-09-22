@@ -9,6 +9,7 @@ const API = (() => {
 export function MemoriaBuscador() {
   const [q, setQ] = useState('')
   const [device, setDevice] = useState('')
+  const [coleccion, setColeccion] = useState('alcon')
   const [res, setRes] = useState([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(null)
@@ -31,7 +32,7 @@ export function MemoriaBuscador() {
     if(!q.trim()) return
     setLoading(true)
     try {
-      const r = await fetch(`${API}/api/memoria/buscar?q=${encodeURIComponent(q)}&device=${device}&limit=20`)
+      const r = await fetch(`${API}/api/memoria/buscar?q=${encodeURIComponent(q)}&device=${device}&limit=20&coleccion=${coleccion}`)
       const j = await r.json()
       console.log('buscar raw', j)
       const arr = Array.isArray(j) ? j : (j.results || j.data || j.hits || [])
@@ -50,6 +51,10 @@ export function MemoriaBuscador() {
           placeholder="¿qué hizo kali con auditor? / orchestrator alcon / dosdash"
           className="flex-1 p-2 border rounded bg-zinc-900 text-white"
         />
+        <select value={coleccion} onChange={e=>setColeccion(e.target.value)} className="p-2 border rounded bg-zinc-900 text-white">
+          <option value="alcon">Sesiones+docs</option>
+          <option value="hemeroteca">Hemeroteca 6k</option>
+        </select>
         <select value={device} onChange={e=>setDevice(e.target.value)} className="p-2 border rounded bg-zinc-900 text-white">
           <option value="">Todos ({statsLoaded ? total : '...'})</option>
           {statsLoaded && Object.entries(stats.by_device || {}).map(([d,c]) => (
@@ -63,11 +68,12 @@ export function MemoriaBuscador() {
           .filter(r => r && (r.payload || r.device || r.texto))
           .map(r => {
             const p = r.payload || {};
-            const device = p.device || r.device || 'forja';
-            const title = p.title || r.texto || r.title || 'sin título';
+            const file = p.file || '';
+            const device = p.device || r.device || (file ? 'hemeroteca' : 'forja');
+            const title = p.title || r.texto || r.title || (file ? file.split('/').pop() : 'sin título');
             const time = p.fecha || p.time_created || r.time_created;
             const directory = p.directory || r.directory || '';
-            const texto = p.texto || r.texto || '';
+            const texto = p.texto || r.texto || (file ? file : '');
             const summary = texto.slice(0, 400);
             const model = p.model || r.model || '';
             const score = r.score?.toFixed(3) || '0';

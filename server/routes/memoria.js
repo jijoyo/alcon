@@ -163,7 +163,7 @@ export default async function memoriaRoutes(fastify) {
   });
 
   fastify.get('/api/memoria/buscar', async (request, reply) => {
-    const { q, device, limit } = request.query || {};
+    const { q, device, limit, coleccion } = request.query || {};
     if (!q) return reply.code(400).send({ error: 'q parameter required' });
 
     const k = parseInt(limit) || 10;
@@ -171,7 +171,7 @@ export default async function memoriaRoutes(fastify) {
     // PRIMARY: Qwen3 sidecar :3005 (receta VPS: rag_sidecar.py + fastretrieval)
     try {
       const sidecarUrl = `http://127.0.0.1:3005/rag?q=${encodeURIComponent(q)}&k=${k}`;
-      const res = await fetch(sidecarUrl, { signal: AbortSignal.timeout(30000) });
+      const res = await fetch(sidecarUrl, { signal: AbortSignal.timeout(4000) });
       if (!res.ok) throw new Error(`sidecar ${res.status}`);
       const data = await res.json();
       if (data.hits && data.hits.length > 0) {
@@ -194,10 +194,11 @@ export default async function memoriaRoutes(fastify) {
     }
 
     // FALLBACK: Qdrant + mimo (viejo)
-    const results = await search(q, k, device || null);
+    const results = await search(q, k, device || null, coleccion || null);
     return {
       query: q,
       device: device || 'all',
+      coleccion: (coleccion === 'hemeroteca' || coleccion === 'alcon') ? coleccion : 'alcon',
       results: results.map(r => ({
         id: r.id,
         score: r.score,

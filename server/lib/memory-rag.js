@@ -168,12 +168,14 @@ export async function upsert(id, payload, vector) {
   }
 }
 
-export async function search(query, limit = 10, device = null) {
+const ALLOWED_COLLECTIONS = ['alcon', 'hemeroteca'];
+export async function search(query, limit = 10, device = null, collection = null) {
   const vector = await embed(query);
   if (!vector) {
     console.log('[memory-rag] Search skipped (no embed)');
     return [];
   }
+  const col = ALLOWED_COLLECTIONS.includes(collection) ? collection : COLLECTION;
 
   const filter = device ? {
     must: [{
@@ -183,7 +185,7 @@ export async function search(query, limit = 10, device = null) {
   } : undefined;
 
   try {
-    const result = await qdrantFetch(`/collections/${COLLECTION}/points/search`, {
+    const result = await qdrantFetch(`/collections/${col}/points/search`, {
       method: 'POST',
       body: JSON.stringify({
         vector: vector,
