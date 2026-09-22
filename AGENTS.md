@@ -194,6 +194,7 @@ pm2 logs vps-agent --lines 20 --nostream
 - `docs/COMMS-GUIDE.md` — protocolo COMMS (2 rutas, formato blindado, floor, fiesta del enjambre)
 - `BOOTSTRAP.md` — v4.3-regla-oro - fuente de verdad
 - `docs/alcon-graph.json` — grafo servicios (5 nodos, brújula)
+- Cantera contenido: `~/obsidian-vault/04-aprendizajes/` + `08-ideas/` proveen anécdotas a `creacion de contenido/shorts-ia/` (alcon no se ensucia, solo provee vía vault)
 - `docs/ARCHITECTURE.html` — visualización de alcon-graph.json (tarjetas fetch, nativo sin CDN)
 - `graphify-out/graph.json` — grafo código (657 nodos, bisturí)
 - `graphify-out/graph.html` — visualización interactiva de graph.json (vis-network)
