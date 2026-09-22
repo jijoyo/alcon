@@ -43,6 +43,19 @@ export function MemoriaBuscador() {
     } finally { setLoading(false) }
   }
 
+  const responder = async () => {
+    if(!q.trim()) return
+    setRespondiendo(true)
+    setRespuesta('')
+    try {
+      const r = await fetch(`${API}/api/rag/responder?q=${encodeURIComponent(q)}`)
+      const j = await r.json()
+      const fuentes = (j.fuentes || []).map(f => `\n- ${f}`).join('')
+      setRespuesta((j.respuesta || 'Sin respuesta.') + fuentes)
+    } catch { setRespuesta('No sé con lo indexado (bibliotecario no disponible).') }
+    finally { setRespondiendo(false) }
+  }
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <h1 className="text-xl font-bold mb-4">Memoria Granja ({statsLoaded ? total : '...'} sesiones)</h1>
@@ -84,20 +97,7 @@ export function MemoriaBuscador() {
             const summary = texto.slice(0, 400);
             const model = p.model || r.model || '';
             const score = r.score?.toFixed(3) || '0';
-  const responder = async () => {
-    if(!q.trim()) return
-    setRespondiendo(true)
-    setRespuesta('')
-    try {
-      const r = await fetch(`${API}/api/rag/responder?q=${encodeURIComponent(q)}`)
-      const j = await r.json()
-      const fuentes = (j.fuentes || []).map(f => `\n- ${f}`).join('')
-      setRespuesta((j.respuesta || 'Sin respuesta.') + fuentes)
-    } catch { setRespuesta('No sé con lo indexado (bibliotecario no disponible).') }
-    finally { setRespondiendo(false) }
-  }
-
-  return (
+            return (
               <div key={r.id} className="p-3 border border-zinc-800 rounded bg-zinc-900/50">
                 <div className="text-xs text-zinc-500">{device} • {time ? new Date(time).toLocaleString() : 'sin fecha'} • {title}</div>
                 <div className="font-mono text-xs text-yellow-400 mt-1">{directory}</div>
