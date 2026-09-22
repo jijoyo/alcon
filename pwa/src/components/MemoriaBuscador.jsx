@@ -38,7 +38,7 @@ export function MemoriaBuscador() {
       const r = await fetch(`${API}/api/memoria/buscar?q=${encodeURIComponent(q)}&device=${device}&limit=20&coleccion=${coleccion}`)
       const j = await r.json()
       console.log('buscar raw', j)
-      const arr = Array.isArray(j) ? j : (j.results || j.data || j.hits || [])
+      const arr = Array.isArray(j) ? j : (j.results || j.response || j.data || j.hits || [])
       setRes(Array.isArray(arr) ? arr : [])
     } finally { setLoading(false) }
   }
